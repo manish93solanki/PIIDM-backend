@@ -1,9 +1,8 @@
 {
 	"info": {
-		"_postman_id": "23bb6547-82c9-4d9a-8da6-92dd8973012a",
-		"name": "test_flask",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "714659"
+		"_postman_id": "693ae153-1a70-4100-98d7-da6e376ac03d",
+		"name": "piidm-backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
@@ -24,10 +23,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/leads/add",
+							"raw": "http://{{host}}:6000/api/leads/add",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -54,10 +53,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/leads/update/2",
+							"raw": "http://{{host}}:6000/api/leads/update/2",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -85,10 +84,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/leads/delete/2",
+							"raw": "http://{{host}}:6000/api/leads/delete/2",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -119,10 +118,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/leads/select/1",
+							"raw": "http://{{host}}:6000/api/leads/select/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -153,10 +152,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/leads/select-all",
+							"raw": "http://{{host}}:6000/api/leads/select-all",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -186,10 +185,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/leads/select-paginate/1",
+							"raw": "http://{{host}}:6000/api/leads/select-paginate/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -222,10 +221,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/students/add",
+							"raw": "http://{{host}}:6000/api/students/add",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -252,10 +251,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/students/update/1",
+							"raw": "http://{{host}}:6000/api/students/update/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -283,10 +282,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/students/delete/1",
+							"raw": "http://{{host}}:6000/api/students/delete/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -317,10 +316,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/students/select/1",
+							"raw": "http://{{host}}:6000/api/students/select/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -351,10 +350,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/students/select-all",
+							"raw": "http://{{host}}:6000/api/students/select-all",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -384,10 +383,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/students/select-paginate/1",
+							"raw": "http://{{host}}:6000/api/students/select-paginate/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -420,10 +419,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/receipts/delete/2",
+							"raw": "http://{{host}}:6000/api/receipts/delete/2",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -454,10 +453,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/receipts/select/1",
+							"raw": "http://{{host}}:6000/api/receipts/select/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -488,10 +487,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/receipts/select-all",
+							"raw": "http://{{host}}:6000/api/receipts/select-all",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -521,10 +520,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/receipts/select-paginate/1",
+							"raw": "http://{{host}}:6000/api/receipts/select-paginate/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -557,10 +556,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/branch/add",
+							"raw": "http://{{host}}:6000/api/branch/add",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -587,10 +586,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/branch/delete/1",
+							"raw": "http://{{host}}:6000/api/branch/delete/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -623,10 +622,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/source/add",
+							"raw": "http://{{host}}:6000/api/source/add",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -653,10 +652,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/source/delete/1",
+							"raw": "http://{{host}}:6000/api/source/delete/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -689,10 +688,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/course/add",
+							"raw": "http://{{host}}:6000/api/course/add",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -719,10 +718,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/course/delete/1",
+							"raw": "http://{{host}}:6000/api/course/delete/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -755,10 +754,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/agent/add",
+							"raw": "http://{{host}}:6000/api/agent/add",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -785,10 +784,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/agent/delete/1",
+							"raw": "http://{{host}}:6000/api/agent/delete/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -821,10 +820,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/batch_time/add",
+							"raw": "http://{{host}}:6000/api/batch_time/add",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -851,10 +850,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/batch_time/delete/1",
+							"raw": "http://{{host}}:6000/api/batch_time/delete/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -887,10 +886,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/country/add",
+							"raw": "http://{{host}}:6000/api/country/add",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -917,10 +916,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/agent/delete/1",
+							"raw": "http://{{host}}:6000/api/agent/delete/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -953,10 +952,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/city/add",
+							"raw": "http://{{host}}:6000/api/city/add",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
@@ -983,10 +982,10 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/api/city/delete/1",
+							"raw": "http://{{host}}:6000/api/city/delete/1",
 							"protocol": "http",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
 							"port": "6000",
 							"path": [
