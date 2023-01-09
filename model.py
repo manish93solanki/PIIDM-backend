@@ -1,0 +1,175 @@
+import enum
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import ARRAY, Boolean, CheckConstraint, Column, Date, DateTime, Float, ForeignKey, Integer, Text, \
+    UniqueConstraint, text, Enum
+from sqlalchemy.orm import relationship, column_property, backref
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.sql.functions import coalesce, func
+
+db = SQLAlchemy()
+
+
+class Branch(db.Model):
+    __tablename__ = 'branch'
+
+    branch_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Text, unique=True, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class Source(db.Model):
+    __tablename__ = 'source'
+
+    source_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Text, unique=True, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class Course(db.Model):
+    __tablename__ = 'course'
+
+    course_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Text, unique=True, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class Agent(db.Model):
+    __tablename__ = 'agent'
+
+    agent_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Text, unique=True, nullable=False)
+    phone_num = Column(Text, unique=True, nullable=False)
+    email = Column(Text, unique=True, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class BatchTime(db.Model):
+    __tablename__ = 'batch_time'
+
+    batch_time_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Text, unique=True, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class Country(db.Model):
+    __tablename__ = 'country'
+
+    country_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Text, unique=True, nullable=False)
+    dial_code = Column(Text, nullable=False)
+    code = Column(Text, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class City(db.Model):
+    __tablename__ = 'city'
+
+    city_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Text, unique=True, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class Lead(db.Model):
+    __tablename__ = 'lead'
+
+    lead_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Text, nullable=False)
+    phone_num = Column(Text, nullable=False)
+    alternate_phone_num = Column(Text, nullable=True)
+    email = Column(Text, nullable=True)
+    lead_date = Column(Date, nullable=False)
+    remarks = Column(Text, nullable=True)
+    country_id = Column(ForeignKey('country.country_id'), nullable=False)
+    area = Column(Text, nullable=True)
+    city_id = Column(ForeignKey('city.city_id'), nullable=False)
+    branch_id = Column(ForeignKey('branch.branch_id'), nullable=False)
+    source_id = Column(ForeignKey('source.source_id'), nullable=False)
+    course_id = Column(ForeignKey('course.course_id'), nullable=False)
+    batch_time_id = Column(ForeignKey('batch_time.batch_time_id'), nullable=False)
+    next_action_date = Column(Date, nullable=True)
+    next_action_remarks = Column(Text, nullable=True)
+    details_sent = Column(Integer, nullable=True)
+    visit_date = Column(Date, nullable=True)
+    pitch_by = Column(Text, nullable=True)
+    demo_date = Column(Date, nullable=True)
+    instructor = Column(Text, nullable=True)
+    broadcast = Column(Text, nullable=True)
+    agent_id = Column(ForeignKey('agent.agent_id'), nullable=False)
+    fee_offer = Column(Integer, nullable=True)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    branch = relationship('Branch')
+    source = relationship('Source')
+    course = relationship('Course')
+    batch_time = relationship('BatchTime')
+    agent = relationship('Agent')
+    country = relationship('Country')
+    city = relationship('City')
+
+
+class PaymentMode(enum.Enum):
+    cash = 'cash'
+    debit_card = 'debit_card'
+    credit_card = 'credit_card'
+    upi = 'upi'
+
+
+class Receipt(db.Model):
+    __tablename__ = 'receipt'
+
+    receipt_id = Column(Integer, primary_key=True, autoincrement=True)
+    deleted = Column(Integer, nullable=False, default=0)
+    installment_payment = Column(Integer, nullable=True)
+    installment_payment_mode = Column(Enum(PaymentMode), nullable=True)
+    installment_payment_date = Column(Date, nullable=True)
+    student_id = Column(ForeignKey('student.student_id'), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class Student(db.Model):
+    __tablename__ = 'student'
+
+    student_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(Text, nullable=False)
+    phone_num = Column(Text, nullable=False)
+    alternate_phone_num = Column(Text, nullable=True)
+    email = Column(Text, nullable=True)
+    admission_date = Column(Date, nullable=False)
+    branch_id = Column(ForeignKey('branch.branch_id'), nullable=False)
+    country_id = Column(ForeignKey('country.country_id'), nullable=False)
+    city_id = Column(ForeignKey('city.city_id'), nullable=False)
+    tutor_id = Column(ForeignKey('agent.agent_id'), nullable=False)
+    course_id = Column(ForeignKey('course.course_id'), nullable=False)
+    batch_time_id = Column(ForeignKey('batch_time.batch_time_id'), nullable=False)
+    source_id = Column(ForeignKey('source.source_id'), nullable=False)
+    total_fee = Column(Integer, nullable=False)
+    total_fee_paid = Column(Integer, nullable=False)
+    total_pending_fee = Column(Integer, nullable=False)
+    # receipt_installment_1_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
+    # receipt_installment_2_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
+    # receipt_installment_3_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
+    # receipt_installment_4_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
+    is_active = Column(Integer, nullable=False, default=1)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    branch = relationship('Branch')
+    source = relationship('Source')
+    course = relationship('Course')
+    batch_time = relationship('BatchTime')
+    agent = relationship('Agent')
+    country = relationship('Country')
+    city = relationship('City')
+    # receipt = relationship('Receipt')
