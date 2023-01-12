@@ -199,7 +199,20 @@ def get_lead(lead_id):
 
 @lead_bp.route('/select-all', methods=['GET'])
 def get_leads():
-    leads = app.session.query(model.Lead).filter(model.Lead.deleted == 0).all()
+    filters_list = {'deleted': 0}
+    from_date = request.args.get('from_date', None)
+    to_date = request.args.get('to_date', None)
+
+    query = app.session.query(model.Lead)
+    if from_date and to_date:
+        query = query.filter(model.Lead.lead_date.between(from_date, to_date))
+
+    for attr, value in filters_list.items():
+        query = query.filter(getattr(model.Lead, attr) == value)
+    print(query)
+    cursor = query.all()
+    leads = list(cursor)
+
     lead_results = []
     for lead in leads:
         lead_result = populate_lead_record(lead)

@@ -13,3 +13,11 @@ rm -f ./piidm_dev.db && rm -rf ./migrations && flask db init && flask db migrate
 
 ### Country List
 `https://gist.github.com/anubhavshrimal/75f6183458db8c453306f93521e93d37#file-countrycodes-json`
+
+
+### Run mysql
+`brew services restart mysql`
+`mysql -u root -p root12345`
+
+`CREATE USER 'piidm_dev'@'localhost' IDENTIFIED WITH mysql_native_password BY 'piidm_dev_password123';`
+`Create database piidm_dev`

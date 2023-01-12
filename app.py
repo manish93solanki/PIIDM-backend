@@ -19,7 +19,8 @@ from source import source_bp
 from student import student_bp
 
 
-SQLALCHEMY_DATABASE_URL = f'sqlite:///{os.getcwd()}piidm_dev.db'
+# SQLALCHEMY_DATABASE_URL = f'sqlite:///{os.getcwd()}piidm_dev.db'
+SQLALCHEMY_DATABASE_URL = f'mysql://piidm_dev:piidm_dev_password123@localhost:3306/piidm_dev'
 engine = create_engine(SQLALCHEMY_DATABASE_URL, convert_unicode=True)
 Session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
