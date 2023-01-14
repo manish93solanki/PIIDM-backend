@@ -20,4 +20,7 @@ rm -f ./piidm_dev.db && rm -rf ./migrations && flask db init && flask db migrate
 `mysql -u root -p root12345`
 
 `CREATE USER 'piidm_dev'@'localhost' IDENTIFIED WITH mysql_native_password BY 'piidm_dev_password123';`
-`Create database piidm_dev`
+`GRANT ALL PRIVILEGES ON * . * TO 'piidm_dev'@'localhost';`
+
+`mysql -u piidm_dev -p piidm_dev_password123`
+`Create database piidm_dev;`
