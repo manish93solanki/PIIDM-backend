@@ -199,16 +199,28 @@ def get_lead(lead_id):
 
 @lead_bp.route('/select-all', methods=['GET'])
 def get_leads():
-    filters_list = {'deleted': 0}
     from_date = request.args.get('from_date', None)
     to_date = request.args.get('to_date', None)
+    name = request.args.get('name', None)
+    phone_number = request.args.get('phone_number', None)
+    branch = request.args.get('branch', None)
+    course = request.args.get('course', None)
+    batch_time = request.args.get('batch_time', None)
+    status = request.args.get('status', None)
 
     query = app.session.query(model.Lead)
-    if from_date and to_date:
-        query = query.filter(model.Lead.lead_date.between(from_date, to_date))
+    query = query.filter(model.Lead.deleted == 0)
+    query = query.filter(model.Lead.lead_date.between(from_date, to_date)) if from_date and to_date else query
+    query = query.filter(model.Lead.name.like(f'{name}%')) if name else query
+    query = query.filter(or_(
+        model.Lead.phone_num == phone_number,
+        model.Lead.alternate_phone_num == phone_number
+    )) if phone_number else query
+    query = query.filter(model.Lead.branch_id == int(branch)) if branch else query
+    query = query.filter(model.Lead.course_id == int(course)) if course else query
+    query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
+    # query = query.filter(model.Lead.is_enrolled == int(status)) if status else query
 
-    for attr, value in filters_list.items():
-        query = query.filter(getattr(model.Lead, attr) == value)
     print(query)
     cursor = query.all()
     leads = list(cursor)
@@ -229,4 +241,53 @@ def get_paginated_leads(page_id):
         lead_result = populate_lead_record(lead)
         lead_results.append(lead_result)
     return jsonify(lead_results), 200
+
+
+@lead_bp.route('/select-paginate-advanced', methods=['GET'])
+def get_paginated_leads_advanced():
+    total_leads = model.Lead.query.filter(model.Lead.deleted == 0).count()
+
+    # request params
+    from_date = request.args.get('from_date', None)
+    to_date = request.args.get('to_date', None)
+    name = request.args.get('name', None)
+    phone_number = request.args.get('phone_number', None)
+    branch = request.args.get('branch', None)
+    course = request.args.get('course', None)
+    batch_time = request.args.get('batch_time', None)
+    status = request.args.get('status', None)
+
+    # filtering data
+    query = app.session.query(model.Lead)
+    query = query.filter(model.Lead.deleted == 0)
+    query = query.filter(model.Lead.lead_date.between(from_date, to_date)) if from_date and to_date else query
+    query = query.filter(model.Lead.name.like(f'{name}%')) if name else query
+    query = query.filter(or_(
+        model.Lead.phone_num == phone_number,
+        model.Lead.alternate_phone_num == phone_number
+    )) if phone_number else query
+    query = query.filter(model.Lead.branch_id == int(branch)) if branch else query
+    query = query.filter(model.Lead.course_id == int(course)) if course else query
+    query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
+    total_filtered_leads = query.count()
+
+    # pagination
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    query = query.offset(start).limit(length)
+    print(query)
+
+    leads = query.all()
+    lead_results = []
+    for lead in leads:
+        lead_result = populate_lead_record(lead)
+        lead_results.append(lead_result)
+        lead_results.append({'lead_id': lead_result['lead_id']})
+    # response
+    return jsonify({
+        'data': lead_results,
+        'recordsFiltered': total_filtered_leads,
+        'recordsTotal': total_leads,
+        'draw': request.args.get('draw', type=int),
+    }), 200
 
