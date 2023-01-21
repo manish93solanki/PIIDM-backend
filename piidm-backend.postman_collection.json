@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "[\n    {\n        \"name\": \"lead3\",\n        \"phone_num\": \"+91-3111111113\",\n        \"alternate_phone_num\": \"+91-3111111114\",\n        \"email\": \"lead3@test.com\",\n        \"lead_date\": \"2023-01-12\",\n        \"remarks\": \"test1\",\n        \"country_id\": 98,\n        \"area\": null,\n        \"city_id\": 1,\n        \"branch_id\": 1,\n        \"source_id\": 1,\n        \"course_id\": 1,\n        \"batch_time_id\": 1,\n        \"next_action_date\": null,\n        \"next_action_remarks\": null,\n        \"details_sent\": null,\n        \"visit_date\": null,\n        \"pitch_by\": null,\n        \"demo_date\": null,\n        \"instructor\": null,\n        \"broadcast\": null,\n        \"agent_id\": 1,\n        \"fee_offer\": null\n\n    }\n]",
+							"raw": "[\n    {\n        \"name\": \"lead10\",\n        \"phone_num\": \"+91-9121111111\",\n        \"alternate_phone_num\": \"+91-9121111112\",\n        \"email\": \"lead10@test.com\",\n        \"lead_date\": \"2023-01-10\",\n        \"remarks\": \"test1\",\n        \"country_id\": 98,\n        \"area\": null,\n        \"city_id\": 1,\n        \"branch_id\": 1,\n        \"source_id\": 1,\n        \"course_id\": 1,\n        \"batch_time_id\": 1,\n        \"next_action_date\": null,\n        \"next_action_remarks\": null,\n        \"details_sent\": null,\n        \"visit_date\": null,\n        \"pitch_by\": null,\n        \"demo_date\": null,\n        \"instructor\": null,\n        \"broadcast\": null,\n        \"agent_id\": 1,\n        \"fee_offer\": null\n\n    }\n]",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -152,7 +152,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host}}:6000/api/leads/select-all",
+							"raw": "http://{{host}}:6000/api/leads/select-all?from_date=2023-01-11&to_date=2023-01-13&name=lea&branch=1&course=1&batch_time=1&phone_number=%2B91-3111111115",
 							"protocol": "http",
 							"host": [
 								"{{host}}"
@@ -162,6 +162,36 @@
 								"api",
 								"leads",
 								"select-all"
+							],
+							"query": [
+								{
+									"key": "from_date",
+									"value": "2023-01-11"
+								},
+								{
+									"key": "to_date",
+									"value": "2023-01-13"
+								},
+								{
+									"key": "name",
+									"value": "lea"
+								},
+								{
+									"key": "branch",
+									"value": "1"
+								},
+								{
+									"key": "course",
+									"value": "1"
+								},
+								{
+									"key": "batch_time",
+									"value": "1"
+								},
+								{
+									"key": "phone_number",
+									"value": "%2B91-3111111115"
+								}
 							]
 						}
 					},
@@ -196,6 +226,82 @@
 								"leads",
 								"select-paginate",
 								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get paginate leads advanced",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:6000/api/leads/select-paginate-advanced?start=0&length=2&draw=2&from_date=2023-01-01&to_date=2023-01-06&name=lea&branch=1&course=1&batch_time=1",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "6000",
+							"path": [
+								"api",
+								"leads",
+								"select-paginate-advanced"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "0"
+								},
+								{
+									"key": "length",
+									"value": "2"
+								},
+								{
+									"key": "draw",
+									"value": "2"
+								},
+								{
+									"key": "from_date",
+									"value": "2023-01-01"
+								},
+								{
+									"key": "to_date",
+									"value": "2023-01-06"
+								},
+								{
+									"key": "name",
+									"value": "lea"
+								},
+								{
+									"key": "branch",
+									"value": "1"
+								},
+								{
+									"key": "course",
+									"value": "1"
+								},
+								{
+									"key": "batch_time",
+									"value": "1"
+								},
+								{
+									"key": "phone_number",
+									"value": "%2B91-3111111115",
+									"disabled": true
+								}
 							]
 						}
 					},

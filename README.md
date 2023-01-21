@@ -1,8 +1,12 @@
 ### PIIDM APIs
 
+### Mysql dependency for ubuntu
+`apt-get install default-libmysqlclient-dev`
+
 ### DB Setup
 ```
 export FLASK=app.py
+`pip install -r requirements.txt`
 flask db init
 flask db migrate -m "create tables"
 flask db upgrade
@@ -24,3 +28,27 @@ rm -f ./piidm_dev.db && rm -rf ./migrations && flask db init && flask db migrate
 
 `mysql -u piidm_dev -p piidm_dev_password123`
 `Create database piidm_dev;`
+`use piidm_dev;`
+
+
+
+### Data Tables:
+```commandline
+    table = $('#example').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            dataSrc: "",
+            url: "api/leads/select-paginate-advanced?start=0&length=2&draw=2",
+            type: "GET"
+        },
+        columns: [
+            { data: "name" },
+            { data: "email" },
+            .
+            .
+            .
+            { data: "lead_date" }
+        ]
+    });
+```

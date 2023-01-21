@@ -1,4 +1,5 @@
 import datetime
+import traceback
 from flask import current_app as app, request, Blueprint, jsonify
 import model
 from db_operations import bulk_insert, insert_single_record
@@ -112,182 +113,203 @@ def populate_lead_record(lead):
 
 @lead_bp.route('/add', methods=['POST'])
 def add_lead():
-    if request.method == 'POST':
-        if not request.is_json:
-            return {'message': 'Bad Request.'}, 400
-        data = request.get_json()
-        records_to_add = []
-        for item in data:
-            lead = model.Lead()
-            # Check if lead is already exist
-            if is_lead_phone_num_exists(item['phone_num']):
-                return {'message': 'Phone number is already exist.'}, 409
-            if is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
-                return {'message': 'Alternate Phone number is already exist.'}, 409
-            if is_lead_email_exists(item['email']):
-                return {'message': 'Email is already exist.'}, 409
-            for key, value in item.items():
-                if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
-                    value = datetime.datetime.strptime(value, '%Y-%m-%d')
-                setattr(lead, key, value)
-            # if 'country_id' not in item.keys():  # Set default, if not exist
-            #     country_id = app.session.query(model.Country.country_id).filter(model.Country.name == DEFAULT_COUNTRY)
-            #     setattr(lead, 'country_id', country_id)
-            # if 'city_id' not in item.keys():  # Set default, if not exist
-            #     city_id = app.session.query(model.City.city_id).filter(model.City.name == DEFAULT_CITY)
-            #     setattr(lead, 'city_id', city_id)
-            # if 'branch_id' not in item.keys():  # Set default, if not exist
-            #     branch_id = app.session.query(model.Branch.branch_id).filter(model.Branch.name == DEFAULT_BRANCH)
-            #     setattr(lead, 'branch_id', branch_id)
-            # if 'source_id' not in item.keys():  # Set default, if not exist
-            #     source_id = app.session.query(model.Source.source_id).filter(model.Source.name == DEFAULT_SOURCE)
-            #     setattr(lead, 'source_id', source_id)
-            # if 'course_id' not in item.keys():  # Set default, if not exist
-            #     course_id = app.session.query(model.Course.course_id).filter(model.Course.name == DEFAULT_COURSE)
-            #     setattr(lead, 'course_id', course_id)
-            # if 'batch_time_id' not in item.keys():  # Set default, if not exist
-            #     batch_time_id = app.session.query(model.BatchTime.batch_time_id).filter(
-            #         model.BatchTime.name == DEFAULT_BATCH_TIME)
-            #     setattr(lead, 'batch_time_id', batch_time_id)
-            # if 'agent_id' not in item.keys():  # Set default, if not exist
-            #     agent_id = app.session.query(model.Agent.batch_time_id).filter(model.Agent.name == DEFAULT_AGENT)
-            #     setattr(lead, 'agent_id', agent_id)
-            records_to_add.append(lead)
-        bulk_insert(records_to_add)
-    return {'message': 'Successfully Inserted.'}, 200
+    try:
+        if request.method == 'POST':
+            if not request.is_json:
+                return {'error': 'Bad Request.'}, 400
+            data = request.get_json()
+            records_to_add = []
+            for item in data:
+                lead = model.Lead()
+                # Check if lead is already exist
+                if is_lead_phone_num_exists(item['phone_num']):
+                    return {'error': 'Phone number is already exist.'}, 409
+                if is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
+                    return {'error': 'Alternate Phone number is already exist.'}, 409
+                if is_lead_email_exists(item['email']):
+                    return {'error': 'Email is already exist.'}, 409
+                for key, value in item.items():
+                    if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
+                        value = datetime.datetime.strptime(value, '%Y-%m-%d')
+                    setattr(lead, key, value)
+                # if 'country_id' not in item.keys():  # Set default, if not exist
+                #     country_id = app.session.query(model.Country.country_id).filter(model.Country.name == DEFAULT_COUNTRY)
+                #     setattr(lead, 'country_id', country_id)
+                # if 'city_id' not in item.keys():  # Set default, if not exist
+                #     city_id = app.session.query(model.City.city_id).filter(model.City.name == DEFAULT_CITY)
+                #     setattr(lead, 'city_id', city_id)
+                # if 'branch_id' not in item.keys():  # Set default, if not exist
+                #     branch_id = app.session.query(model.Branch.branch_id).filter(model.Branch.name == DEFAULT_BRANCH)
+                #     setattr(lead, 'branch_id', branch_id)
+                # if 'source_id' not in item.keys():  # Set default, if not exist
+                #     source_id = app.session.query(model.Source.source_id).filter(model.Source.name == DEFAULT_SOURCE)
+                #     setattr(lead, 'source_id', source_id)
+                # if 'course_id' not in item.keys():  # Set default, if not exist
+                #     course_id = app.session.query(model.Course.course_id).filter(model.Course.name == DEFAULT_COURSE)
+                #     setattr(lead, 'course_id', course_id)
+                # if 'batch_time_id' not in item.keys():  # Set default, if not exist
+                #     batch_time_id = app.session.query(model.BatchTime.batch_time_id).filter(
+                #         model.BatchTime.name == DEFAULT_BATCH_TIME)
+                #     setattr(lead, 'batch_time_id', batch_time_id)
+                # if 'agent_id' not in item.keys():  # Set default, if not exist
+                #     agent_id = app.session.query(model.Agent.batch_time_id).filter(model.Agent.name == DEFAULT_AGENT)
+                #     setattr(lead, 'agent_id', agent_id)
+                records_to_add.append(lead)
+            bulk_insert(records_to_add)
+        return jsonify({'message': 'Successfully Inserted.'}), 201
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
 
 
 @lead_bp.route('/update/<lead_id>', methods=['PUT'])
 def update_lead(lead_id):
-    if not request.is_json:
-        return {'message': 'Bad Request.'}, 400
-    data = request.get_json()
-    records_to_add = []
-    for item in data:
-        lead = fetch_lead_by_id(int(lead_id))
+    try:
+        if not request.is_json:
+            return {'error': 'Bad Request.'}, 400
+        data = request.get_json()
+        records_to_add = []
+        for item in data:
+            lead = fetch_lead_by_id(int(lead_id))
 
-        # Check if lead is already exist
-        if lead.phone_num != item['phone_num'] and is_lead_phone_num_exists(item['phone_num']):
-            return {'message': 'Phone number is already exist.'}, 409
-        if lead.alternate_phone_num != item['alternate_phone_num'] and is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
-            return {'message': 'Alternate Phone number is already exist.'}, 409
-        if lead.email != item['email'] and is_lead_email_exists(item['email']):
-            return {'message': 'Email is already exist.'}, 409
-        for key, value in item.items():
-            if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
-                value = datetime.datetime.strptime(value, '%Y-%m-%d')
-            setattr(lead, key, value)
-        records_to_add.append(lead)
-    bulk_insert(records_to_add)
-    return {'message': 'Successfully Updated.'}, 200
+            # Check if lead is already exist
+            if lead.phone_num != item['phone_num'] and is_lead_phone_num_exists(item['phone_num']):
+                return {'error': 'Phone number is already exist.'}, 409
+            if lead.alternate_phone_num != item['alternate_phone_num'] and is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
+                return {'error': 'Alternate Phone number is already exist.'}, 409
+            if lead.email != item['email'] and is_lead_email_exists(item['email']):
+                return {'error': 'Email is already exist.'}, 409
+            for key, value in item.items():
+                if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
+                    value = datetime.datetime.strptime(value, '%Y-%m-%d')
+                setattr(lead, key, value)
+            records_to_add.append(lead)
+        bulk_insert(records_to_add)
+        return jsonify({'message': 'Successfully Updated.'}), 204
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
 
 
 @lead_bp.route('/delete/<lead_id>', methods=['DELETE'])
 def soft_delete_lead(lead_id):
-    lead = fetch_lead_by_id(int(lead_id))
-    lead.deleted = 1
-    insert_single_record(lead)
-    return {'message': 'Successfully deleted..'}, 200
+    try:
+        lead = fetch_lead_by_id(int(lead_id))
+        lead.deleted = 1
+        insert_single_record(lead)
+        return jsonify({'message': 'Successfully deleted..'}), 204
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
 
 
 @lead_bp.route('/select/<lead_id>', methods=['GET'])
 def get_lead(lead_id):
-    lead = app.session.query(model.Lead).filter(model.Lead.lead_id == int(lead_id), model.Lead.deleted == 0).first()
-    lead_result = populate_lead_record(lead)
-    return jsonify(lead_result), 200
+    try:
+        lead = app.session.query(model.Lead).filter(model.Lead.lead_id == int(lead_id), model.Lead.deleted == 0).first()
+        lead_result = populate_lead_record(lead)
+        return jsonify(lead_result), 200
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
 
 
 @lead_bp.route('/select-all', methods=['GET'])
 def get_leads():
-    from_date = request.args.get('from_date', None)
-    to_date = request.args.get('to_date', None)
-    name = request.args.get('name', None)
-    phone_number = request.args.get('phone_number', None)
-    branch = request.args.get('branch', None)
-    course = request.args.get('course', None)
-    batch_time = request.args.get('batch_time', None)
-    status = request.args.get('status', None)
+    try:
+        from_date = request.args.get('from_date', None)
+        to_date = request.args.get('to_date', None)
+        name = request.args.get('name', None)
+        phone_number = request.args.get('phone_number', None)
+        branch = request.args.get('branch', None)
+        course = request.args.get('course', None)
+        batch_time = request.args.get('batch_time', None)
+        status = request.args.get('status', None)
 
-    query = app.session.query(model.Lead)
-    query = query.filter(model.Lead.deleted == 0)
-    query = query.filter(model.Lead.lead_date.between(from_date, to_date)) if from_date and to_date else query
-    query = query.filter(model.Lead.name.like(f'{name}%')) if name else query
-    query = query.filter(or_(
-        model.Lead.phone_num == phone_number,
-        model.Lead.alternate_phone_num == phone_number
-    )) if phone_number else query
-    query = query.filter(model.Lead.branch_id == int(branch)) if branch else query
-    query = query.filter(model.Lead.course_id == int(course)) if course else query
-    query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
-    # query = query.filter(model.Lead.is_enrolled == int(status)) if status else query
+        query = app.session.query(model.Lead)
+        query = query.filter(model.Lead.deleted == 0)
+        query = query.filter(model.Lead.lead_date.between(from_date, to_date)) if from_date and to_date else query
+        query = query.filter(model.Lead.name.like(f'{name}%')) if name else query
+        query = query.filter(or_(
+            model.Lead.phone_num == phone_number,
+            model.Lead.alternate_phone_num == phone_number
+        )) if phone_number else query
+        query = query.filter(model.Lead.branch_id == int(branch)) if branch else query
+        query = query.filter(model.Lead.course_id == int(course)) if course else query
+        query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
+        # query = query.filter(model.Lead.is_enrolled == int(status)) if status else query
 
-    print(query)
-    cursor = query.all()
-    leads = list(cursor)
+        print(query)
+        cursor = query.all()
+        leads = list(cursor)
 
-    lead_results = []
-    for lead in leads:
-        lead_result = populate_lead_record(lead)
-        lead_results.append(lead_result)
-    return jsonify(lead_results), 200
+        lead_results = []
+        for lead in leads:
+            lead_result = populate_lead_record(lead)
+            lead_results.append(lead_result)
+        return jsonify(lead_results), 200
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
 
 
 @lead_bp.route('/select-paginate/<page_id>', methods=['GET'])
 def get_paginated_leads(page_id):
-    # leads = app.session.query(model.Lead).paginate(page=page_id, per_page=1)
-    leads = model.Lead.query.filter(model.Lead.deleted == 0).paginate(page=int(page_id), per_page=1)
-    lead_results = []
-    for lead in leads:
-        lead_result = populate_lead_record(lead)
-        lead_results.append(lead_result)
-    return jsonify(lead_results), 200
+    try:
+        # leads = app.session.query(model.Lead).paginate(page=page_id, per_page=1)
+        leads = model.Lead.query.filter(model.Lead.deleted == 0).paginate(page=int(page_id), per_page=1)
+        lead_results = []
+        for lead in leads:
+            lead_result = populate_lead_record(lead)
+            lead_results.append(lead_result)
+        return jsonify(lead_results), 200
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
 
 
 @lead_bp.route('/select-paginate-advanced', methods=['GET'])
 def get_paginated_leads_advanced():
-    total_leads = model.Lead.query.filter(model.Lead.deleted == 0).count()
+    try:
+        total_leads = model.Lead.query.filter(model.Lead.deleted == 0).count()
 
-    # request params
-    from_date = request.args.get('from_date', None)
-    to_date = request.args.get('to_date', None)
-    name = request.args.get('name', None)
-    phone_number = request.args.get('phone_number', None)
-    branch = request.args.get('branch', None)
-    course = request.args.get('course', None)
-    batch_time = request.args.get('batch_time', None)
-    status = request.args.get('status', None)
+        # request params
+        from_date = request.args.get('from_date', None)
+        to_date = request.args.get('to_date', None)
+        name = request.args.get('name', None)
+        phone_number = request.args.get('phone_number', None)
+        branch = request.args.get('branch', None)
+        course = request.args.get('course', None)
+        batch_time = request.args.get('batch_time', None)
+        status = request.args.get('status', None)
 
-    # filtering data
-    query = app.session.query(model.Lead)
-    query = query.filter(model.Lead.deleted == 0)
-    query = query.filter(model.Lead.lead_date.between(from_date, to_date)) if from_date and to_date else query
-    query = query.filter(model.Lead.name.like(f'{name}%')) if name else query
-    query = query.filter(or_(
-        model.Lead.phone_num == phone_number,
-        model.Lead.alternate_phone_num == phone_number
-    )) if phone_number else query
-    query = query.filter(model.Lead.branch_id == int(branch)) if branch else query
-    query = query.filter(model.Lead.course_id == int(course)) if course else query
-    query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
-    total_filtered_leads = query.count()
+        # filtering data
+        query = app.session.query(model.Lead)
+        query = query.filter(model.Lead.deleted == 0)
+        query = query.filter(model.Lead.lead_date.between(from_date, to_date)) if from_date and to_date else query
+        query = query.filter(model.Lead.name.like(f'{name}%')) if name else query
+        query = query.filter(or_(
+            model.Lead.phone_num == phone_number,
+            model.Lead.alternate_phone_num == phone_number
+        )) if phone_number else query
+        query = query.filter(model.Lead.branch_id == int(branch)) if branch else query
+        query = query.filter(model.Lead.course_id == int(course)) if course else query
+        query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
+        total_filtered_leads = query.count()
 
-    # pagination
-    start = request.args.get('start', type=int)
-    length = request.args.get('length', type=int)
-    query = query.offset(start).limit(length)
-    print(query)
+        # pagination
+        start = request.args.get('start', type=int)
+        length = request.args.get('length', type=int)
+        query = query.offset(start).limit(length)
+        print(query)
 
-    leads = query.all()
-    lead_results = []
-    for lead in leads:
-        lead_result = populate_lead_record(lead)
-        lead_results.append(lead_result)
-        lead_results.append({'lead_id': lead_result['lead_id']})
-    # response
-    return jsonify({
-        'data': lead_results,
-        'recordsFiltered': total_filtered_leads,
-        'recordsTotal': total_leads,
-        'draw': request.args.get('draw', type=int),
-    }), 200
+        leads = query.all()
+        lead_results = []
+        for lead in leads:
+            lead_result = populate_lead_record(lead)
+            lead_results.append(lead_result)
+            lead_results.append({'lead_id': lead_result['lead_id']})
+        # response
+        return jsonify({
+            'data': lead_results,
+            'recordsFiltered': total_filtered_leads,
+            'recordsTotal': total_leads,
+            'draw': request.args.get('draw', type=int),
+        }), 200
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
 
