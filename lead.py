@@ -205,6 +205,7 @@ def get_lead(lead_id):
     try:
         lead = app.session.query(model.Lead).filter(model.Lead.lead_id == int(lead_id), model.Lead.deleted == 0).first()
         lead_result = populate_lead_record(lead)
+        app.session.close()
         return jsonify(lead_result), 200
     except Exception as ex:
         return jsonify({'error': str(ex)}), 500
@@ -243,6 +244,7 @@ def get_leads():
         for lead in leads:
             lead_result = populate_lead_record(lead)
             lead_results.append(lead_result)
+        app.session.close()
         return jsonify(lead_results), 200
     except Exception as ex:
         return jsonify({'error': str(ex)}), 500
@@ -303,6 +305,7 @@ def get_paginated_leads_advanced():
             lead_result = populate_lead_record(lead)
             lead_results.append(lead_result)
             lead_results.append({'lead_id': lead_result['lead_id']})
+        app.session.close()
         # response
         return jsonify({
             'data': lead_results,
