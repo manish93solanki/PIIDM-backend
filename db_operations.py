@@ -7,7 +7,7 @@ def insert_single_record(insert_record):
     return_status = True
     try:
         id_ = app.session.merge(insert_record)
-        app.session.commit()
+        # app.session.commit()
     except IntegrityError as exc:
         app.session.rollback()
         app.session.flush()
@@ -21,15 +21,15 @@ def insert_single_record(insert_record):
         app.session.rollback()
         app.session.flush()
         raise
-    finally:
-        app.session.close()
+    # finally:
+    #     app.session.close()
     return return_status, id_
 
 
 def bulk_insert(bulk_insert_records):
     try:
         app.session.bulk_save_objects(bulk_insert_records)
-        app.session.commit()
+        # app.session.commit()
     except IntegrityError as exc:
         print('====> ', str(exc))
         app.session.rollback()
@@ -48,5 +48,5 @@ def bulk_insert(bulk_insert_records):
         app.session.rollback()
         app.session.flush()
         raise
-    finally:
-        app.session.close()
+    # finally:
+    #     app.session.close()
