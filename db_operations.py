@@ -21,8 +21,8 @@ def insert_single_record(insert_record):
         app.session.rollback()
         app.session.flush()
         raise
-    # finally:
-    #     app.session.close()
+    finally:
+        app.session.close()
     return return_status, id_
 
 
@@ -48,5 +48,5 @@ def bulk_insert(bulk_insert_records):
         app.session.rollback()
         app.session.flush()
         raise
-    # finally:
-    #     app.session.close()
+    finally:
+        app.session.close()
