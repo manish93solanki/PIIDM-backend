@@ -25,3 +25,17 @@ def delete_batch_time(delete_id):
     app.session.query(model.BatchTime).filter(model.BatchTime.batch_time_id == int(delete_id)).delete()
     app.session.commit()
     return {}
+
+
+@batch_time_bp.route('/all', methods=['GET'])
+def get_batch_time():
+    cursor = app.session.query(model.BatchTime).all()
+    batch_times = list(cursor)
+    results = []
+    for batch_time in batch_times:
+        res = {}
+        for key in batch_time.__table__.columns.keys():
+            value = getattr(batch_time, key)
+            res[key] = value
+        results.append(res)
+    return jsonify(results), 200

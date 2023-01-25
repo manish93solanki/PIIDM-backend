@@ -25,3 +25,17 @@ def delete_city(delete_id):
     app.session.query(model.City).filter(model.City.city_id == int(delete_id)).delete()
     app.session.commit()
     return {}
+
+
+@city_bp.route('/all', methods=['GET'])
+def get_city():
+    cursor = app.session.query(model.City).all()
+    cities = list(cursor)
+    results = []
+    for city in cities:
+        res = {}
+        for key in city.__table__.columns.keys():
+            value = getattr(city, key)
+            res[key] = value
+        results.append(res)
+    return jsonify(results), 200

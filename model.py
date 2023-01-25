@@ -101,7 +101,7 @@ class Lead(db.Model):
     pitch_by = Column(VARCHAR(255), nullable=True)
     demo_date = Column(Date, nullable=True)
     instructor = Column(VARCHAR(255), nullable=True)
-    broadcast = Column(VARCHAR(255), nullable=True)
+    broadcast = Column(Integer, nullable=True)
     agent_id = Column(ForeignKey('agent.agent_id'), nullable=False)
     fee_offer = Column(Integer, nullable=True)
     deleted = Column(Integer, nullable=False, default=0)

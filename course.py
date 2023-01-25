@@ -25,3 +25,17 @@ def delete_course(delete_id):
     app.session.query(model.Course).filter(model.Course.course_id == int(delete_id)).delete()
     app.session.commit()
     return {}
+
+
+@course_bp.route('/all', methods=['GET'])
+def get_course():
+    cursor = app.session.query(model.Course).all()
+    courses = list(cursor)
+    results = []
+    for course in courses:
+        res = {}
+        for key in course.__table__.columns.keys():
+            value = getattr(course, key)
+            res[key] = value
+        results.append(res)
+    return jsonify(results), 200

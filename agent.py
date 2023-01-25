@@ -27,3 +27,17 @@ def delete_agent(delete_id):
     app.session.query(model.Agent).filter(model.Agent.agent_id == int(delete_id)).delete()
     app.session.commit()
     return {}
+
+
+@agent_bp.route('/all', methods=['GET'])
+def get_agent():
+    cursor = app.session.query(model.Agent).all()
+    agents = list(cursor)
+    results = []
+    for agent in agents:
+        res = {}
+        for key in agent.__table__.columns.keys():
+            value = getattr(agent, key)
+            res[key] = value
+        results.append(res)
+    return jsonify(results), 200

@@ -26,3 +26,17 @@ def delete_source(delete_id):
     app.session.commit()
     return {}
 
+
+@source_bp.route('/all', methods=['GET'])
+def get_source():
+    cursor = app.session.query(model.Source).all()
+    sources = list(cursor)
+    results = []
+    for source in sources:
+        res = {}
+        for key in source.__table__.columns.keys():
+            value = getattr(source, key)
+            res[key] = value
+        results.append(res)
+    return jsonify(results), 200
+

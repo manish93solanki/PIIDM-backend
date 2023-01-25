@@ -25,3 +25,17 @@ def delete_branch(delete_id):
     app.session.query(model.Branch).filter(model.Branch.branch_id == int(delete_id)).delete()
     app.session.commit()
     return {}
+
+
+@branch_bp.route('/all', methods=['GET'])
+def get_branch():
+    cursor = app.session.query(model.Branch).all()
+    branches = list(cursor)
+    results = []
+    for branch in branches:
+        res = {}
+        for key in branch.__table__.columns.keys():
+            value = getattr(branch, key)
+            res[key] = value
+        results.append(res)
+    return jsonify(results), 200

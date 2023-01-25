@@ -113,52 +113,52 @@ def populate_lead_record(lead):
 
 @lead_bp.route('/add', methods=['POST'])
 def add_lead():
-    try:
-        if request.method == 'POST':
-            if not request.is_json:
-                return {'error': 'Bad Request.'}, 400
-            data = request.get_json()
-            records_to_add = []
-            for item in data:
-                lead = model.Lead()
-                # Check if lead is already exist
-                if is_lead_phone_num_exists(item['phone_num']):
-                    return {'error': 'Phone number is already exist.'}, 409
-                if is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
-                    return {'error': 'Alternate Phone number is already exist.'}, 409
-                if is_lead_email_exists(item['email']):
-                    return {'error': 'Email is already exist.'}, 409
-                for key, value in item.items():
-                    if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
-                        value = datetime.datetime.strptime(value, '%Y-%m-%d')
-                    setattr(lead, key, value)
-                # if 'country_id' not in item.keys():  # Set default, if not exist
-                #     country_id = app.session.query(model.Country.country_id).filter(model.Country.name == DEFAULT_COUNTRY)
-                #     setattr(lead, 'country_id', country_id)
-                # if 'city_id' not in item.keys():  # Set default, if not exist
-                #     city_id = app.session.query(model.City.city_id).filter(model.City.name == DEFAULT_CITY)
-                #     setattr(lead, 'city_id', city_id)
-                # if 'branch_id' not in item.keys():  # Set default, if not exist
-                #     branch_id = app.session.query(model.Branch.branch_id).filter(model.Branch.name == DEFAULT_BRANCH)
-                #     setattr(lead, 'branch_id', branch_id)
-                # if 'source_id' not in item.keys():  # Set default, if not exist
-                #     source_id = app.session.query(model.Source.source_id).filter(model.Source.name == DEFAULT_SOURCE)
-                #     setattr(lead, 'source_id', source_id)
-                # if 'course_id' not in item.keys():  # Set default, if not exist
-                #     course_id = app.session.query(model.Course.course_id).filter(model.Course.name == DEFAULT_COURSE)
-                #     setattr(lead, 'course_id', course_id)
-                # if 'batch_time_id' not in item.keys():  # Set default, if not exist
-                #     batch_time_id = app.session.query(model.BatchTime.batch_time_id).filter(
-                #         model.BatchTime.name == DEFAULT_BATCH_TIME)
-                #     setattr(lead, 'batch_time_id', batch_time_id)
-                # if 'agent_id' not in item.keys():  # Set default, if not exist
-                #     agent_id = app.session.query(model.Agent.batch_time_id).filter(model.Agent.name == DEFAULT_AGENT)
-                #     setattr(lead, 'agent_id', agent_id)
-                records_to_add.append(lead)
-            bulk_insert(records_to_add)
-        return jsonify({'message': 'Successfully Inserted.'}), 201
-    except Exception as ex:
-        return jsonify({'error': str(ex)}), 500
+    # try:
+    if request.method == 'POST':
+        if not request.is_json:
+            return {'error': 'Bad Request.'}, 400
+        data = request.get_json()
+        records_to_add = []
+        for item in data:
+            lead = model.Lead()
+            # Check if lead is already exist
+            if is_lead_phone_num_exists(item['phone_num']):
+                return {'error': 'Phone number is already exist.'}, 409
+            if is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
+                return {'error': 'Alternate Phone number is already exist.'}, 409
+            if is_lead_email_exists(item['email']):
+                return {'error': 'Email is already exist.'}, 409
+            for key, value in item.items():
+                if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
+                    value = datetime.datetime.strptime(value, '%Y-%m-%d')
+                setattr(lead, key, value)
+            # if 'country_id' not in item.keys():  # Set default, if not exist
+            #     country_id = app.session.query(model.Country.country_id).filter(model.Country.name == DEFAULT_COUNTRY)
+            #     setattr(lead, 'country_id', country_id)
+            # if 'city_id' not in item.keys():  # Set default, if not exist
+            #     city_id = app.session.query(model.City.city_id).filter(model.City.name == DEFAULT_CITY)
+            #     setattr(lead, 'city_id', city_id)
+            # if 'branch_id' not in item.keys():  # Set default, if not exist
+            #     branch_id = app.session.query(model.Branch.branch_id).filter(model.Branch.name == DEFAULT_BRANCH)
+            #     setattr(lead, 'branch_id', branch_id)
+            # if 'source_id' not in item.keys():  # Set default, if not exist
+            #     source_id = app.session.query(model.Source.source_id).filter(model.Source.name == DEFAULT_SOURCE)
+            #     setattr(lead, 'source_id', source_id)
+            # if 'course_id' not in item.keys():  # Set default, if not exist
+            #     course_id = app.session.query(model.Course.course_id).filter(model.Course.name == DEFAULT_COURSE)
+            #     setattr(lead, 'course_id', course_id)
+            # if 'batch_time_id' not in item.keys():  # Set default, if not exist
+            #     batch_time_id = app.session.query(model.BatchTime.batch_time_id).filter(
+            #         model.BatchTime.name == DEFAULT_BATCH_TIME)
+            #     setattr(lead, 'batch_time_id', batch_time_id)
+            # if 'agent_id' not in item.keys():  # Set default, if not exist
+            #     agent_id = app.session.query(model.Agent.batch_time_id).filter(model.Agent.name == DEFAULT_AGENT)
+            #     setattr(lead, 'agent_id', agent_id)
+            records_to_add.append(lead)
+        bulk_insert(records_to_add)
+    return jsonify({'message': 'Successfully Inserted.'}), 201
+    # except Exception as ex:
+    #     return jsonify({'error': str(ex)}), 500
 
 
 @lead_bp.route('/update/<lead_id>', methods=['PUT'])
