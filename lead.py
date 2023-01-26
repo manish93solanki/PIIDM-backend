@@ -118,6 +118,7 @@ def add_lead():
         if not request.is_json:
             return {'error': 'Bad Request.'}, 400
         data = request.get_json()
+        print(data)
         records_to_add = []
         for item in data:
             lead = model.Lead()
@@ -274,6 +275,7 @@ def get_paginated_leads_advanced():
         phone_number = request.args.get('phone_number', None)
         branch = request.args.get('branch', None)
         course = request.args.get('course', None)
+        source = request.args.get('source', None)
         batch_time = request.args.get('batch_time', None)
         status = request.args.get('status', None)
 
@@ -288,6 +290,7 @@ def get_paginated_leads_advanced():
         )) if phone_number else query
         query = query.filter(model.Lead.branch_id == int(branch)) if branch else query
         query = query.filter(model.Lead.course_id == int(course)) if course else query
+        query = query.filter(model.Lead.source_id == int(source)) if source else query
         query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
 
         # pagination
