@@ -289,11 +289,20 @@ def get_paginated_leads_advanced():
         query = query.filter(model.Lead.branch_id == int(branch)) if branch else query
         query = query.filter(model.Lead.course_id == int(course)) if course else query
         query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
-        total_filtered_leads = query.count()
 
         # pagination
         start = request.args.get('start', type=int)
         length = request.args.get('length', type=int)
+        search_term = request.args.get('search[value]', type=str)
+        print('search_term: ', search_term)
+        query = query.filter(or_(
+            model.Lead.name.like(f'{search_term}%'),
+            model.Lead.phone_num.like(f'{search_term}%'),
+            model.Lead.alternate_phone_num.like(f'{search_term}%'),
+            model.Lead.email.like(f'{search_term}%'),
+        )) if search_term else query
+
+        total_filtered_leads = query.count()
         query = query.offset(start).limit(length)
         print(query)
 
@@ -302,7 +311,7 @@ def get_paginated_leads_advanced():
         for lead in leads:
             lead_result = populate_lead_record(lead)
             lead_results.append(lead_result)
-            lead_results.append({'lead_id': lead_result['lead_id']})
+            # lead_results.append({'name': lead_result['name']})
         # response
         return jsonify({
             'data': lead_results,
