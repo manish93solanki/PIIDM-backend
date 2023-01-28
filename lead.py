@@ -118,7 +118,6 @@ def add_lead():
             if not request.is_json:
                 return {'error': 'Bad Request.'}, 400
             data = request.get_json()
-            print(data)
             records_to_add = []
             for item in data:
                 lead = model.Lead()

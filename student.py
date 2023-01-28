@@ -369,21 +369,3 @@ def get_paginated_students_advanced():
     }), 200
     # except Exception as ex:
     #     return jsonify({'error': str(ex)}), 500
-
-
-# @student_bp.route('/basic-stats', methods=['GET'])
-# def basic_stats():
-#     total_students = app.session.query(model.Student.student_id).count()
-#     total_dropouts = app.session.query(model.Student.student_id).filter(model.Student.is_active == 0).count()
-#     total_expected_earning = app.session.query(model.Student.total_fee).sum()
-#     total_earning = app.session.query(model.Student.total_fee_paid).sum()
-#     total_pending_fee = app.session.query(model.Student.total_pending_fee).sum()
-#
-#     results = {
-#         'total_students': total_students,
-#         'total_dropouts': total_dropouts,
-#         'total_expected_earning': total_expected_earning,
-#         'total_earning': total_earning,
-#         'total_pending_fee': total_pending_fee
-#     }
-#     return jsonify(results), 200
