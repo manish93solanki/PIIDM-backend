@@ -19,9 +19,16 @@ def populate_receipt_record(receipt):
         if key in ('installment_payment_date', ) and value:
             # value = datetime.datetime.strftime('%Y-%m-%d')
             value = str(value)
-        if key in ('installment_payment_mode', ) and value:
-            value = value.value
+
         receipt_result[key] = value
+
+        if key == 'installment_payment_mode_id':
+            payment_mode = receipt.payment_mode
+            receipt_result[key] = {}
+            for payment_mode_key in payment_mode.__table__.columns.keys():
+                payment_mode_value = getattr(payment_mode, payment_mode_key)
+                receipt_result[key][payment_mode_key] = payment_mode_value
+            receipt_result['installment_payment_mode'] = receipt_result.pop(key)
     return receipt_result
 
 

@@ -3,3 +3,4 @@ flask-cors
 flask_sqlalchemy
 flask_migrate
 mysqlclient
+pyhtml2pdf==0.0.6

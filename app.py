@@ -15,6 +15,7 @@ from agent import agent_bp
 from branch import branch_bp
 from course import course_bp
 from lead import lead_bp
+from payment_mode import payment_mode_bp
 from receipt import receipt_bp
 from source import source_bp
 from student import student_bp
@@ -50,6 +51,7 @@ app.register_blueprint(city_bp)
 app.register_blueprint(batch_time_bp)
 app.register_blueprint(lead_bp)
 app.register_blueprint(student_bp)
+app.register_blueprint(payment_mode_bp)
 app.register_blueprint(receipt_bp)
 
 if __name__ == '__main__':

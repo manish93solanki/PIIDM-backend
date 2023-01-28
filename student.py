@@ -2,17 +2,9 @@ import datetime
 from flask import current_app as app, request, Blueprint, jsonify
 import model
 from db_operations import bulk_insert, insert_single_record
-from sqlalchemy import or_
+from sqlalchemy import or_, asc, func
 
 student_bp = Blueprint('student_bp', __name__, url_prefix='/api/students')
-
-DEFAULT_COUNTRY = 'India'
-DEFAULT_CITY = 'Pune'
-DEFAULT_BRANCH = 'FC Road, Pune'
-DEFAULT_SOURCE = 'Google'
-DEFAULT_COURSE = 'Online Digital Marketing'
-DEFAULT_BATCH_TIME = 'Morning'
-DEFAULT_AGENT = 'Morning'
 
 
 def is_student_phone_num_exists(phone_num):
@@ -52,7 +44,7 @@ def populate_student_record(student):
     student_result = {}
     for key in student.__table__.columns.keys():
         value = getattr(student, key)
-        if key in ('admission_date', ) and value:
+        if key in ('admission_date',) and value:
             # value = datetime.datetime.strftime('%Y-%m-%d')
             value = str(value)
 
@@ -111,8 +103,9 @@ def populate_student_record(student):
 
 
 def get_all_receipts_by_student(student_id):
-    cursor = app.session.query(model.Receipt).filter(model.Receipt.student_id == student_id,
-                                                     model.Receipt.deleted == 0).all()
+    cursor = app.session.query(model.Receipt).filter(
+        model.Receipt.student_id == student_id, model.Receipt.deleted == 0
+    ).order_by(asc(model.Receipt.installment_num)).all()
     records = list(cursor)
     return records
 
@@ -121,11 +114,18 @@ def populate_receipt_record(receipt):
     receipt_result = {}
     for key in receipt.__table__.columns.keys():
         value = getattr(receipt, key)
-        if key in ('installment_payment_date', ) and value:
+        if key in ('installment_payment_date',) and value:
             value = str(value)
-        if key in ('installment_payment_mode', ) and value:
-            value = value.value
+
         receipt_result[key] = value
+
+        if key == 'installment_payment_mode_id':
+            payment_mode = receipt.payment_mode
+            receipt_result[key] = {}
+            for payment_mode_key in payment_mode.__table__.columns.keys():
+                payment_mode_value = getattr(payment_mode, payment_mode_key)
+                receipt_result[key][payment_mode_key] = payment_mode_value
+            receipt_result['installment_payment_mode'] = receipt_result.pop(key)
     return receipt_result
 
 
@@ -147,60 +147,78 @@ def add_student():
             if key in ('admission_date',) and value:
                 value = datetime.datetime.strptime(value, '%Y-%m-%d')
             setattr(student, key, value)
-        return_status, student = insert_single_record(student)
-        if not return_status:
-            return {'message': 'Error, Something wrong in student details.'}, 500
+        bulk_insert([student])
 
         # Add installment in receipt model
         receipts_records_to_add = []
         for instalment in data['installments']:
-            if 'installment_payment' in instalment and instalment['installment_payment']:
-                receipt = model.Receipt()
+            if 'installment_num' in instalment and instalment['installment_num'] and \
+                    'installment_payment' in instalment and instalment['installment_payment']:
+                installment_num = instalment['installment_num']
+                receipt = app.session.query(model.Receipt).filter(model.Receipt.student_id == int(student.student_id),
+                                                                  model.Receipt.installment_num == int(installment_num),
+                                                                  model.Receipt.deleted == 0).first()
+                if not receipt:
+                    receipt = model.Receipt()
+
+                receipt.installment_num = instalment['installment_num']
                 receipt.installment_payment = instalment['installment_payment']
                 setattr(receipt, 'installment_payment_date',
                         datetime.datetime.strptime(instalment['installment_payment_date'], '%Y-%m-%d'))
-                receipt.installment_payment_mode = instalment['installment_payment_mode']
+                receipt.installment_payment_mode_id = instalment['installment_payment_mode_id']
+                receipt.installment_payment_transaction_number = instalment['installment_payment_transaction_number']
                 receipt.student_id = student.student_id
                 receipts_records_to_add.append(receipt)
         bulk_insert(receipts_records_to_add)
-    return {'message': 'Successfully Inserted.'}, 200
+    return {'message': 'Admission confirmed'}, 201
 
 
 @student_bp.route('/update/<student_id>', methods=['PUT'])
 def update_student(student_id):
     if not request.is_json:
-        return {'message': 'Bad Request.'}, 400
+        return {'error': 'Bad Request.'}, 400
     data = request.get_json()
     student = fetch_student_by_id(int(student_id))
 
     # Check if student is already exist
-    if student.phone_num != data['phone_num'] and is_student_phone_num_exists(data['phone_num']):
-        return {'message': 'Phone number is already exist.'}, 409
-    if student.alternate_phone_num != data['alternate_phone_num'] and is_student_alternate_phone_num_exists(
-            data['alternate_phone_num']):
-        return {'message': 'Alternate Phone number is already exist.'}, 409
-    if student.email != data['email'] and is_student_email_exists(data['email']):
-        return {'message': 'Email is already exist.'}, 409
+    if 'phone_num' in data and student.phone_num != data['phone_num'] and is_student_phone_num_exists(
+            data['phone_num']):
+        return {'error': 'Phone number is already exist.'}, 409
+    if 'alternate_phone_num' in data and student.alternate_phone_num != data[
+        'alternate_phone_num'] and is_student_alternate_phone_num_exists(
+        data['alternate_phone_num']):
+        return {'error': 'Alternate Phone number is already exist.'}, 409
+    if 'email' in data and student.email != data['email'] and is_student_email_exists(data['email']):
+        return {'error': 'Email is already exist.'}, 409
     for key, value in data.items():
-        if key in ('admission_date', ) and value:
+        if key in ('admission_date',) and value:
             value = datetime.datetime.strptime(value, '%Y-%m-%d')
         setattr(student, key, value)
-    return_status, student = insert_single_record(student)
-    if not return_status:
-        return {'message': 'Error, Something wrong in student details.'}, 500
+    bulk_insert([student])
+    print('\nstudent: ', student.student_id, '\n')
 
     # Add installment in receipt model
-    receipts_records_to_add = []
-    for instalment in data['installments']:
-        if 'installment_payment' in instalment and instalment['installment_payment']:
-            receipt = model.Receipt()
-            receipt.installment_payment = instalment['installment_payment']
-            setattr(receipt, 'installment_payment_date',
-                    datetime.datetime.strptime(instalment['installment_payment_date'], '%Y-%m-%d'))
-            receipt.installment_payment_mode = instalment['installment_payment_mode']
-            receipt.student_id = student.student_id
-            receipts_records_to_add.append(receipt)
-    bulk_insert(receipts_records_to_add)
+    if 'installments' in data:
+        receipts_records_to_add = []
+        for instalment in data['installments']:
+            if 'installment_num' in instalment and instalment['installment_num'] and \
+                    'installment_payment' in instalment and instalment['installment_payment']:
+                installment_num = instalment['installment_num']
+                receipt = app.session.query(model.Receipt).filter(model.Receipt.student_id == int(student.student_id),
+                                                                  model.Receipt.installment_num == int(installment_num),
+                                                                  model.Receipt.deleted == 0).first()
+                if not receipt:
+                    receipt = model.Receipt()
+
+                receipt.installment_num = instalment['installment_num']
+                receipt.installment_payment = instalment['installment_payment']
+                setattr(receipt, 'installment_payment_date',
+                        datetime.datetime.strptime(instalment['installment_payment_date'], '%Y-%m-%d'))
+                receipt.installment_payment_mode_id = instalment['installment_payment_mode_id']
+                receipt.installment_payment_transaction_number = instalment['installment_payment_transaction_number']
+                receipt.student_id = student.student_id
+                receipts_records_to_add.append(receipt)
+        bulk_insert(receipts_records_to_add)
     return {'message': 'Successfully Updated.'}, 200
 
 
@@ -208,7 +226,7 @@ def update_student(student_id):
 def soft_delete_student(student_id):
     student = fetch_student_by_id(int(student_id))
     student.deleted = 1
-    student.is_active = 0
+    # student.is_active = 0
     insert_single_record(student)
     # Why do we not delete receipts post student deletion?
     # Because if any payment was done for deleted student then
@@ -228,7 +246,6 @@ def get_student(student_id):
     for receipt in receipt_records:
         receipt_result = populate_receipt_record(receipt)
         student_result['installments'].append(receipt_result)
-        print(student_result['installments'])
     return jsonify(student_result), 200
 
 
@@ -265,3 +282,108 @@ def get_paginated_students(page_id):
             student_result['installments'].append(receipt_result)
         student_results.append(student_result)
     return jsonify(student_results), 200
+
+
+@student_bp.route('/select-paginate-advanced', methods=['GET'])
+def get_paginated_students_advanced():
+    # try:
+    total_students = model.Student.query.filter(model.Student.deleted == 0).count()
+
+    # request params
+    from_date = request.args.get('from_date', None)
+    to_date = request.args.get('to_date', None)
+    name = request.args.get('name', None)
+    phone_number = request.args.get('phone_number', None)
+    branch = request.args.get('branch', None)
+    course = request.args.get('course', None)
+    source = request.args.get('source', None)
+    batch_time = request.args.get('batch_time', None)
+    is_active = request.args.get('is_active', None)
+
+    # filtering data
+    query = app.session.query(model.Student)
+    query = query.filter(model.Student.deleted == 0)
+    query = query.filter(
+        model.Student.admission_date.between(from_date, to_date)) if from_date and to_date else query
+    query = query.filter(model.Student.name.like(f'{name}%')) if name else query
+    query = query.filter(or_(
+        model.Student.phone_num == phone_number,
+        model.Student.alternate_phone_num == phone_number
+    )) if phone_number else query
+    query = query.filter(model.Student.branch_id == int(branch)) if branch else query
+    query = query.filter(model.Student.course_id == int(course)) if course else query
+    query = query.filter(model.Student.source_id == int(source)) if source else query
+    query = query.filter(model.Student.batch_time_id == int(batch_time)) if batch_time else query
+    query = query.filter(model.Student.is_active == int(is_active)) if is_active else query
+
+    # pagination
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    search_term = request.args.get('search[value]', type=str)
+    print('search_term: ', search_term)
+    query = query.filter(or_(
+        model.Student.name.like(f'{search_term}%'),
+        model.Student.phone_num.like(f'{search_term}%'),
+        model.Student.alternate_phone_num.like(f'{search_term}%'),
+        model.Student.email.like(f'{search_term}%'),
+    )) if search_term else query
+
+    total_filtered_students = query.count() # total filtered students
+    total_admissions = query.count()  # total_admissions
+    total_dropouts = query.filter(model.Student.is_active == 0).count()
+    total_expected_earning = query.with_entities(func.sum(model.Student.total_fee)).scalar()
+    total_earning = query.with_entities(func.sum(model.Student.total_fee_paid)).scalar()
+    total_pending_fee = query.with_entities(func.sum(model.Student.total_pending_fee)).scalar()
+    basic_stats = {
+        'total_admissions': total_admissions,
+        'total_dropouts': total_dropouts,
+        'total_expected_earning': total_expected_earning,
+        'total_earning': total_earning,
+        'total_pending_fee': total_pending_fee
+
+    }
+
+    query = query.offset(start).limit(length)
+    print(query)
+
+    students = query.all()
+    student_results = []
+    for student in students:
+        student_result = populate_student_record(student)
+
+        # Get student receipts
+        student_result['installments'] = []
+        receipt_records = get_all_receipts_by_student(student.student_id)
+        for receipt in receipt_records:
+            receipt_result = populate_receipt_record(receipt)
+            student_result['installments'].append(receipt_result)
+        student_results.append(student_result)
+        # student_results.append({'name': student_result['name']})
+    # response
+    return jsonify({
+        'data': student_results,
+        'recordsFiltered': total_filtered_students,
+        'recordsTotal': total_students,
+        'draw': request.args.get('draw', type=int),
+        'basic_stats': basic_stats
+    }), 200
+    # except Exception as ex:
+    #     return jsonify({'error': str(ex)}), 500
+
+
+# @student_bp.route('/basic-stats', methods=['GET'])
+# def basic_stats():
+#     total_students = app.session.query(model.Student.student_id).count()
+#     total_dropouts = app.session.query(model.Student.student_id).filter(model.Student.is_active == 0).count()
+#     total_expected_earning = app.session.query(model.Student.total_fee).sum()
+#     total_earning = app.session.query(model.Student.total_fee_paid).sum()
+#     total_pending_fee = app.session.query(model.Student.total_pending_fee).sum()
+#
+#     results = {
+#         'total_students': total_students,
+#         'total_dropouts': total_dropouts,
+#         'total_expected_earning': total_expected_earning,
+#         'total_earning': total_earning,
+#         'total_pending_fee': total_pending_fee
+#     }
+#     return jsonify(results), 200

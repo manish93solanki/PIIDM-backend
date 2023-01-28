@@ -1,7 +1,7 @@
 import enum
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ARRAY, Boolean, CheckConstraint, Column, Date, DateTime, Float, ForeignKey, Integer, \
-    UniqueConstraint, text, Enum, VARCHAR
+    UniqueConstraint, text, Enum, VARCHAR, Text
 from sqlalchemy.orm import relationship, column_property, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import JSONB
@@ -86,7 +86,7 @@ class Lead(db.Model):
     alternate_phone_num = Column(VARCHAR(255), nullable=True)
     email = Column(VARCHAR(255), nullable=True)
     lead_date = Column(Date, nullable=False)
-    remarks = Column(VARCHAR(255), nullable=True)
+    remarks = Column(Text, nullable=True)
     country_id = Column(ForeignKey('country.country_id'), nullable=False)
     area = Column(VARCHAR(255), nullable=True)
     city_id = Column(ForeignKey('city.city_id'), nullable=False)
@@ -95,7 +95,7 @@ class Lead(db.Model):
     course_id = Column(ForeignKey('course.course_id'), nullable=False)
     batch_time_id = Column(ForeignKey('batch_time.batch_time_id'), nullable=False)
     next_action_date = Column(Date, nullable=True)
-    next_action_remarks = Column(VARCHAR(255), nullable=True)
+    next_action_remarks = Column(Text, nullable=True)
     details_sent = Column(Integer, nullable=True)
     visit_date = Column(Date, nullable=True)
     pitch_by = Column(VARCHAR(255), nullable=True)
@@ -104,6 +104,7 @@ class Lead(db.Model):
     broadcast = Column(Integer, nullable=True)
     agent_id = Column(ForeignKey('agent.agent_id'), nullable=False)
     fee_offer = Column(Integer, nullable=True)
+    admission_status = Column(Integer, nullable=False, default=0)
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
@@ -117,24 +118,38 @@ class Lead(db.Model):
     city = relationship('City')
 
 
-class PaymentMode(enum.Enum):
-    cash = 'cash'
-    debit_card = 'debit_card'
-    credit_card = 'credit_card'
-    upi = 'upi'
+class PaymentMode(db.Model):
+    __tablename__ = 'payment_mode'
+
+    payment_mode_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(255), nullable=False)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class InstalmentNumber(enum.Enum):
+    first = 1
+    second = 2
+    third = 3
+    fourth = 4
 
 
 class Receipt(db.Model):
     __tablename__ = 'receipt'
 
     receipt_id = Column(Integer, primary_key=True, autoincrement=True)
-    deleted = Column(Integer, nullable=False, default=0)
+    installment_num = Column(Integer, nullable=True)
     installment_payment = Column(Integer, nullable=True)
-    installment_payment_mode = Column(Enum(PaymentMode), nullable=True)
+    installment_payment_mode_id = Column(ForeignKey('payment_mode.payment_mode_id'), nullable=True)
     installment_payment_date = Column(Date, nullable=True)
+    installment_payment_transaction_number = Column(VARCHAR(255), nullable=True)
     student_id = Column(ForeignKey('student.student_id'), nullable=False)
+    deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    payment_mode = relationship('PaymentMode')
 
 
 class Student(db.Model):

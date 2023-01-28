@@ -1,4 +1,4 @@
-curl --location --request POST 'http://localhost:6000/api/branch/add' \
+curl --location --request POST 'http://localhost:3002/api/branch/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
     {
@@ -9,7 +9,7 @@ curl --location --request POST 'http://localhost:6000/api/branch/add' \
     }
 ]'
 
-curl --location --request POST 'http://localhost:6000/api/source/add' \
+curl --location --request POST 'http://localhost:3002/api/source/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
     {
@@ -36,7 +36,7 @@ curl --location --request POST 'http://localhost:6000/api/source/add' \
 ]'
 
 
-curl --location --request POST 'http://localhost:6000/api/course/add' \
+curl --location --request POST 'http://localhost:3002/api/course/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
     {
@@ -48,7 +48,7 @@ curl --location --request POST 'http://localhost:6000/api/course/add' \
 ]'
 
 
-curl --location --request POST 'http://localhost:6000/api/agent/add' \
+curl --location --request POST 'http://localhost:3002/api/agent/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
     {
@@ -64,7 +64,7 @@ curl --location --request POST 'http://localhost:6000/api/agent/add' \
 ]'
 
 
-curl --location --request POST 'http://localhost:6000/api/batch_time/add' \
+curl --location --request POST 'http://localhost:3002/api/batch_time/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
     {
@@ -79,7 +79,7 @@ curl --location --request POST 'http://localhost:6000/api/batch_time/add' \
 ]'
 
 
-curl --location --request POST 'http://localhost:6000/api/country/add' \
+curl --location --request POST 'http://localhost:3002/api/country/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
     {
@@ -1295,7 +1295,7 @@ curl --location --request POST 'http://localhost:6000/api/country/add' \
 ]'
 
 
-curl --location --request POST 'http://localhost:6000/api/city/add' \
+curl --location --request POST 'http://localhost:3002/api/city/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
     {
@@ -1307,7 +1307,7 @@ curl --location --request POST 'http://localhost:6000/api/city/add' \
 ]'
 
 
-curl --location --request POST 'http://localhost:6000/api/leads/add' \
+curl --location --request POST 'http://localhost:3002/api/leads/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
     {
@@ -1340,7 +1340,7 @@ curl --location --request POST 'http://localhost:6000/api/leads/add' \
 
 
 
-curl --location --request POST 'http://localhost:6000/api/leads/add' \
+curl --location --request POST 'http://localhost:3002/api/leads/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
     {
@@ -1372,7 +1372,7 @@ curl --location --request POST 'http://localhost:6000/api/leads/add' \
 ]'
 
 
-curl --location --request POST 'http://localhost:6000/api/students/add' \
+curl --location --request POST 'http://localhost:3002/api/students/add' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "name": "student1",
@@ -1393,7 +1393,7 @@ curl --location --request POST 'http://localhost:6000/api/students/add' \
     "installments": [
         {
             "installment_payment": 10,
-            "installment_payment_mode": "cash",
+            "installment_payment_mode_id": 1,
             "installment_payment_date": "2023-01-01"
         },
         {
@@ -1404,3 +1404,21 @@ curl --location --request POST 'http://localhost:6000/api/students/add' \
     ],
     "is_active": 1
 }'
+
+
+curl --location --request POST 'http://localhost:3002/api/payment_mode/add' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "name": "Cash"
+    },
+    {
+        "name": "Debit Card"
+    },
+    {
+        "name": "Credit Card"
+    },
+    {
+        "name": "UPI"
+    }
+]'
