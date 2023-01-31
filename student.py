@@ -1,5 +1,5 @@
 import datetime
-from flask import current_app as app, request, Blueprint, jsonify
+from flask import current_app as app, request, Blueprint, jsonify, send_file
 import model
 from db_operations import bulk_insert, insert_single_record
 from sqlalchemy import or_, asc, func
@@ -328,7 +328,7 @@ def get_paginated_students_advanced():
         model.Student.email.like(f'{search_term}%'),
     )) if search_term else query
 
-    total_filtered_students = query.count() # total filtered students
+    total_filtered_students = query.count()  # total filtered students
     total_admissions = query.count()  # total_admissions
     total_dropouts = query.filter(model.Student.is_active == 0).count()
     total_expected_earning = query.with_entities(func.sum(model.Student.total_fee)).scalar()
@@ -369,3 +369,18 @@ def get_paginated_students_advanced():
     }), 200
     # except Exception as ex:
     #     return jsonify({'error': str(ex)}), 500
+
+
+@student_bp.route('/upload-image', methods=['POST'])
+def upload_image():
+    image = request.files["image"]
+    image_path = f'data/uploaded_images/{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")}-{image.filename}'
+    image.save(image_path)
+    return jsonify({'message': 'Image uploaded successfully.', 'data': image_path}), 200
+
+
+@student_bp.route('/get-image', methods=['GET'])
+def get_image():
+    image_path = request.args.get('image_path')
+    print(image_path)
+    return send_file(image_path, mimetype='image/gif')
