@@ -192,6 +192,7 @@ class Student(db.Model):
     # receipt_installment_3_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
     # receipt_installment_4_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
     is_active = Column(Integer, nullable=False, default=1)
+    is_document_verified = Column(Integer, nullable=False, default=0)  # 0=reset, 1=accept, 2=reject
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
