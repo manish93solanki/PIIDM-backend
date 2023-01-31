@@ -371,6 +371,64 @@ def get_paginated_students_advanced():
     #     return jsonify({'error': str(ex)}), 500
 
 
+@student_bp.route('/installments/select-paginate-advanced', methods=['GET'])
+def get_paginated_students_installments_advanced():
+    # try:
+    total_students = model.Student.query.filter(model.Student.deleted == 0).count()
+
+    # request params
+    req_student_id = request.args.get('student_id', None)
+
+    # filtering data
+    query = app.session.query(model.Student)
+    query = query.filter(model.Student.deleted == 0)
+    query = query.filter(model.Student.student_id == int(req_student_id)) if req_student_id else query
+
+    # pagination
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+
+    total_filtered_students = query.count()  # total filtered students
+    total_admissions = query.count()  # total_admissions
+    total_dropouts = query.filter(model.Student.is_active == 0).count()
+    total_expected_earning = query.with_entities(func.sum(model.Student.total_fee)).scalar()
+    total_earning = query.with_entities(func.sum(model.Student.total_fee_paid)).scalar()
+    total_pending_fee = query.with_entities(func.sum(model.Student.total_pending_fee)).scalar()
+    basic_stats = {
+        'total_admissions': total_admissions,
+        'total_dropouts': total_dropouts,
+        'total_expected_earning': total_expected_earning,
+        'total_earning': total_earning,
+        'total_pending_fee': total_pending_fee
+    }
+
+    query = query.offset(start).limit(length)
+    print(query)
+
+    student = query.first()
+    student_result = []
+    if student:
+        student_result = populate_student_record(student)
+        # Get student receipts
+        installments = []
+        receipt_records = get_all_receipts_by_student(student.student_id)
+        for receipt in receipt_records:
+            receipt_result = populate_receipt_record(receipt)
+
+            installments.append(receipt_result)
+        student_result = installments
+    # response
+    return jsonify({
+        'data': student_result,
+        'recordsFiltered': total_filtered_students,
+        'recordsTotal': total_students,
+        'draw': request.args.get('draw', type=int),
+        'basic_stats': basic_stats
+    }), 200
+    # except Exception as ex:
+    #     return jsonify({'error': str(ex)}), 500
+
+
 @student_bp.route('/upload-image', methods=['POST'])
 def upload_image():
     image = request.files["image"]
