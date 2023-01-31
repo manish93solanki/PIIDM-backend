@@ -44,7 +44,7 @@ def populate_student_record(student):
     student_result = {}
     for key in student.__table__.columns.keys():
         value = getattr(student, key)
-        if key in ('admission_date',) and value:
+        if key in ('admission_date', 'dob', ) and value:
             # value = datetime.datetime.strftime('%Y-%m-%d')
             value = str(value)
 
@@ -144,7 +144,7 @@ def add_student():
         if is_student_email_exists(data['email']):
             return {'message': 'Email is already exist.'}, 409
         for key, value in data.items():
-            if key in ('admission_date',) and value:
+            if key in ('admission_date', 'dob', ) and value:
                 value = datetime.datetime.strptime(value, '%Y-%m-%d')
             setattr(student, key, value)
         bulk_insert([student])
@@ -191,7 +191,7 @@ def update_student(student_id):
     if 'email' in data and student.email != data['email'] and is_student_email_exists(data['email']):
         return {'error': 'Email is already exist.'}, 409
     for key, value in data.items():
-        if key in ('admission_date',) and value:
+        if key in ('admission_date', 'dob', ) and value:
             value = datetime.datetime.strptime(value, '%Y-%m-%d')
         setattr(student, key, value)
     bulk_insert([student])
