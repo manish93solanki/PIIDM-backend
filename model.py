@@ -10,6 +10,32 @@ from sqlalchemy.sql.functions import coalesce, func
 db = SQLAlchemy()
 
 
+class UserRole(db.Model):
+    __tablename__ = 'user_role'
+
+    user_role_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(255), nullable=False)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class User(db.Model):
+    __tablename__ = 'user'
+
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
+    phone_num = Column(VARCHAR(255), unique=True, nullable=False)
+    email = Column(VARCHAR(255), unique=True, nullable=False)
+    token = Column(VARCHAR(255), unique=True, nullable=True)
+    password = Column(VARCHAR(255), nullable=False, default='admin123')
+    user_role_id = Column(ForeignKey('user_role.user_role_id'), nullable=False)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    user_role = relationship('UserRole')
+
+
 class Branch(db.Model):
     __tablename__ = 'branch'
 

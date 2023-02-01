@@ -1,3 +1,29 @@
+curl --location --request POST 'http://localhost:3002/api/user_role/add' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "name": "super_admin"
+    },
+    {
+        "name": "agent"
+    },
+    {
+        "name": "student"
+    }
+]'
+
+curl --location --request POST 'http://localhost:3002/api/user/add' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "phone_num": "+91-0000000000",
+        "email": "admin@test.com",
+        "password": "admin123",
+        "user_role_id": 1
+    }
+]'
+
+
 curl --location --request POST 'http://localhost:3002/api/branch/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[

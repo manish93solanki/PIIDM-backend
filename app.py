@@ -19,7 +19,8 @@ from payment_mode import payment_mode_bp
 from receipt import receipt_bp
 from source import source_bp
 from student import student_bp
-
+from user import user_bp
+from user_role import user_role_bp
 
 # SQLALCHEMY_DATABASE_URL = f'sqlite:///{os.getcwd()}piidm_dev.db'
 SQLALCHEMY_DATABASE_URL = f'mysql://piidm_dev:piidm_dev_password123@localhost:3306/piidm_dev'
@@ -33,6 +34,8 @@ def create_app():
     """
     app = Flask(__name__)
     CORS(app)
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'this is a secret'
+    app.config['SECRET_KEY'] = SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URL
     app.session = Session
     migrate = Migrate()
@@ -42,6 +45,8 @@ def create_app():
 
 
 app = create_app()
+app.register_blueprint(user_role_bp)
+app.register_blueprint(user_bp)
 app.register_blueprint(branch_bp)
 app.register_blueprint(course_bp)
 app.register_blueprint(source_bp)

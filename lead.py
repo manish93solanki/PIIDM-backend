@@ -2,6 +2,7 @@ import datetime
 import traceback
 from flask import current_app as app, request, Blueprint, jsonify
 import model
+from auth_middleware import token_required
 from db_operations import bulk_insert, insert_single_record
 from sqlalchemy import or_
 
@@ -112,6 +113,7 @@ def populate_lead_record(lead):
 
 
 @lead_bp.route('/add', methods=['POST'])
+@token_required
 def add_lead():
     try:
         if request.method == 'POST':
@@ -162,6 +164,7 @@ def add_lead():
 
 
 @lead_bp.route('/update/<lead_id>', methods=['PUT'])
+@token_required
 def update_lead(lead_id):
     try:
         if not request.is_json:
@@ -190,6 +193,7 @@ def update_lead(lead_id):
 
 
 @lead_bp.route('/delete/<lead_id>', methods=['DELETE'])
+@token_required
 def soft_delete_lead(lead_id):
     try:
         lead = fetch_lead_by_id(int(lead_id))
@@ -201,6 +205,7 @@ def soft_delete_lead(lead_id):
 
 
 @lead_bp.route('/select/<lead_id>', methods=['GET'])
+@token_required
 def get_lead(lead_id):
     try:
         lead = app.session.query(model.Lead).filter(model.Lead.lead_id == int(lead_id), model.Lead.deleted == 0).first()
@@ -211,6 +216,7 @@ def get_lead(lead_id):
 
 
 @lead_bp.route('/select-all', methods=['GET'])
+@token_required
 def get_leads():
     try:
         from_date = request.args.get('from_date', None)
@@ -249,6 +255,7 @@ def get_leads():
 
 
 @lead_bp.route('/select-paginate/<page_id>', methods=['GET'])
+@token_required
 def get_paginated_leads(page_id):
     try:
         # leads = app.session.query(model.Lead).paginate(page=page_id, per_page=1)
@@ -263,6 +270,7 @@ def get_paginated_leads(page_id):
 
 
 @lead_bp.route('/select-paginate-advanced', methods=['GET'])
+@token_required
 def get_paginated_leads_advanced():
     try:
         total_leads = model.Lead.query.filter(model.Lead.deleted == 0).count()
