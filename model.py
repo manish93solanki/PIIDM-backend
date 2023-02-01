@@ -182,6 +182,7 @@ class Student(db.Model):
     city_id = Column(ForeignKey('city.city_id'), nullable=False)
     tutor_id = Column(ForeignKey('agent.agent_id'), nullable=False)
     course_id = Column(ForeignKey('course.course_id'), nullable=False)
+    json_course_learning_progress = Column(Text, nullable=True)
     batch_time_id = Column(ForeignKey('batch_time.batch_time_id'), nullable=False)
     source_id = Column(ForeignKey('source.source_id'), nullable=False)
     total_fee = Column(Integer, nullable=False)
