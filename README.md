@@ -12,6 +12,12 @@ flask db migrate -m "create tables"
 flask db upgrade
 ```
 
+### Apache2
+`sudo systemctl status apache2`
+
+### Replace with domain IP
+`find ./ -type f -exec sed -i -e  's/127.0.0.1/142.93.208.220/g' {} \;`
+
 rm -f ./piidm_dev.db && rm -rf ./migrations && flask db init && flask db migrate && flask db upgrade
 
 

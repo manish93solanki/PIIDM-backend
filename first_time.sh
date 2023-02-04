@@ -12,28 +12,6 @@ curl --location --request POST 'http://localhost:3002/api/user_role/add' \
     }
 ]'
 
-curl --location --request POST 'http://localhost:3002/api/user/add' \
---header 'Content-Type: application/json' \
---data-raw '[
-    {
-        "phone_num": "+91-0000000000",
-        "email": "admin@test.com",
-        "password": "admin123",
-        "user_role_id": 1
-    }
-]'
-
-curl --location --request POST 'http://localhost:3002/api/user/add' \
---header 'Content-Type: application/json' \
---data-raw '[
-    {
-        "phone_num": "+91-9999999999",
-        "email": "agent1@test.com",
-        "password": "agent123",
-        "user_role_id": 2
-    }
-]'
-
 
 curl --location --request POST 'http://localhost:3002/api/branch/add' \
 --header 'Content-Type: application/json' \
@@ -81,22 +59,6 @@ curl --location --request POST 'http://localhost:3002/api/course/add' \
     },
     {
         "name": "Classroom Digital Marketing"
-    }
-]'
-
-
-curl --location --request POST 'http://localhost:3002/api/agent/add' \
---header 'Content-Type: application/json' \
---data-raw '[
-    {
-        "name": "admin",
-        "phone_num": "+91-1111111111",
-        "email": "admin@test.com"
-    },
-    {
-        "name": "test2",
-        "phone_num": "+91-2222222222",
-        "email": "test2@test.com"
     }
 ]'
 
@@ -1344,105 +1306,6 @@ curl --location --request POST 'http://localhost:3002/api/city/add' \
 ]'
 
 
-curl --location --request POST 'http://localhost:3002/api/leads/add' \
---header 'Content-Type: application/json' \
---data-raw '[
-    {
-        "name": "lead2",
-        "phone_num": "+91-2211111113",
-        "alternate_phone_num": "+91-2211111114",
-        "email": "lead4@test.com",
-        "lead_date": "2023-01-01",
-        "remarks": "test1",
-        "country_id": 98,
-        "area": null,
-        "city_id": 1,
-        "branch_id": 1,
-        "source_id": 1,
-        "course_id": 1,
-        "batch_time_id": 1,
-        "next_action_date": null,
-        "next_action_remarks": null,
-        "details_sent": null,
-        "visit_date": null,
-        "pitch_by": null,
-        "demo_date": null,
-        "instructor": null,
-        "broadcast": null,
-        "agent_id": 1,
-        "fee_offer": null
-
-    }
-]'
-
-
-
-curl --location --request POST 'http://localhost:3002/api/leads/add' \
---header 'Content-Type: application/json' \
---data-raw '[
-    {
-        "name": "lead1",
-        "phone_num": "+91-1111111113",
-        "alternate_phone_num": "+91-1111111114",
-        "email": "lead1@test.com",
-        "lead_date": "2023-01-01",
-        "remarks": "test1",
-        "country_id": 98,
-        "area": null,
-        "city_id": 1,
-        "branch_id": 1,
-        "source_id": 1,
-        "course_id": 1,
-        "batch_time_id": 1,
-        "next_action_date": null,
-        "next_action_remarks": null,
-        "details_sent": null,
-        "visit_date": null,
-        "pitch_by": null,
-        "demo_date": null,
-        "instructor": null,
-        "broadcast": null,
-        "agent_id": 1,
-        "fee_offer": null
-
-    }
-]'
-
-
-curl --location --request POST 'http://localhost:3002/api/students/add' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "name": "student1",
-    "phone_num": "+91-1111111111",
-    "alternate_phone_num": "+91-1111111111",
-    "email": "student1@test.com",
-    "admission_date": "2023-01-12",
-    "country_id": 98,
-    "city_id": 1,
-    "branch_id": 1,
-    "source_id": 1,
-    "course_id": 1,
-    "batch_time_id": 1,
-    "tutor_id": 1,
-    "total_fee": 100,
-    "total_fee_paid": 0,
-    "total_pending_fee": 100,
-    "installments": [
-        {
-            "installment_payment": 10,
-            "installment_payment_mode_id": 1,
-            "installment_payment_date": "2023-01-01"
-        },
-        {
-            "installment_payment": null,
-            "installment_payment_mode": null,
-            "installment_payment_date": null
-        }
-    ],
-    "is_active": 1
-}'
-
-
 curl --location --request POST 'http://localhost:3002/api/payment_mode/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
@@ -1457,5 +1320,29 @@ curl --location --request POST 'http://localhost:3002/api/payment_mode/add' \
     },
     {
         "name": "UPI"
+    }
+]'
+
+curl --location --request POST 'http://localhost:3002/api/user/add' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "name": "admin",
+        "phone_num": "+91-0000000000",
+        "email": "admin@test.com",
+        "password": "admin123",
+        "user_role_id": 1
+    }
+]'
+
+
+curl --location --request POST 'http://localhost:3002/api/agent/add' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "name": "admin",
+        "phone_num": "+91-0000000000",
+        "email": "admin@test.com",
+        "user_id": 1
     }
 ]'
