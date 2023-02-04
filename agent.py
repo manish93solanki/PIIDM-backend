@@ -1,7 +1,7 @@
 from flask import current_app as app, request, Blueprint, jsonify
-from sqlalchemy import or_
-
+from sqlalchemy import or_, desc
 import model
+from auth_middleware import token_required
 from db_operations import bulk_insert, insert_single_record
 
 agent_bp = Blueprint('agent_bp', __name__, url_prefix='/api/agent')
@@ -35,7 +35,8 @@ def populate_agent_record(agent):
 
 
 @agent_bp.route('/add', methods=['POST'])
-def add_agent():
+@token_required
+def add_agent(current_user):
     try:
         if request.method == 'POST':
             if not request.is_json:
@@ -59,7 +60,8 @@ def add_agent():
 
 
 @agent_bp.route('/update/<agent_id>', methods=['PUT'])
-def update_agent(agent_id):
+@token_required
+def update_agent(current_user, agent_id):
     try:
         if not request.is_json:
             return {'error': 'Bad Request.'}, 400
@@ -83,7 +85,8 @@ def update_agent(agent_id):
 
 
 @agent_bp.route('/delete/<agent_id>', methods=['DELETE'])
-def soft_delete_agent(agent_id):
+@token_required
+def soft_delete_agent(current_user, agent_id):
     try:
         agent = fetch_agent_by_id(int(agent_id))
         agent.deleted = 1
@@ -94,7 +97,8 @@ def soft_delete_agent(agent_id):
 
 
 @agent_bp.route('/select/<agent_id>', methods=['GET'])
-def get_agent(agent_id):
+@token_required
+def get_agent(current_user, agent_id):
     agent = app.session.query(model.Agent).filter(model.Agent.agent_id == int(agent_id),
                                                       model.Agent.deleted == 0).first()
     agent_result = populate_agent_record(agent)
@@ -102,8 +106,13 @@ def get_agent(agent_id):
 
 
 @agent_bp.route('/all', methods=['GET'])
-def get_agents():
-    cursor = app.session.query(model.Agent).all()
+@token_required
+def get_agents(current_user):
+    query = app.session.query(model.Agent).filter(model.Agent.deleted == 0)
+    if current_user.user_role_id == 2:
+        cursor = query.filter(model.Agent.user_id == current_user.user_id).all()
+    else:
+        cursor = query.all()
     agents = list(cursor)
     results = []
     for agent in agents:
@@ -116,13 +125,22 @@ def get_agents():
 
 
 @agent_bp.route('/select-paginate-advanced', methods=['GET'])
-def get_paginated_agents_advanced():
+@token_required
+def get_paginated_agents_advanced(current_user):
     # try:
     total_agents = model.Agent.query.filter(model.Agent.deleted == 0).count()
 
     # filtering data
     query = app.session.query(model.Agent)
     query = query.filter(model.Agent.deleted == 0)
+
+    if current_user.user_role_id == 2:  # role == agent
+        agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
+        if agent_id:
+            agent_id = agent_id[0]
+        query = query.filter(model.Agent.agent_id == agent_id)
+        total_agents = model.Agent.query.filter(model.Agent.deleted == 0,
+                                                model.Agent.agent_id == agent_id).count()
 
     # pagination
     start = request.args.get('start', type=int)
@@ -131,7 +149,7 @@ def get_paginated_agents_advanced():
     print('search_term: ', search_term)
     query = query.filter(or_(
         model.Agent.name.like(f'{search_term}%'),
-        model.Agent.phone_num.like(f'{search_term}%'),
+        model.Agent.phone_num.like(f'%{search_term}%'),
         model.Agent.email.like(f'{search_term}%'),
     )) if search_term else query
 
@@ -140,7 +158,7 @@ def get_paginated_agents_advanced():
         'total_agents': total_filtered_agents
     }
 
-    query = query.offset(start).limit(length)
+    query = query.order_by(desc(model.Agent.created_at)).offset(start).limit(length)
 
     agents = query.all()
     agent_results = []

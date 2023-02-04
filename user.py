@@ -2,39 +2,86 @@ import jwt
 from flask import current_app as app, request, Blueprint, jsonify
 from sqlalchemy import or_
 import model
+from auth_middleware import token_required
 from db_operations import bulk_insert
 
 user_bp = Blueprint('user_bp', __name__, url_prefix='/api/user')
 
 
+def is_user_phone_num_exists(phone_num):
+    cursor = app.session.query(model.User).filter(model.User.phone_num == phone_num)
+    records = list(cursor)
+    return records
+
+
+def is_user_email_exists(email):
+    cursor = app.session.query(model.User).filter(model.User.email == email)
+    records = list(cursor)
+    return records
+
+
+def fetch_user_by_id(user_id):
+    record = app.session.query(model.User).filter(model.User.user_id == user_id).first()
+    return record
+
+
 @user_bp.route('/add', methods=['POST'])
 def add_user():
+    user_id = []
     if request.method == 'POST':
         if not request.is_json:
             pass
         data = request.get_json()
         records_to_add = []
-        for item in data:
-            user = model.User()
-            user.phone_num = item['phone_num']
-            user.email = item['email']
-            user.password = item['password']
-            user.user_role_id = item['user_role_id']
-            records_to_add.append(user)
+        user = model.User()
+        if is_user_phone_num_exists(data['phone_num']):
+            return {'message': 'Phone number is already exist.'}, 409
+        if is_user_email_exists(data['email']):
+            return {'message': 'Email is already exist.'}, 409
+        user.name = data['name']
+        user.phone_num = data['phone_num']
+        user.email = data['email']
+        user.password = data['password']
+        user.user_role_id = data['user_role_id']
+        records_to_add.append(user)
         bulk_insert(records_to_add)
-    return {}
+
+        user = app.session.query(model.User).filter(model.User.phone_num == user.phone_num).first()
+        user_id = user.user_id
+    return {'message': 'User is created.', 'user_id': user_id}
+
+
+@user_bp.route('/change_password/<user_id>', methods=['PUT'])
+@token_required
+def change_password(current_user, user_id):
+    try:
+        if not request.is_json:
+            return {'error': 'Bad Request.'}, 400
+        data = request.get_json()
+        records_to_add = []
+        user = fetch_user_by_id(int(user_id))
+
+        # Check if user is already exist
+        user.password = data['password']
+        records_to_add.append(user)
+        bulk_insert(records_to_add)
+        return jsonify({'message': 'Password update successfully.'}), 200
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
 
 
 @user_bp.route('/delete/<delete_id>', methods=['DELETE'])
-def delete_user(delete_id):
+@token_required
+def delete_user(current_user, delete_id):
     app.session.query(model.User).filter(model.User.user_id == int(delete_id)).delete()
     app.session.commit()
     return {}
 
 
 @user_bp.route('/all', methods=['GET'])
-def get_user():
-    cursor = app.session.query(model.User).all()
+@token_required
+def get_user(current_user):
+    cursor = app.session.query(model.User).filter(model.User.deleted == 0).all()
     users = list(cursor)
     results = []
     for user in users:
@@ -50,7 +97,6 @@ def get_user():
 def login():
     try:
         data = request.json
-        print(data)
         if not data:
             return {
                 "message": "Please provide user details",
@@ -62,13 +108,22 @@ def login():
         query = query.filter(model.User.deleted == 0)
         query = query.filter(model.User.password == data['password'])
         query = query.filter(or_(
-            model.User.phone_num == data['phone_num'],
-            model.User.email == data['email']
+            model.User.phone_num.op('regexp')(rf'\+\d+\-{data["username"]}'),
+            model.User.email == data['username']
         ))
         is_validated = query.count()
         if not is_validated:
-            return dict(message='Invalid data', data=None, error=is_validated), 400
+            error_message = 'Mobile/Email or password is incorrect.'
+            return dict(message='Invalid data', data=None, error=error_message), 400
         user = query.first()
+        # Agent ID
+        agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == user.user_id).first()
+        if agent_id:
+            agent_id = agent_id[0]
+        # Student ID
+        student_id = app.session.query(model.Student.student_id).filter(model.Student.user_id == user.user_id).first()
+        if student_id:
+            student_id = student_id[0]
         if user:
             try:
                 # token should expire after 24 hrs
@@ -79,8 +134,13 @@ def login():
                 )
                 bulk_insert([user])
                 return {
-                    "message": "Successfully fetched auth token",
-                    "data": user.token
+                    "message": "Login Successfully...",
+                    "token": user.token,
+                    "profile_name": user.name,
+                    "user_id": user.user_id,
+                    "user_role_id": user.user_role_id,
+                    "agent_id": agent_id,
+                    "student_id": student_id
                 }
             except Exception as e:
                 return {
@@ -88,7 +148,7 @@ def login():
                     "message": str(e)
                 }, 500
         return {
-            "message": "Error fetching auth token!, invalid email or password",
+            "message": "Error fetching auth token!, invalid email/mobile or password",
             "data": None,
             "error": "Unauthorized"
         }, 404
@@ -97,4 +157,23 @@ def login():
             "message": "Something went wrong!",
             "error": str(e),
             "data": None
+        }, 500
+
+
+@user_bp.route("/logout", methods=["PUT"])
+@token_required
+def logout(current_user):
+    try:
+        user = app.session.query(model.User).filter(
+            model.User.deleted == 0,
+            model.User.user_id == current_user.user_id
+        ).first()
+        user.token = None
+        bulk_insert([user])
+        return {
+            'message': 'Logout Successfully'
+        }, 200
+    except Exception as ex:
+        return {
+            'error': f'Issue with logout., {str(ex)}'
         }, 500

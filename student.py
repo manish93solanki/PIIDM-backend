@@ -1,8 +1,9 @@
 import datetime
 from flask import current_app as app, request, Blueprint, jsonify, send_file
 import model
+from auth_middleware import token_required
 from db_operations import bulk_insert, insert_single_record
-from sqlalchemy import or_, asc, func
+from sqlalchemy import or_, asc, func, desc
 
 student_bp = Blueprint('student_bp', __name__, url_prefix='/api/students')
 
@@ -130,7 +131,8 @@ def populate_receipt_record(receipt):
 
 
 @student_bp.route('/add', methods=['POST'])
-def add_student():
+@token_required
+def add_student(current_user):
     if request.method == 'POST':
         if not request.is_json:
             return {'message': 'Bad Request.'}, 400
@@ -174,7 +176,8 @@ def add_student():
 
 
 @student_bp.route('/update/<student_id>', methods=['PUT'])
-def update_student(student_id):
+@token_required
+def update_student(current_user, student_id):
     if not request.is_json:
         return {'error': 'Bad Request.'}, 400
     data = request.get_json()
@@ -223,7 +226,8 @@ def update_student(student_id):
 
 
 @student_bp.route('/delete/<student_id>', methods=['DELETE'])
-def soft_delete_student(student_id):
+@token_required
+def soft_delete_student(current_user, student_id):
     student = fetch_student_by_id(int(student_id))
     student.deleted = 1
     # student.is_active = 0
@@ -235,7 +239,8 @@ def soft_delete_student(student_id):
 
 
 @student_bp.route('/select/<student_id>', methods=['GET'])
-def get_student(student_id):
+@token_required
+def get_student(current_user, student_id):
     student = app.session.query(model.Student).filter(model.Student.student_id == int(student_id),
                                                       model.Student.deleted == 0).first()
     student_result = populate_student_record(student)
@@ -249,8 +254,25 @@ def get_student(student_id):
     return jsonify(student_result), 200
 
 
+# @student_bp.route('/select/user/<user_id>', methods=['GET'])
+# @token_required
+# def get_student_by_user_id(current_user, user_id):
+#     student = app.session.query(model.Student).filter(model.Student.user_id == int(user_id),
+#                                                       model.Student.deleted == 0).first()
+#     student_result = populate_student_record(student)
+#     student_result['installments'] = []
+#
+#     # Get student receipts
+#     receipt_records = get_all_receipts_by_student(student.student_id)
+#     for receipt in receipt_records:
+#         receipt_result = populate_receipt_record(receipt)
+#         student_result['installments'].append(receipt_result)
+#     return jsonify(student_result), 200
+
+
 @student_bp.route('/select-all', methods=['GET'])
-def get_students():
+@token_required
+def get_students(current_user):
     students = app.session.query(model.Student).filter(model.Student.deleted == 0).all()
     student_results = []
     for student in students:
@@ -267,7 +289,8 @@ def get_students():
 
 
 @student_bp.route('/select-paginate/<page_id>', methods=['GET'])
-def get_paginated_students(page_id):
+@token_required
+def get_paginated_students(current_user, page_id):
     # students = app.session.query(model.Student).paginate(page=page_id, per_page=1)
     students = model.Student.query.filter(model.Student.deleted == 0).paginate(page=int(page_id), per_page=1)
     student_results = []
@@ -285,7 +308,8 @@ def get_paginated_students(page_id):
 
 
 @student_bp.route('/select-paginate-advanced', methods=['GET'])
-def get_paginated_students_advanced():
+@token_required
+def get_paginated_students_advanced(current_user):
     # try:
     total_students = model.Student.query.filter(model.Student.deleted == 0).count()
 
@@ -316,6 +340,14 @@ def get_paginated_students_advanced():
     query = query.filter(model.Student.batch_time_id == int(batch_time)) if batch_time else query
     query = query.filter(model.Student.is_active == int(is_active)) if is_active else query
 
+    if current_user.user_role_id == 2:  # role == agent
+        agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
+        if agent_id:
+            agent_id = agent_id[0]
+        query = query.filter(model.Student.tutor_id == agent_id)
+        total_students = model.Student.query.filter(model.Student.deleted == 0,
+                                                    model.Student.tutor_id == agent_id).count()
+
     # pagination
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
@@ -323,8 +355,8 @@ def get_paginated_students_advanced():
     print('search_term: ', search_term)
     query = query.filter(or_(
         model.Student.name.like(f'{search_term}%'),
-        model.Student.phone_num.like(f'{search_term}%'),
-        model.Student.alternate_phone_num.like(f'{search_term}%'),
+        model.Student.phone_num.like(f'%{search_term}%'),
+        model.Student.alternate_phone_num.like(f'%{search_term}%'),
         model.Student.email.like(f'{search_term}%'),
     )) if search_term else query
 
@@ -343,7 +375,7 @@ def get_paginated_students_advanced():
 
     }
 
-    query = query.offset(start).limit(length)
+    query = query.order_by(desc(model.Student.admission_date)).offset(start).limit(length)
     print(query)
 
     students = query.all()
@@ -372,7 +404,8 @@ def get_paginated_students_advanced():
 
 
 @student_bp.route('/installments/select-paginate-advanced', methods=['GET'])
-def get_paginated_students_installments_advanced():
+@token_required
+def get_paginated_students_installments_advanced(current_user):
     # try:
     total_students = model.Student.query.filter(model.Student.deleted == 0).count()
 
@@ -430,7 +463,8 @@ def get_paginated_students_installments_advanced():
 
 
 @student_bp.route('/upload-image', methods=['POST'])
-def upload_image():
+@token_required
+def upload_image(current_user):
     image = request.files["image"]
     image_path = f'data/uploaded_images/{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")}-{image.filename}'
     image.save(image_path)
@@ -440,5 +474,4 @@ def upload_image():
 @student_bp.route('/get-image', methods=['GET'])
 def get_image():
     image_path = request.args.get('image_path')
-    print(image_path)
     return send_file(image_path, mimetype='image/gif')

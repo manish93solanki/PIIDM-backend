@@ -1,12 +1,14 @@
 from flask import current_app as app, request, Blueprint, jsonify
 import model
+from auth_middleware import token_required
 from db_operations import bulk_insert
 
 branch_bp = Blueprint('branch_bp', __name__, url_prefix='/api/branch')
 
 
 @branch_bp.route('/add', methods=['POST'])
-def add_branch():
+@token_required
+def add_branch(current_user):
     if request.method == 'POST':
         if not request.is_json:
             pass
@@ -21,14 +23,16 @@ def add_branch():
 
 
 @branch_bp.route('/delete/<delete_id>', methods=['DELETE'])
-def delete_branch(delete_id):
+@token_required
+def delete_branch(current_user, delete_id):
     app.session.query(model.Branch).filter(model.Branch.branch_id == int(delete_id)).delete()
     app.session.commit()
     return {}
 
 
 @branch_bp.route('/all', methods=['GET'])
-def get_branch():
+@token_required
+def get_branch(current_user):
     cursor = app.session.query(model.Branch).all()
     branches = list(cursor)
     results = []

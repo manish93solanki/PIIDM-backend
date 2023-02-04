@@ -1,0 +1,6 @@
+- Create user while creating student - Done
+- Create user while creating agent
+- Fresh leads - Done
+- Disable features for agent
+- delete student by admin only
+- Prepent +91- via mobile login.

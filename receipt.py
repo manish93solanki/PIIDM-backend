@@ -1,8 +1,9 @@
 import datetime
 from flask import current_app as app, request, Blueprint, jsonify
 import model
+from auth_middleware import token_required
 from db_operations import bulk_insert, insert_single_record
-from sqlalchemy import or_, func
+from sqlalchemy import or_, func, desc
 
 receipt_bp = Blueprint('receipt_bp', __name__, url_prefix='/api/receipts')
 
@@ -102,7 +103,8 @@ def fetch_student_by_student_id(student_id):
 
 
 @receipt_bp.route('/delete/<receipt_id>', methods=['DELETE'])
-def soft_delete_receipt(receipt_id):
+@token_required
+def soft_delete_receipt(current_user, receipt_id):
     receipt = fetch_receipt_by_id(int(receipt_id))
     receipt.deleted = 1
     insert_single_record(receipt)
@@ -110,7 +112,8 @@ def soft_delete_receipt(receipt_id):
 
 
 @receipt_bp.route('/select/<receipt_id>', methods=['GET'])
-def get_receipt(receipt_id):
+@token_required
+def get_receipt(current_user, receipt_id):
     receipt = app.session.query(model.Receipt).filter(model.Receipt.receipt_id == int(receipt_id),
                                                       model.Receipt.deleted == 0).first()
     receipt_result = populate_receipt_record(receipt)
@@ -118,7 +121,8 @@ def get_receipt(receipt_id):
 
 
 @receipt_bp.route('/select-all', methods=['GET'])
-def get_receipts():
+@token_required
+def get_receipts(current_user):
     receipts = app.session.query(model.Receipt).filter(model.Receipt.deleted == 0).all()
     receipt_results = []
     for receipt in receipts:
@@ -128,7 +132,8 @@ def get_receipts():
 
 
 @receipt_bp.route('/select-paginate/<page_id>', methods=['GET'])
-def get_paginated_receipts(page_id):
+@token_required
+def get_paginated_receipts(current_user, page_id):
     # receipts = app.session.query(model.Receipt).paginate(page=page_id, per_page=1)
     receipts = model.Receipt.query.filter(model.Receipt.deleted == 0).paginate(page=int(page_id), per_page=1)
     receipt_results = []
@@ -139,7 +144,8 @@ def get_paginated_receipts(page_id):
 
 
 @receipt_bp.route('/select-paginate-advanced', methods=['GET'])
-def get_paginated_students_advanced():
+@token_required
+def get_paginated_students_advanced(current_user):
     # try:
     total_receipts = model.Receipt.query.filter(model.Receipt.deleted == 0).count()
 
@@ -153,6 +159,16 @@ def get_paginated_students_advanced():
     query = query.filter(
         model.Receipt.installment_payment_date.between(from_date, to_date)) if from_date and to_date else query
 
+    if current_user.user_role_id == 2:  # role == agent
+        agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
+        if agent_id:
+            agent_id = agent_id[0]
+        filtered_student_ids = app.session.query(model.Student.student_id).filter(model.Student.tutor_id == agent_id)
+        # only those students which are associated with given agent
+        query = query.filter(model.Receipt.student_id.in_(filtered_student_ids))
+        total_receipts = model.Receipt.query.filter(model.Receipt.deleted == 0,
+                                                    model.Receipt.student_id.in_(filtered_student_ids)).count()
+
     # pagination
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
@@ -160,8 +176,8 @@ def get_paginated_students_advanced():
     print('search_term: ', search_term)
     student_sub_query = app.session.query(model.Student.student_id).filter(or_(
         model.Student.name.like(f'{search_term}%'),
-        model.Student.phone_num.like(f'{search_term}%'),
-        model.Student.alternate_phone_num.like(f'{search_term}%'),
+        model.Student.phone_num.like(f'%{search_term}%'),
+        model.Student.alternate_phone_num.like(f'%{search_term}%'),
         model.Student.email.like(f'{search_term}%'),
     )).subquery() if search_term else query
     query = query.filter(model.Receipt.student_id.in_(student_sub_query)) if search_term else query
@@ -175,7 +191,7 @@ def get_paginated_students_advanced():
         'total_earning': total_earning
     }
 
-    query = query.offset(start).limit(length)
+    query = query.order_by(desc(model.Receipt.receipt_id)).offset(start).limit(length)
 
     receipts = query.all()
     receipt_results = []

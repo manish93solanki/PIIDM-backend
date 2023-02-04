@@ -24,6 +24,7 @@ class User(db.Model):
     __tablename__ = 'user'
 
     user_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(255), nullable=False)
     phone_num = Column(VARCHAR(255), unique=True, nullable=False)
     email = Column(VARCHAR(255), unique=True, nullable=False)
     token = Column(VARCHAR(255), unique=True, nullable=True)
@@ -73,9 +74,12 @@ class Agent(db.Model):
     name = Column(VARCHAR(255), nullable=False)
     phone_num = Column(VARCHAR(255), unique=True, nullable=False)
     email = Column(VARCHAR(255), unique=True, nullable=False)
+    user_id = Column(ForeignKey('user.user_id'), nullable=True)
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    user = relationship('User')
 
 
 class BatchTime(db.Model):
@@ -206,7 +210,7 @@ class Student(db.Model):
     branch_id = Column(ForeignKey('branch.branch_id'), nullable=False)
     country_id = Column(ForeignKey('country.country_id'), nullable=False)
     city_id = Column(ForeignKey('city.city_id'), nullable=False)
-    tutor_id = Column(ForeignKey('agent.agent_id'), nullable=False)
+    tutor_id = Column(ForeignKey('agent.agent_id'), nullable=False)  # tutor is agent
     course_id = Column(ForeignKey('course.course_id'), nullable=False)
     json_course_learning_progress = Column(Text, nullable=True)
     batch_time_id = Column(ForeignKey('batch_time.batch_time_id'), nullable=False)
@@ -219,7 +223,8 @@ class Student(db.Model):
     # receipt_installment_3_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
     # receipt_installment_4_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
     is_active = Column(Integer, nullable=False, default=1)
-    is_document_verified = Column(Integer, nullable=False, default=0)  # 0=reset, 1=accept, 2=reject
+    is_document_verified = Column(Integer, nullable=False, default=0)  # 0=reset, 1=accept, 2=reject, 3=pending
+    user_id = Column(ForeignKey('user.user_id'), nullable=True)
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
@@ -231,4 +236,5 @@ class Student(db.Model):
     agent = relationship('Agent')
     country = relationship('Country')
     city = relationship('City')
+    user = relationship('User')
     # receipt = relationship('Receipt')

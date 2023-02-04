@@ -2,6 +2,7 @@ from flask import current_app as app, request, Blueprint, jsonify
 from sqlalchemy import or_
 
 import model
+from auth_middleware import token_required
 from db_operations import bulk_insert, insert_single_record
 
 course_bp = Blueprint('course_bp', __name__, url_prefix='/api/course')
@@ -27,7 +28,8 @@ def populate_course_record(course):
 
 
 @course_bp.route('/add', methods=['POST'])
-def add_course():
+@token_required
+def add_course(current_user):
     try:
         if request.method == 'POST':
             if not request.is_json:
@@ -49,7 +51,8 @@ def add_course():
 
 
 @course_bp.route('/update/<course_id>', methods=['PUT'])
-def update_course(course_id):
+@token_required
+def update_course(current_user, course_id):
     try:
         if not request.is_json:
             return {'error': 'Bad Request.'}, 400
@@ -70,7 +73,8 @@ def update_course(course_id):
 
 
 @course_bp.route('/delete/<course_id>', methods=['DELETE'])
-def soft_delete_course(course_id):
+@token_required
+def soft_delete_course(current_user, course_id):
     try:
         course = fetch_course_by_id(int(course_id))
         course.deleted = 1
@@ -81,7 +85,8 @@ def soft_delete_course(course_id):
 
 
 @course_bp.route('/select/<course_id>', methods=['GET'])
-def get_course(course_id):
+@token_required
+def get_course(current_user, course_id):
     course = app.session.query(model.Course).filter(model.Course.course_id == int(course_id),
                                                       model.Course.deleted == 0).first()
     course_result = populate_course_record(course)
@@ -89,7 +94,8 @@ def get_course(course_id):
 
 
 @course_bp.route('/all', methods=['GET'])
-def get_courses():
+@token_required
+def get_courses(current_user):
     cursor = app.session.query(model.Course).all()
     courses = list(cursor)
     results = []
@@ -103,7 +109,8 @@ def get_courses():
 
 
 @course_bp.route('/select-paginate-advanced', methods=['GET'])
-def get_paginated_courses_advanced():
+@token_required
+def get_paginated_courses_advanced(current_user):
     # try:
     total_courses = model.Course.query.filter(model.Course.deleted == 0).count()
 

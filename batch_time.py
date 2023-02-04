@@ -1,12 +1,14 @@
 from flask import current_app as app, request, Blueprint, jsonify
 import model
+from auth_middleware import token_required
 from db_operations import bulk_insert
 
 batch_time_bp = Blueprint('batch_time_bp', __name__, url_prefix='/api/batch_time')
 
 
 @batch_time_bp.route('/add', methods=['POST'])
-def add_batch_time():
+@token_required
+def add_batch_time(current_user):
     if request.method == 'POST':
         if not request.is_json:
             pass
@@ -21,14 +23,16 @@ def add_batch_time():
 
 
 @batch_time_bp.route('/delete/<delete_id>', methods=['DELETE'])
-def delete_batch_time(delete_id):
+@token_required
+def delete_batch_time(current_user, delete_id):
     app.session.query(model.BatchTime).filter(model.BatchTime.batch_time_id == int(delete_id)).delete()
     app.session.commit()
     return {}
 
 
 @batch_time_bp.route('/all', methods=['GET'])
-def get_batch_time():
+@token_required
+def get_batch_time(current_user):
     cursor = app.session.query(model.BatchTime).all()
     batch_times = list(cursor)
     results = []

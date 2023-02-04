@@ -23,6 +23,17 @@ curl --location --request POST 'http://localhost:3002/api/user/add' \
     }
 ]'
 
+curl --location --request POST 'http://localhost:3002/api/user/add' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "phone_num": "+91-9999999999",
+        "email": "agent1@test.com",
+        "password": "agent123",
+        "user_role_id": 2
+    }
+]'
+
 
 curl --location --request POST 'http://localhost:3002/api/branch/add' \
 --header 'Content-Type: application/json' \

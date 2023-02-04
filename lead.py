@@ -4,7 +4,7 @@ from flask import current_app as app, request, Blueprint, jsonify
 import model
 from auth_middleware import token_required
 from db_operations import bulk_insert, insert_single_record
-from sqlalchemy import or_
+from sqlalchemy import or_, desc
 
 lead_bp = Blueprint('lead_bp', __name__, url_prefix='/api/leads')
 
@@ -114,7 +114,7 @@ def populate_lead_record(lead):
 
 @lead_bp.route('/add', methods=['POST'])
 @token_required
-def add_lead():
+def add_lead(current_user):
     try:
         if request.method == 'POST':
             if not request.is_json:
@@ -165,7 +165,7 @@ def add_lead():
 
 @lead_bp.route('/update/<lead_id>', methods=['PUT'])
 @token_required
-def update_lead(lead_id):
+def update_lead(current_user, lead_id):
     try:
         if not request.is_json:
             return {'error': 'Bad Request.'}, 400
@@ -194,7 +194,7 @@ def update_lead(lead_id):
 
 @lead_bp.route('/delete/<lead_id>', methods=['DELETE'])
 @token_required
-def soft_delete_lead(lead_id):
+def soft_delete_lead(current_user, lead_id):
     try:
         lead = fetch_lead_by_id(int(lead_id))
         lead.deleted = 1
@@ -206,7 +206,7 @@ def soft_delete_lead(lead_id):
 
 @lead_bp.route('/select/<lead_id>', methods=['GET'])
 @token_required
-def get_lead(lead_id):
+def get_lead(current_user, lead_id):
     try:
         lead = app.session.query(model.Lead).filter(model.Lead.lead_id == int(lead_id), model.Lead.deleted == 0).first()
         lead_result = populate_lead_record(lead)
@@ -217,7 +217,7 @@ def get_lead(lead_id):
 
 @lead_bp.route('/select-all', methods=['GET'])
 @token_required
-def get_leads():
+def get_leads(current_user):
     try:
         from_date = request.args.get('from_date', None)
         to_date = request.args.get('to_date', None)
@@ -256,7 +256,7 @@ def get_leads():
 
 @lead_bp.route('/select-paginate/<page_id>', methods=['GET'])
 @token_required
-def get_paginated_leads(page_id):
+def get_paginated_leads(current_user, page_id):
     try:
         # leads = app.session.query(model.Lead).paginate(page=page_id, per_page=1)
         leads = model.Lead.query.filter(model.Lead.deleted == 0).paginate(page=int(page_id), per_page=1)
@@ -271,8 +271,9 @@ def get_paginated_leads(page_id):
 
 @lead_bp.route('/select-paginate-advanced', methods=['GET'])
 @token_required
-def get_paginated_leads_advanced():
+def get_paginated_leads_advanced(current_user):
     try:
+        print('current_user: ', current_user)
         total_leads = model.Lead.query.filter(model.Lead.deleted == 0).count()
 
         # request params
@@ -285,6 +286,7 @@ def get_paginated_leads_advanced():
         source = request.args.get('source', None)
         batch_time = request.args.get('batch_time', None)
         admission_status = request.args.get('admission_status', None)
+        is_fresh_leads = request.args.get('is_fresh_leads', None)
 
         # filtering data
         query = app.session.query(model.Lead)
@@ -300,6 +302,26 @@ def get_paginated_leads_advanced():
         query = query.filter(model.Lead.source_id == int(source)) if source else query
         query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
         query = query.filter(model.Lead.admission_status == int(admission_status)) if admission_status else query
+        if current_user.user_role_id == 2:  # role == agent
+            if is_fresh_leads:
+                # For fresh leads, Fetch those leads which are assigned to admin
+                # and have not taken admission yet.
+                query = query.filter(model.Lead.admission_status == 0)
+
+                super_admin_user_ids = app.session.query(model.User.user_id).filter(
+                    model.User.user_role_id == 1).all()  # get super_admin user_id
+                super_admin_user_ids = [x[0] for x in super_admin_user_ids]
+                print('super_admin_user_ids: ', super_admin_user_ids)
+                super_admin_agent_ids = app.session.query(model.Agent.agent_id).filter(
+                    model.Agent.user_id.in_(super_admin_user_ids)).all()  # get super_admin user_id
+                super_admin_agent_ids = [x[0] for x in super_admin_agent_ids]
+                print('super_admin_agent_ids: ', super_admin_agent_ids)
+                query = query.filter(model.Lead.agent_id.in_(super_admin_agent_ids))
+            else:
+                agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
+                if agent_id:
+                    agent_id = agent_id[0]
+                query = query.filter(model.Lead.agent_id == agent_id)
 
         # pagination
         start = request.args.get('start', type=int)
@@ -308,13 +330,13 @@ def get_paginated_leads_advanced():
         print('search_term: ', search_term)
         query = query.filter(or_(
             model.Lead.name.like(f'{search_term}%'),
-            model.Lead.phone_num.like(f'{search_term}%'),
-            model.Lead.alternate_phone_num.like(f'{search_term}%'),
+            model.Lead.phone_num.like(f'%{search_term}%'),
+            model.Lead.alternate_phone_num.like(f'%{search_term}%'),
             model.Lead.email.like(f'{search_term}%'),
         )) if search_term else query
 
         total_filtered_leads = query.count()
-        query = query.offset(start).limit(length)
+        query = query.order_by(desc(model.Lead.lead_date)).offset(start).limit(length)
         print(query)
 
         leads = query.all()
