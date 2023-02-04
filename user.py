@@ -35,9 +35,9 @@ def add_user():
         records_to_add = []
         user = model.User()
         if is_user_phone_num_exists(data['phone_num']):
-            return {'message': 'Phone number is already exist.'}, 409
+            return {'error': 'Phone number is already exist.'}, 409
         if is_user_email_exists(data['email']):
-            return {'message': 'Email is already exist.'}, 409
+            return {'error': 'Email is already exist.'}, 409
         user.name = data['name']
         user.phone_num = data['phone_num']
         user.email = data['email']

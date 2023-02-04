@@ -135,16 +135,16 @@ def populate_receipt_record(receipt):
 def add_student(current_user):
     if request.method == 'POST':
         if not request.is_json:
-            return {'message': 'Bad Request.'}, 400
+            return {'error': 'Bad Request.'}, 400
         data = request.get_json()
         student = model.Student()
         # Check if student is already exist
         if is_student_phone_num_exists(data['phone_num']):
-            return {'message': 'Phone number is already exist.'}, 409
+            return {'error': 'Phone number is already exist.'}, 409
         if is_student_alternate_phone_num_exists(data['alternate_phone_num']):
-            return {'message': 'Alternate Phone number is already exist.'}, 409
+            return {'error': 'Alternate Phone number is already exist.'}, 409
         if is_student_email_exists(data['email']):
-            return {'message': 'Email is already exist.'}, 409
+            return {'error': 'Email is already exist.'}, 409
         for key, value in data.items():
             if key in ('admission_date', 'dob', ) and value:
                 value = datetime.datetime.strptime(value, '%Y-%m-%d')
