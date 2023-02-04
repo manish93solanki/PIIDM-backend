@@ -1,30 +1,3 @@
-#curl --location --request POST 'http://localhost:3002/api/user_role/add' \
-#--header 'Content-Type: application/json' \
-#--data-raw '[
-#    {
-#        "name": "super_admin"
-#    },
-#    {
-#        "name": "agent"
-#    },
-#    {
-#        "name": "student"
-#    }
-#]'
-
-curl --location --request POST 'http://localhost:3002/api/user/add' \
---header 'Content-Type: application/json' \
---data-raw '[
-    {
-        "name": "admin",
-        "phone_num": "+91-0000000000",
-        "email": "admin@test.com",
-        "password": "admin123",
-        "user_role_id": 1
-    }
-]'
-
-
 curl --location --request POST 'http://localhost:3002/api/agent/add' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer <TOKEN>' \
@@ -78,20 +51,6 @@ curl --location --request POST 'http://localhost:3002/api/source/add' \
         "name": "Referal"
     }
 ]'
-
-
-curl --location --request POST 'http://localhost:3002/api/course/add' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer <TOKEN>' \
---data-raw '[
-    {
-        "name": "Online Digital Marketing"
-    },
-    {
-        "name": "Classroom Digital Marketing"
-    }
-]'
-
 
 curl --location --request POST 'http://localhost:3002/api/batch_time/add' \
 --header 'Content-Type: application/json' \

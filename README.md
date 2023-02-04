@@ -12,13 +12,19 @@ flask db migrate -m "create tables"
 flask db upgrade
 ```
 
+### Entry records to setup application
+`./login_first_time.sh`
+`sed -i -e  's/<TOKEN>/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770/g' ./first_time.sh`
+`./first_time.sh`
+--- backup file ./first_time_bkp.sh
+
 ### Apache2
 `sudo systemctl status apache2`
 
 ### Replace with domain IP
 `find ./ -type f -exec sed -i -e  's/127.0.0.1/142.93.208.220/g' {} \;`
 
-rm -f ./piidm_dev.db && rm -rf ./migrations && flask db init && flask db migrate && flask db upgrade
+
 
 
 ### Country List
