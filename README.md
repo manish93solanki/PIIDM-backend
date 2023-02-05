@@ -24,7 +24,8 @@ flask db upgrade
 ### Replace with domain IP
 `find ./ -type f -exec sed -i -e  's/127.0.0.1/142.93.208.220/g' {} \;`
 
-
+### Run
+`gunicorn -b 127.0.0.1:3002 -w 4 --worker-class gevent app:app --log-level debug --limit-request-line 8000`
 
 
 ### Country List

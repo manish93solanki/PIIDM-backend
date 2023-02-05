@@ -1,6 +1,11 @@
 - Create user while creating student - Done
-- Create user while creating agent
+- Create user while creating agent - Done
 - Fresh leads - Done
-- Disable features for agent
-- delete student by admin only
-- Prepent +91- via mobile login.
+- Disable features for agent - Done
+- Mobile login irrespective of country code. - Done
+- Total paid fee must not exceed total fee and disable other instalments if full payment is done. - Done
+- Does not allow less than 1 for installment amount. - Done
+- Gunicorn setup for fast processing - Done
+- 
+- Delete student by admin only
+- Assign student to specific tutor/agent in student listing.
