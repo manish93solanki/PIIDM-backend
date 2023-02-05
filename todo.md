@@ -1,11 +1,26 @@
-- Create user while creating student - Done
-- Create user while creating agent - Done
-- Fresh leads - Done
-- Disable features for agent - Done
-- Mobile login irrespective of country code. - Done
-- Total paid fee must not exceed total fee and disable other instalments if full payment is done. - Done
-- Does not allow less than 1 for installment amount. - Done
-- Gunicorn setup for fast processing - Done
-- 
-- Delete student by admin only
-- Assign student to specific tutor/agent in student listing.
+### Task Management
+
+- [X] Create user while creating student
+- [X] Create user while creating agent
+- [X] Fresh leads
+- [X] Disable features for agent
+- [X] Mobile login irrespective of country code.
+- [X] Total paid fee must not exceed total fee and disable other instalments if full payment is done.
+- [X] Does not allow less than 1 for installment amount.
+- [X] Gunicorn setup for fast processing
+- [ ] Delete student by admin only
+- [ ] Assign student to specific tutor/agent in student listing.
+- [ ] Online Digital Marketing
+- [X] Lead date automatically display - Current Date.
+- [ ] Toast pop up as modal.
+- [X] Remove arrows in numbers 
+- [X] Alternate mobile number was missing during first time bcz of which split('-') exception raised.
+- [ ] Next action remark - Action item - call/email
+- [ ] Student -> Allow user to view receipts before uploading documents.
+- [ ] Change Student UI to default.
+- [X] Show error on Invalid Date
+- [X] Don't allow Future Date
+- [ ] Sr. no to Receipt NO.
+- [ ] Sort on Receipt Date.
+- [ ] Email Notification 
+- [X] Disable access of deactivated student.

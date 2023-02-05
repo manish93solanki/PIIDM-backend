@@ -117,13 +117,22 @@ def login():
             return dict(message='Invalid data', data=None, error=error_message), 400
         user = query.first()
         # Agent ID
-        agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == user.user_id).first()
+        agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.deleted == 0, model.Agent.user_id == user.user_id).first()
         if agent_id:
             agent_id = agent_id[0]
         # Student ID
-        student_id = app.session.query(model.Student.student_id).filter(model.Student.user_id == user.user_id).first()
-        if student_id:
-            student_id = student_id[0]
+        student_id = None
+        student_is_active = None
+        student_is_document_verified = None
+        student = app.session.query(model.Student).filter(model.Student.deleted == 0, model.Student.user_id == user.user_id).first()
+        if student:
+            student_id = student.student_id
+            student_is_active = student.is_active
+            student_is_document_verified = student.is_document_verified
+            if not student_is_active:
+                return {
+                    "error": "Your Account is blocked/deactivated.<br>Please contact admin.."
+                }, 500
         if user:
             try:
                 # token should expire after 24 hrs
@@ -140,7 +149,9 @@ def login():
                     "user_id": user.user_id,
                     "user_role_id": user.user_role_id,
                     "agent_id": agent_id,
-                    "student_id": student_id
+                    "student_id": student_id,
+                    "student_is_active": student_is_active,
+                    "student_is_document_verified": student_is_document_verified
                 }
             except Exception as e:
                 return {
