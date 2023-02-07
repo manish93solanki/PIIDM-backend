@@ -86,6 +86,13 @@ def populate_student_record(student):
                 course_value = getattr(course, course_key)
                 student_result[key][course_key] = course_value
             student_result['course'] = student_result.pop(key)
+        if key == 'course_content_id':
+            course_content = student.course_content
+            student_result[key] = {}
+            for course_content_key in course_content.__table__.columns.keys():
+                course_content_value = getattr(course_content, course_content_key)
+                student_result[key][course_content_key] = course_content_value
+            student_result['course_content'] = student_result.pop(key)
         if key == 'batch_time_id':
             batch_time = student.batch_time
             student_result[key] = {}

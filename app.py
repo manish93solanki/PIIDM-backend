@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from batch_time import batch_time_bp
 from city import city_bp
 from country import country_bp
+from course_content import course_content_bp
 from model import db
 from agent import agent_bp
 from branch import branch_bp
@@ -49,6 +50,7 @@ app.register_blueprint(user_role_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(branch_bp)
 app.register_blueprint(course_bp)
+app.register_blueprint(course_content_bp)
 app.register_blueprint(source_bp)
 app.register_blueprint(agent_bp)
 app.register_blueprint(country_bp)

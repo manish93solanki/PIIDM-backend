@@ -60,6 +60,16 @@ class Course(db.Model):
 
     course_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(VARCHAR(255), unique=True, nullable=False)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
+class CourseContent(db.Model):
+    __tablename__ = 'course_content'
+
+    course_content_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(255), unique=True, nullable=False)
     instructor_name = Column(VARCHAR(255), nullable=False)
     json_modules = Column(Text, nullable=True)
     deleted = Column(Integer, nullable=False, default=0)
@@ -212,6 +222,7 @@ class Student(db.Model):
     city_id = Column(ForeignKey('city.city_id'), nullable=False)
     tutor_id = Column(ForeignKey('agent.agent_id'), nullable=False)  # tutor is agent
     course_id = Column(ForeignKey('course.course_id'), nullable=False)
+    course_content_id = Column(ForeignKey('course_content.course_content_id'), nullable=False)
     json_course_learning_progress = Column(Text, nullable=True)
     batch_time_id = Column(ForeignKey('batch_time.batch_time_id'), nullable=False)
     source_id = Column(ForeignKey('source.source_id'), nullable=False)
@@ -232,6 +243,7 @@ class Student(db.Model):
     branch = relationship('Branch')
     source = relationship('Source')
     course = relationship('Course')
+    course_content = relationship('CourseContent')
     batch_time = relationship('BatchTime')
     agent = relationship('Agent')
     country = relationship('Country')

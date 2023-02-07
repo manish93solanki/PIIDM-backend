@@ -12,15 +12,18 @@
 - [ ] Assign student to specific tutor/agent in student listing.
 - [ ] Online Digital Marketing
 - [X] Lead date automatically display - Current Date.
-- [ ] Toast pop up as modal.
+- [X] Toast pop up as modal.
 - [X] Remove arrows in numbers 
 - [X] Alternate mobile number was missing during first time bcz of which split('-') exception raised.
 - [ ] Next action remark - Action item - call/email
-- [ ] Student -> Allow user to view receipts before uploading documents.
-- [ ] Change Student UI to default.
+- [X] Student -> Allow user to view receipts before uploading documents.
+- [X] Change Student UI to default.
 - [X] Show error on Invalid Date
 - [X] Don't allow Future Date
 - [ ] Sr. no to Receipt NO.
 - [ ] Sort on Receipt Date.
 - [ ] Email Notification 
 - [X] Disable access of deactivated student.
+- [] Fix mobile UI for student dashboard.
+- [] Fix Youtube pop for student.
+- [] Deleting course, agent, user, source, batch_time is only allowed when they are in their children tables. If so, adjust them.
