@@ -84,7 +84,7 @@ class Agent(db.Model):
     name = Column(VARCHAR(255), nullable=False)
     phone_num = Column(VARCHAR(255), unique=True, nullable=False)
     email = Column(VARCHAR(255), unique=True, nullable=False)
-    user_id = Column(ForeignKey('user.user_id'), nullable=True)
+    user_id = Column(ForeignKey('user.user_id'), nullable=False)
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())

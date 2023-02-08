@@ -24,6 +24,7 @@
 - [ ] Sort on Receipt Date.
 - [ ] Email Notification 
 - [X] Disable access of deactivated student.
-- [] Fix mobile UI for student dashboard.
-- [] Fix Youtube pop for student.
+- [X] Fix mobile UI for student dashboard.
+- [X] Fix Youtube pop for student.
 - [] Deleting course, agent, user, source, batch_time is only allowed when they are in their children tables. If so, adjust them.
+- [] Data migration

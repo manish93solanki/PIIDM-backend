@@ -29,7 +29,7 @@ def delete_user_role(delete_id):
 
 @user_role_bp.route('/all', methods=['GET'])
 def get_user_role():
-    cursor = app.session.query(model.UserRole).filter(model.BatchTime.deleted == 0).all()
+    cursor = app.session.query(model.UserRole).filter(model.UserRole.deleted == 0).all()
     user_roles = list(cursor)
     results = []
     for user_role in user_roles:

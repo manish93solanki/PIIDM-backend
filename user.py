@@ -78,6 +78,26 @@ def delete_user(current_user, delete_id):
     return {}
 
 
+@user_bp.route('/by_email_or_phone_num', methods=['GET'])
+@token_required
+def get_user_by_email_or_phone_num(current_user):
+    user = None
+    phone_num = request.args.get('phone_num', '')
+    email = request.args.get('email', '')
+    query = app.session.query(model.User).filter(model.User.deleted == 0)
+    if email:
+        query = query.filter(model.User.email == email)
+    else:
+        query = query.filter(model.User.phone_num == phone_num)
+    user = query.first()
+    result = {}
+    if user:
+        for key in user.__table__.columns.keys():
+            value = getattr(user, key)
+            result[key] = value
+    return jsonify(result), 200
+
+
 @user_bp.route('/all', methods=['GET'])
 @token_required
 def get_user(current_user):
