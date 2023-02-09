@@ -26,6 +26,7 @@ def select_query(query):
 
 
 def insert_data(url, data, token=False):
+    global TOKEN
     payload = data
     if token:
         headers = {
@@ -49,6 +50,7 @@ def insert_data(url, data, token=False):
 
 
 def update_data(url, data, token=False):
+    global TOKEN
     payload = data
     if token:
         headers = {
@@ -112,69 +114,81 @@ if __name__ == '__main__':
     #     url = f'{base_url}/user/add'
     #     insert_data(url, data)  # insert records
 
-    # # create agent
-    # agent_query = 'select * from agent'
-    # agents = select_query(agent_query)
-    # # create user
-    # for agent in agents:
-    #     print()
-    #     email = agent['agent_email']
-    #     if email == 'na':
-    #         continue
-    #     phone_num = agent['agent_contact_number']
-    #
-    #     # get user by email or phone_num
-    #     url = f'{base_url}/user/by_email_or_phone_num'
-    #     user_query_params = {
-    #         'phone_num': phone_num,
-    #         'email': email
-    #     }
-    #     # print('user_query_params: ', user_query_params)
-    #     our_user = fetch_single_record(url, user_query_params)  # fetch all users
-    #     if our_user:
-    #         user_id = our_user['user_id']
-    #         user_phone_num = our_user['phone_num']
-    #         user_email = our_user['email']
-    #         if '@test.com' in user_email:
-    #             user_email = email
-    #             user_phone_num = our_user['phone_num']
-    #         else:
-    #             user_phone_num = phone_num
-    #             user_email = our_user['email']
-    #         print('user_id: ', user_id)
-    #
-    #         data = [{
-    #             'name': agent['agent_name'],
-    #             'phone_num': phone_num,
-    #             'email': email,
-    #             'user_id': user_id
-    #         }]
-    #         print(data)
-    #         url = f'{base_url}/agent/add'
-    #         return_flag = insert_data(url, data, token=True)  # insert records
-    #         if return_flag is False:
-    #             # Due to duplicate phone_num in your_records so replaced with random phone_num
-    #             data = [{
-    #                 'name': agent['agent_name'],
-    #                 'phone_num': generate_random_string(),
-    #                 'email': email,
-    #                 'user_id': user_id
-    #             }]
-    #             print(data)
-    #             url = f'{base_url}/agent/add'
-    #             return_flag = insert_data(url, data, token=True)  # insert records
-    #         # Update user
-    #         url = f'{base_url}/user/update/{user_id}'
-    #         data = {
-    #             'email': user_email,
-    #             'phone_num': user_phone_num
-    #         }
-    #         return_flag = update_data(url, data, token=True)  # insert records
+    # create agent
+    agent_query = 'select * from agent'
+    agents = select_query(agent_query)
+    # create user
+    for agent in agents:
+        print()
+        email = agent['agent_email']
+        if email == 'na':
+            continue
+        phone_num = agent['agent_contact_number']
+
+        u_data = {
+            'name': agent['agent_name'],
+            'phone_num': phone_num,
+            'email': email,
+            'password': 'agent123',
+            'user_role_id': 2
+        }
+        print(u_data)
+        url = f'{base_url}/user/add'
+        insert_data(url, u_data)  # insert records
+
+        # get user by email or phone_num
+        url = f'{base_url}/user/by_email_or_phone_num'
+        user_query_params = {
+            'phone_num': phone_num,
+            'email': email
+        }
+        # print('user_query_params: ', user_query_params)
+        our_user = fetch_single_record(url, user_query_params)  # fetch all users
+        if our_user:
+            user_id = our_user['user_id']
+            # user_phone_num = our_user['phone_num']
+            # user_email = our_user['email']
+            # if '@test.com' in user_email:
+            #     user_email = email
+            #     user_phone_num = our_user['phone_num']
+            # else:
+            #     user_phone_num = phone_num
+            #     user_email = our_user['email']
+            print('user_id: ', user_id)
+
+            data = [{
+                'name': agent['agent_name'],
+                'phone_num': phone_num,
+                'email': email,
+                'user_id': user_id
+            }]
+            print(data)
+            url = f'{base_url}/agent/add'
+            return_flag = insert_data(url, data, token=True)  # insert records
+            if return_flag is False:
+                # Due to duplicate phone_num in your_records so replaced with random phone_num
+                data = [{
+                    'name': agent['agent_name'],
+                    'phone_num': generate_random_string(),
+                    'email': email,
+                    'user_id': user_id
+                }]
+                print(data)
+                url = f'{base_url}/agent/add'
+                return_flag = insert_data(url, data, token=True)  # insert records
+            # # Update user
+            # url = f'{base_url}/user/update/{user_id}'
+            # data = {
+            #     'email': user_email,
+            #     'phone_num': user_phone_num
+            # }
+            # return_flag = update_data(url, data, token=True)  # insert records
 
     # Create Leads
     lead_query = 'select * from leads'
     leads = select_query(lead_query)
     for lead in leads:
+        print(lead)
         branch_id = 1 if lead['lead_branch'] == 'FC Road, Pune' else 2
         course_id = 1 if lead['lead_course'] == 'Classroom Digital Marketing' else 2
         admission_status = 1 if lead['lead_status'] == 'Confirmed' else 0
@@ -207,17 +221,22 @@ if __name__ == '__main__':
             batch_time_id = 1
 
         remark = lead['lead_remark']
-        remark_query = f'select * from remarks where lead_id = {int(lead["lead_id"])}'
+        remark_query = f'select * from remarks where lead_id = {int(lead["id"])}'
         extra_remarks = select_query(remark_query)
         for extra_remark in extra_remarks:
-            remark = remark + '<br>' + extra_remark['remark']
+            if remark and extra_remark:
+                remark = remark + '<br>' + extra_remark['remark']
 
         lead_user_id = lead['user_id']
-        agent_query = f'select * from agent where user_id = {int(lead["lead_user_id"])}'
+        print('lead_user_id: ', lead_user_id)
+        agent_query = f'select * from agent where user_id = {int(lead["user_id"])}'
         agents = select_query(agent_query)
         agent_email = ''
-        for agent in agents:
-            agent_email = agent['agent_email']
+        if agents:
+            for agent in agents:
+                agent_email = agent['agent_email']
+        else:
+            agent_email = 'admin@test.com'
 
         # get user_id by agent email
         url = f'{base_url}/agent/by_email_or_phone_num'
@@ -226,6 +245,7 @@ if __name__ == '__main__':
         }
         # print('user_query_params: ', user_query_params)
         our_agent = fetch_single_record(url, query_params)  # fetch all users
+        print(our_agent)
         our_agent_id = our_agent['agent_id']
         our_agent_user_id = our_agent['user_id']
         print('our_agent_user_id: ', our_agent_user_id)
@@ -234,10 +254,10 @@ if __name__ == '__main__':
         # Create lead
         data = [{
           'name': lead['lead_name'],
-          'phone_num': lead['lead_contact_number'],
-          'alternate_phone_num': lead['lead_alternate_contact_number'],
+          'phone_num': '+91-' + lead['lead_contact_number'],
+          'alternate_phone_num': '+91-' + lead['lead_alternate_contact_number'] if lead['lead_alternate_contact_number'] else lead['lead_alternate_contact_number'],
           'email': lead['lead_email'],
-          'lead_date': lead['lead_date'],
+          'lead_date': str(lead['lead_date']),
           'remarks': remark,
           'country_id': 98,
           'area': lead['lead_area'],
@@ -246,12 +266,12 @@ if __name__ == '__main__':
           'source_id': source_id,
           'course_id': course_id,
           'batch_time_id': batch_time_id,
-          'next_action_date': lead['next_action'],
+          'next_action_date': str(lead['next_action']) if lead['next_action'] else lead['next_action'],
           'next_action_remarks': lead['lead_next_action_remark'],
           'details_sent': int(lead['detail_sent']),
-          'visit_date': lead['visit_date'],
+          'visit_date': str(lead['visit_date']) if lead['visit_date'] else lead['visit_date'],
           'pitch_by': lead['pitch_by'],
-          'demo_date': lead['demo_date'],
+          'demo_date': str(lead['demo_date']) if lead['demo_date'] else lead['demo_date'],
           'instructor': lead['Instructor'],
           'broadcast': lead['broadcast'],
           'agent_id': our_agent_id,
@@ -259,13 +279,14 @@ if __name__ == '__main__':
           'admission_status': admission_status,
           'is_deleted': is_deleted
         }]
-        # url = f'{base_url}/leads/add'
-        # insert_data(url, data)  # insert records
+        print('lead data: ', data)
+        url = f'{base_url}/leads/add'
+        insert_data(url, data, token=True)  # insert records
 
         # create user on admission confirmation
         if admission_status:
-            email = lead['lead_email'] if '@' in lead['lead_email'] else generate_random_string() + '@test.com'
-            user_role_id = 1 if lead['user_id'] == 1 else 2
+            email = lead['lead_email'] if lead['lead_email'] and '@' in lead['lead_email'] else generate_random_string() + '@test.com'
+            user_role_id = 3
             password = "student123"
             data = {
                 'name': lead['lead_name'],
@@ -275,8 +296,24 @@ if __name__ == '__main__':
                 'user_role_id': user_role_id
             }
             print(data)
-            # url = f'{base_url}/user/add'
-            # insert_data(url, data)  # insert records
+            url = f'{base_url}/user/add'
+            insert_data(url, data)  # insert records
+
+            # get user_id of last inserted record
+            url = f'{base_url}/user/by_email_or_phone_num'
+            query_params = {
+                'phone_num': lead['lead_contact_number']
+            }
+            our_user = fetch_single_record(url, query_params)
+            our_user_id = our_user['user_id']
+            print('our_user_id : ', our_user_id, our_user)
+            #
+            # url = f'{base_url}/user/update/{our_user_id}'
+            # data = {
+            #     'email': email,
+            #     'phone_num': lead['lead_contact_number']
+            # }
+            # update_data(url, data, token=True)  # insert records
 
             # create student
             student_query = f'select * from customers where lead_id = {int(lead["id"])}'
@@ -285,42 +322,95 @@ if __name__ == '__main__':
                 # student documents
                 student_documents_query = f'select * from customer_documents where customer_id = {int(student["id"])}'
                 student_documents = select_query(student_documents_query)
-                for student_document in student_documents:
-                    data = {
-                        'name': student['customer_name'],
-                        'phone_num': student['customer_contact_number'],
-                        'alternate_phone_num': student['customer_alternate_contact_number'],
-                        'email': student['customer_email'],
-                        'dob': student_document['dob'],
-                        'admission_date': student['customer_admission_date'],
-                        'area': student_document['area'],
-                        'state': student_document['state'],
-                        'pincode': student_document['pincode'],
-                        'highest_education': student_document['highest_education'],
-                        'occupation': student_document['occupation'],
-                        'purpose_for_course': student_document['purpose'],
-                        'referred_by': student_document['refferd_by'],
-                        'front_image_path': student_document['file_front'],
-                        'back_image_path': student_document['file_back'],
-                        'passport_image_path': student_document['image_photo'],
-                        'branch_id': branch_id,
-                        'country_id': 98,
-                        'city_id': 1,
-                        'tutor_id': our_agent_id,
-                        'course_id': course_id,
-                        'course_content_id': 1,
-                        'json_course_learning_progress': '',
-                        'batch_time_id': batch_time_id,
-                        'source_id': source_id,
-                        'total_fee': '',
-                        'total_fee_paid': '',
-                        'total_pending_fee': '',
-                        'is_active': '',
-                        'is_document_verified': '',
-                        'user_id': '',
-                        'deleted': ''
-                    }
-                    break
+                if not student_documents:
+                    continue
+                student_document = student_documents[0]
+
+                # create receipts
+                installments = []
+                total_fee_paid = 0
+                payments_formats = (
+                    ('payment_amount_1', 'payment_date_1', 'payment_mode_1', 'transaction_no_1'),
+                    ('payment_amount_2', 'payment_date_2', 'payment_mode_2', 'transaction_no_2'),
+                    ('payment_amount_3', 'payment_date_3', 'payment_mode_3', 'transaction_no_3'),
+                    ('payment_amount_4', 'payment_date_4', 'payment_mode_4', 'transaction_no_4'),
+                )
+                for p_index, payment_format in enumerate(payments_formats):
+                    paymode_mode_id = 1
+                    if student[payment_format[0]] and student[payment_format[2]]:
+                        if 'cash' in student[payment_format[2]].lower():
+                            paymode_mode_id = 1
+                        elif 'debit card' in student[payment_format[2]].lower():
+                            paymode_mode_id = 2
+                        elif 'credit card' in student[payment_format[2]].lower():
+                            paymode_mode_id = 3
+                        elif 'other upi' in student[payment_format[2]].lower():
+                            paymode_mode_id = 4
+                        elif 'gpay' in student[payment_format[2]].lower():
+                            paymode_mode_id = 5
+                        elif 'phonepe' in student[payment_format[2]].lower():
+                            paymode_mode_id = 6
+                        elif 'paytm' in student[payment_format[2]].lower():
+                            paymode_mode_id = 7
+                        elif 'razorpay' in student[payment_format[2]].lower():
+                            paymode_mode_id = 8
+                        elif 'neft' in student[payment_format[2]].lower():
+                            paymode_mode_id = 9
+                        elif 'swipe' in student[payment_format[2]].lower():
+                            paymode_mode_id = 10
+                        elif 'cheque' in student[payment_format[2]].lower():
+                            paymode_mode_id = 11
+                        else:
+                            paymode_mode_id = 1
+
+                        r_data = {
+                            'installment_num': p_index + 1,
+                            'installment_payment': student[payment_format[0]],
+                            'installment_payment_mode_id': paymode_mode_id,
+                            'installment_payment_date': str(student[payment_format[1]]) if student[payment_format[1]] else student[payment_format[1]],
+                            'installment_payment_transaction_number': student[payment_format[3]],
+                        }
+                        total_fee_paid += student[payment_format[0]]
+                        installments.append(r_data)
+                data = {
+                    'name': student['customer_name'],
+                    'phone_num': student['customer_contact_number'],
+                    'alternate_phone_num': student['customer_alternate_contact_number'],
+                    'email': student['customer_email'],
+                    'dob': str(student_document['dob']) if student_document['dob'] else student_document['dob'],
+                    'admission_date': str(student['customer_admission_date']),
+                    'area': student_document['area'],
+                    'state': student_document['state'],
+                    'pincode': student_document['pincode'],
+                    'highest_education': student_document['highest_education'],
+                    'occupation': student_document['occupation'],
+                    'purpose_for_course': student_document['purpose'],
+                    'referred_by': student_document['refferd_by'],
+                    'front_image_path': student_document['file_front'],
+                    'back_image_path': student_document['file_back'],
+                    'passport_image_path': student_document['image_photo'],
+                    'branch_id': branch_id,
+                    'country_id': 98,
+                    'city_id': 1,
+                    'tutor_id': our_agent_id,
+                    'course_id': course_id,
+                    'course_content_id': 1,
+                    'json_course_learning_progress': '',
+                    'batch_time_id': batch_time_id,
+                    'source_id': source_id,
+                    'installments': installments,
+                    'total_fee': student['customer_offer'],
+                    'total_fee_paid': total_fee_paid,
+                    'total_pending_fee': student['customer_offer'] - total_fee_paid,
+                    'is_active': 1,
+                    'is_document_verified': 1,
+                    'user_id': our_user_id,
+                    'deleted': 0,
+                }
+                print('student data: ', data)
+                url = f'{base_url}/student/add'
+                insert_data(url, data, token=True)  # insert records
+
 
 
 

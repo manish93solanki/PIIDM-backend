@@ -232,6 +232,26 @@ def update_student(current_user, student_id):
     return {'message': 'Successfully Updated.'}, 200
 
 
+@student_bp.route('/by_email_or_phone_num', methods=['GET'])
+@token_required
+def get_student_by_email_or_phone_num(current_user):
+    student = None
+    phone_num = request.args.get('phone_num', '')
+    email = request.args.get('email', '')
+    query = app.session.query(model.Student).filter(model.Student.deleted == 0)
+    if email:
+        query = query.filter(model.Student.email == email)
+    else:
+        query = query.filter(model.Student.phone_num == phone_num)
+    student = query.first()
+    result = {}
+    if student:
+        for key in student.__table__.columns.keys():
+            value = getattr(student, key)
+            result[key] = value
+    return jsonify(result), 200
+
+
 @student_bp.route('/delete/<student_id>', methods=['DELETE'])
 @token_required
 def soft_delete_student(current_user, student_id):
