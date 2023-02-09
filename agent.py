@@ -84,6 +84,26 @@ def update_agent(current_user, agent_id):
         return jsonify({'error': str(ex)}), 500
 
 
+@agent_bp.route('/by_email_or_phone_num', methods=['GET'])
+@token_required
+def get_agent_by_email_or_phone_num(current_user):
+    agent = None
+    phone_num = request.args.get('phone_num', '')
+    email = request.args.get('email', '')
+    query = app.session.query(model.Agent).filter(model.Agent.deleted == 0)
+    if email:
+        query = query.filter(model.Agent.email == email)
+    else:
+        query = query.filter(model.Agent.phone_num == phone_num)
+    agent = query.first()
+    result = {}
+    if agent:
+        for key in agent.__table__.columns.keys():
+            value = getattr(agent, key)
+            result[key] = value
+    return jsonify(result), 200
+
+
 @agent_bp.route('/delete/<agent_id>', methods=['DELETE'])
 @token_required
 def soft_delete_agent(current_user, agent_id):

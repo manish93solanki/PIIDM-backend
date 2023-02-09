@@ -51,6 +51,26 @@ def add_user():
     return {'message': 'User is created.', 'user_id': user_id}
 
 
+@user_bp.route('/update/<user_id>', methods=['PUT'])
+def update_user(user_id):
+    if request.method == 'PUT':
+        if not request.is_json:
+            pass
+        data = request.get_json()
+        records_to_add = []
+        user = fetch_user_by_id(int(user_id))
+        if 'phone_num' in data and user.phone_num != data['phone_num'] and is_user_phone_num_exists(data['phone_num']):
+            return {'error': 'Phone number is already exist.'}, 409
+        if 'email' in data and user.email != data['email'] and is_user_email_exists(data['email']):
+            return {'error': 'Email is already exist.'}, 409
+        for key, value in data.items():
+            setattr(user, key, value)
+        records_to_add.append(user)
+        bulk_insert(records_to_add)
+
+    return {'message': 'User is updated.'}
+
+
 @user_bp.route('/change_password/<user_id>', methods=['PUT'])
 @token_required
 def change_password(current_user, user_id):

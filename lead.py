@@ -128,7 +128,7 @@ def add_lead(current_user):
                     return {'error': 'Phone number is already exist.'}, 409
                 if 'alternate_phone_num' in item and item['alternate_phone_num'] and is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
                     return {'error': 'Alternate Phone number is already exist.'}, 409
-                if is_lead_email_exists(item['email']):
+                if 'email' in item and item['email'] and is_lead_email_exists(item['email']):
                     return {'error': 'Email is already exist.'}, 409
                 for key, value in item.items():
                     if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
