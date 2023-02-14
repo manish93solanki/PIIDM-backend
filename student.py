@@ -146,17 +146,19 @@ def add_student(current_user):
         data = request.get_json()
         student = model.Student()
         # Check if student is already exist
-        if is_student_phone_num_exists(data['phone_num']):
+        if 'phone_num' in data and data['phone_num'] and student.phone_num != data['phone_num'] and is_student_phone_num_exists(data['phone_num']):
             return {'error': 'Phone number is already exist.'}, 409
-        if is_student_alternate_phone_num_exists(data['alternate_phone_num']):
+        if 'alternate_phone_num' in data and data['alternate_phone_num'] and student.alternate_phone_num != data['alternate_phone_num'] and is_student_alternate_phone_num_exists(data['alternate_phone_num']):
             return {'error': 'Alternate Phone number is already exist.'}, 409
-        if is_student_email_exists(data['email']):
+        if 'email' in data and data['email'] and student.email != data['email'] and is_student_email_exists(data['email']):
             return {'error': 'Email is already exist.'}, 409
         for key, value in data.items():
             if key in ('admission_date', 'dob', ) and value:
                 value = datetime.datetime.strptime(value, '%Y-%m-%d')
             setattr(student, key, value)
         bulk_insert([student])
+
+        student = app.session.query(model.Student).filter(model.Student.phone_num == data['phone_num']).first()
 
         # Add installment in receipt model
         receipts_records_to_add = []

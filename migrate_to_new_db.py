@@ -3,6 +3,8 @@ import json
 import requests
 from rich import print
 from sqlalchemy import create_engine
+from tqdm import tqdm
+
 
 engine = None
 TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770'
@@ -45,7 +47,7 @@ def insert_data(url, data, token=False):
         print("==*==" * 20)
         return False
     else:
-        print(response.text)
+        # print(response.text)
         return True
 
 
@@ -69,7 +71,7 @@ def update_data(url, data, token=False):
         print("==*==" * 20)
         return False
     else:
-        print(response.text)
+        # print(response.text)
         return True
 
 
@@ -85,7 +87,7 @@ def fetch_single_record(url, data):
         print(response.json())
         print("==*==" * 20)
     # else:
-    #     print(response.json())
+    #     # print(response.json())
     return response.json()
 
 
@@ -110,7 +112,7 @@ if __name__ == '__main__':
     #         'password': password,
     #         'user_role_id': user_role_id,
     #     }
-    #     print(data)
+    #     # print(data)
     #     url = f'{base_url}/user/add'
     #     insert_data(url, data)  # insert records
 
@@ -118,8 +120,8 @@ if __name__ == '__main__':
     agent_query = 'select * from agent'
     agents = select_query(agent_query)
     # create user
-    for agent in agents:
-        print()
+    for agent in tqdm(agents):
+        # print()
         email = agent['agent_email']
         if email == 'na':
             continue
@@ -127,22 +129,22 @@ if __name__ == '__main__':
 
         u_data = {
             'name': agent['agent_name'],
-            'phone_num': phone_num,
+            'phone_num': generate_random_string(),
             'email': email,
             'password': 'agent123',
             'user_role_id': 2
         }
-        print(u_data)
+        # print(u_data)
         url = f'{base_url}/user/add'
         insert_data(url, u_data)  # insert records
 
         # get user by email or phone_num
         url = f'{base_url}/user/by_email_or_phone_num'
         user_query_params = {
-            'phone_num': phone_num,
+            # 'phone_num': phone_num,
             'email': email
         }
-        # print('user_query_params: ', user_query_params)
+        # # print('user_query_params: ', user_query_params)
         our_user = fetch_single_record(url, user_query_params)  # fetch all users
         if our_user:
             user_id = our_user['user_id']
@@ -154,15 +156,15 @@ if __name__ == '__main__':
             # else:
             #     user_phone_num = phone_num
             #     user_email = our_user['email']
-            print('user_id: ', user_id)
+            # print('user_id: ', user_id)
 
             data = [{
                 'name': agent['agent_name'],
-                'phone_num': phone_num,
+                'phone_num': generate_random_string(),
                 'email': email,
                 'user_id': user_id
             }]
-            print(data)
+            # print(data)
             url = f'{base_url}/agent/add'
             return_flag = insert_data(url, data, token=True)  # insert records
             if return_flag is False:
@@ -173,7 +175,7 @@ if __name__ == '__main__':
                     'email': email,
                     'user_id': user_id
                 }]
-                print(data)
+                # print(data)
                 url = f'{base_url}/agent/add'
                 return_flag = insert_data(url, data, token=True)  # insert records
             # # Update user
@@ -183,12 +185,11 @@ if __name__ == '__main__':
             #     'phone_num': user_phone_num
             # }
             # return_flag = update_data(url, data, token=True)  # insert records
-
     # Create Leads
     lead_query = 'select * from leads'
     leads = select_query(lead_query)
-    for lead in leads:
-        print(lead)
+    for lead in tqdm(leads):
+        # print(lead)
         branch_id = 1 if lead['lead_branch'] == 'FC Road, Pune' else 2
         course_id = 1 if lead['lead_course'] == 'Classroom Digital Marketing' else 2
         admission_status = 1 if lead['lead_status'] == 'Confirmed' else 0
@@ -228,7 +229,7 @@ if __name__ == '__main__':
                 remark = remark + '<br>' + extra_remark['remark']
 
         lead_user_id = lead['user_id']
-        print('lead_user_id: ', lead_user_id)
+        # print('lead_user_id: ', lead_user_id)
         agent_query = f'select * from agent where user_id = {int(lead["user_id"])}'
         agents = select_query(agent_query)
         agent_email = ''
@@ -238,24 +239,27 @@ if __name__ == '__main__':
         else:
             agent_email = 'admin@test.com'
 
+        if agent_email == 'na':
+            agent_email = 'admin@test.com'
+
         # get user_id by agent email
         url = f'{base_url}/agent/by_email_or_phone_num'
         query_params = {
             'email': agent_email
         }
-        # print('user_query_params: ', user_query_params)
+        # # print('user_query_params: ', user_query_params)
         our_agent = fetch_single_record(url, query_params)  # fetch all users
-        print(our_agent)
         our_agent_id = our_agent['agent_id']
         our_agent_user_id = our_agent['user_id']
-        print('our_agent_user_id: ', our_agent_user_id)
-        print('our_agent_id: ', our_agent_id)
+        # print('our_agent_user_id: ', our_agent_user_id)
+        # print('our_agent_id: ', our_agent_id)
 
         # Create lead
         data = [{
           'name': lead['lead_name'],
           'phone_num': '+91-' + lead['lead_contact_number'],
-          'alternate_phone_num': '+91-' + lead['lead_alternate_contact_number'] if lead['lead_alternate_contact_number'] else lead['lead_alternate_contact_number'],
+          # 'alternate_phone_num': '+91-' + lead['lead_alternate_contact_number'] if lead['lead_alternate_contact_number'] else lead['lead_alternate_contact_number'],
+          'alternate_phone_num': '',
           'email': lead['lead_email'],
           'lead_date': str(lead['lead_date']),
           'remarks': remark,
@@ -279,7 +283,7 @@ if __name__ == '__main__':
           'admission_status': admission_status,
           'is_deleted': is_deleted
         }]
-        print('lead data: ', data)
+        # print('lead data: ', data)
         url = f'{base_url}/leads/add'
         insert_data(url, data, token=True)  # insert records
 
@@ -295,7 +299,7 @@ if __name__ == '__main__':
                 'password': password,
                 'user_role_id': user_role_id
             }
-            print(data)
+            # print(data)
             url = f'{base_url}/user/add'
             insert_data(url, data)  # insert records
 
@@ -306,7 +310,7 @@ if __name__ == '__main__':
             }
             our_user = fetch_single_record(url, query_params)
             our_user_id = our_user['user_id']
-            print('our_user_id : ', our_user_id, our_user)
+            # print('our_user_id : ', our_user_id, our_user)
             #
             # url = f'{base_url}/user/update/{our_user_id}'
             # data = {
@@ -322,9 +326,8 @@ if __name__ == '__main__':
                 # student documents
                 student_documents_query = f'select * from customer_documents where customer_id = {int(student["id"])}'
                 student_documents = select_query(student_documents_query)
-                if not student_documents:
-                    continue
-                student_document = student_documents[0]
+                # if not student_documents:
+                #     continue
 
                 # create receipts
                 installments = []
@@ -372,23 +375,26 @@ if __name__ == '__main__':
                         }
                         total_fee_paid += student[payment_format[0]]
                         installments.append(r_data)
+
+
                 data = {
                     'name': student['customer_name'],
                     'phone_num': student['customer_contact_number'],
                     'alternate_phone_num': student['customer_alternate_contact_number'],
                     'email': student['customer_email'],
-                    'dob': str(student_document['dob']) if student_document['dob'] else student_document['dob'],
+                    # 'dob': str(student_document['dob']) if student_document['dob'] else student_document['dob'],
+                    'dob': '1990-01-01',
                     'admission_date': str(student['customer_admission_date']),
-                    'area': student_document['area'],
-                    'state': student_document['state'],
-                    'pincode': student_document['pincode'],
-                    'highest_education': student_document['highest_education'],
-                    'occupation': student_document['occupation'],
-                    'purpose_for_course': student_document['purpose'],
-                    'referred_by': student_document['refferd_by'],
-                    'front_image_path': student_document['file_front'],
-                    'back_image_path': student_document['file_back'],
-                    'passport_image_path': student_document['image_photo'],
+                    'area': student_documents[0]['area'] if student_documents else '',
+                    'state': student_documents[0]['state'] if student_documents else '',
+                    'pincode': student_documents[0]['pincode'] if student_documents else '',
+                    'highest_education': student_documents[0]['highest_education'] if student_documents else '',
+                    'occupation': student_documents[0]['occupation'] if student_documents else '',
+                    'purpose_for_course': student_documents[0]['purpose'] if student_documents else '',
+                    'referred_by': student_documents[0]['refferd_by'] if student_documents else '',
+                    'front_image_path': student_documents[0]['file_front'] if student_documents else '',
+                    'back_image_path': student_documents[0]['file_back'] if student_documents else '',
+                    'passport_image_path': student_documents[0]['image_photo'] if student_documents else '',
                     'branch_id': branch_id,
                     'country_id': 98,
                     'city_id': 1,
@@ -407,8 +413,8 @@ if __name__ == '__main__':
                     'user_id': our_user_id,
                     'deleted': 0,
                 }
-                print('student data: ', data)
-                url = f'{base_url}/student/add'
+                # print('student data: ', data)
+                url = f'{base_url}/students/add'
                 insert_data(url, data, token=True)  # insert records
 
 

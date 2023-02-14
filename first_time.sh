@@ -1,6 +1,6 @@
 curl --location --request POST 'http://localhost:3002/api/agent/add' \
---header 'Content-Type: application/json' \
 --header 'Authorization: Bearer <TOKEN>' \
+--header 'Content-Type: application/json' \
 --data-raw '[
     {
         "name": "admin",
@@ -9,9 +9,6 @@ curl --location --request POST 'http://localhost:3002/api/agent/add' \
         "user_id": 1
     }
 ]'
-
-
-
 
 curl --location --request POST 'http://localhost:3002/api/branch/add' \
 --header 'Content-Type: application/json' \
@@ -1299,8 +1296,8 @@ curl --location --request POST 'http://localhost:3002/api/city/add' \
 
 
 curl --location --request POST 'http://localhost:3002/api/payment_mode/add' \
---header 'Content-Type: application/json' \
 --header 'Authorization: Bearer <TOKEN>' \
+--header 'Content-Type: application/json' \
 --data-raw '[
     {
         "name": "Cash"
@@ -1313,10 +1310,45 @@ curl --location --request POST 'http://localhost:3002/api/payment_mode/add' \
     },
     {
         "name": "UPI"
+    },
+    {
+        "name": "Gpay"
+    },
+    {
+        "name": "PhonePe"
+    },
+    {
+        "name": "PayTM"
+    },
+    {
+        "name": "Razorpay"
+    },
+    {
+        "name": "NEFT"
+    },
+    {
+        "name": "Swipe"
+    },
+    {
+        "name": "Cheque"
     }
 ]'
 
+
 curl --location --request POST 'http://localhost:3002/api/course/add' \
+--header 'Authorization: Bearer <TOKEN>' \
+--header 'Content-Type: application/json' \
+--data-raw '[
+    {
+        "name": "Classroom Digital Marketing"
+    },
+    {
+        "name": "Online Digital Marketing"
+    }
+]'
+
+
+curl --location --request POST 'http://localhost:3002/api/course_content/add' \
 --header 'Authorization: Bearer <TOKEN>' \
 --header 'Content-Type: application/json' \
 --data-raw '[
