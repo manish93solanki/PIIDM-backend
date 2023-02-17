@@ -42,6 +42,12 @@ flask db upgrade
 `mysql -u piidm_dev -p piidm_dev_password123`
 `Create database piidm_dev;`
 `use piidm_dev;`
+`drop database piidm_dev;`
+
+`update student set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`
+`update user set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`
+`update student set phone_num = REPLACE(phone_num, '+91 ', '+91-') where phone_num LIKE '+91 %';`
+`update user set phone_num = REPLACE(phone_num, '+91 ', '+91-') where phone_num LIKE '+91 %';`
 
 
 
