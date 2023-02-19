@@ -26,7 +26,7 @@ class User(db.Model):
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(VARCHAR(255), nullable=False)
     phone_num = Column(VARCHAR(255), unique=True, nullable=False)
-    email = Column(VARCHAR(255), unique=True, nullable=False)
+    email = Column(VARCHAR(255), unique=True, nullable=True)
     token = Column(VARCHAR(255), unique=True, nullable=True)
     password = Column(VARCHAR(255), nullable=False, default='admin123')
     user_role_id = Column(ForeignKey('user_role.user_role_id'), nullable=False)
@@ -222,7 +222,7 @@ class Student(db.Model):
     city_id = Column(ForeignKey('city.city_id'), nullable=False)
     tutor_id = Column(ForeignKey('agent.agent_id'), nullable=False)  # tutor is agent
     course_id = Column(ForeignKey('course.course_id'), nullable=False)
-    course_content_id = Column(ForeignKey('course_content.course_content_id'), nullable=False)
+    course_content_id = Column(ForeignKey('course_content.course_content_id'), nullable=False, default=1)
     json_course_learning_progress = Column(Text, nullable=True)
     batch_time_id = Column(ForeignKey('batch_time.batch_time_id'), nullable=False)
     source_id = Column(ForeignKey('source.source_id'), nullable=False)

@@ -36,7 +36,7 @@ def add_user():
         user = model.User()
         if is_user_phone_num_exists(data['phone_num']):
             return {'error': 'Phone number is already exist.'}, 409
-        if is_user_email_exists(data['email']):
+        if 'email' in data and user.email != data['email'] and is_user_email_exists(data['email']):
             return {'error': 'Email is already exist.'}, 409
         user.name = data['name']
         user.phone_num = data['phone_num']
