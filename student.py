@@ -41,6 +41,11 @@ def fetch_student_by_id(student_id):
     return record
 
 
+def fetch_receipts_by_student_id(student_id):
+    records = app.session.query(model.Receipt).filter(model.Receipt.student_id == student_id).all()
+    return records
+
+
 def populate_student_record(student):
     student_result = {}
     for key in student.__table__.columns.keys():
@@ -144,43 +149,62 @@ def add_student(current_user):
         if not request.is_json:
             return {'error': 'Bad Request.'}, 400
         data = request.get_json()
-        student = model.Student()
-        # Check if student is already exist
-        if 'phone_num' in data and data['phone_num'] and student.phone_num != data['phone_num'] and is_student_phone_num_exists(data['phone_num']):
-            return {'error': 'Phone number is already exist.'}, 409
-        if 'alternate_phone_num' in data and data['alternate_phone_num'] and student.alternate_phone_num != data['alternate_phone_num'] and is_student_alternate_phone_num_exists(data['alternate_phone_num']):
-            return {'error': 'Alternate Phone number is already exist.'}, 409
-        if 'email' in data and data['email'] and student.email != data['email'] and is_student_email_exists(data['email']):
-            return {'error': 'Email is already exist.'}, 409
-        for key, value in data.items():
-            if key in ('admission_date', 'dob', ) and value:
-                value = datetime.datetime.strptime(value, '%Y-%m-%d')
-            setattr(student, key, value)
-        bulk_insert([student])
 
-        student = app.session.query(model.Student).filter(model.Student.phone_num == data['phone_num']).first()
+        student = app.session.query(model.Student).filter(
+            model.Student.deleted == 1,
+            model.Student.phone_num == data['phone_num']
+        ).first()
+        if student:
+            # Add the deleted student again
+            student.deleted = 0
+            student.is_active = 1
+            bulk_insert([student])
+            receipts_records_to_readd = []
+            receipts = app.session.query(model.Receipt).filter(model.Receipt.student_id == int(student.student_id),
+                                                              model.Receipt.deleted == 1).all()
+            for receipt in receipts:
+                receipt.deleted = 0
+                receipts_records_to_readd.append(receipt)
+            bulk_insert(receipts_records_to_readd)
+        else:
+            # insert new
+            student = model.Student()
+            # Check if student is already exist
+            if 'phone_num' in data and data['phone_num'] and student.phone_num != data['phone_num'] and is_student_phone_num_exists(data['phone_num']):
+                return {'error': 'Phone number is already exist.'}, 409
+            if 'alternate_phone_num' in data and data['alternate_phone_num'] and student.alternate_phone_num != data['alternate_phone_num'] and is_student_alternate_phone_num_exists(data['alternate_phone_num']):
+                return {'error': 'Alternate Phone number is already exist.'}, 409
+            if 'email' in data and data['email'] and student.email != data['email'] and is_student_email_exists(data['email']):
+                return {'error': 'Email is already exist.'}, 409
+            for key, value in data.items():
+                if key in ('admission_date', 'dob', ) and value:
+                    value = datetime.datetime.strptime(value, '%Y-%m-%d')
+                setattr(student, key, value)
+            bulk_insert([student])
 
-        # Add installment in receipt model
-        receipts_records_to_add = []
-        for instalment in data['installments']:
-            if 'installment_num' in instalment and instalment['installment_num'] and \
-                    'installment_payment' in instalment and instalment['installment_payment']:
-                installment_num = instalment['installment_num']
-                receipt = app.session.query(model.Receipt).filter(model.Receipt.student_id == int(student.student_id),
-                                                                  model.Receipt.installment_num == int(installment_num),
-                                                                  model.Receipt.deleted == 0).first()
-                if not receipt:
-                    receipt = model.Receipt()
+            student = app.session.query(model.Student).filter(model.Student.phone_num == data['phone_num']).first()
 
-                receipt.installment_num = instalment['installment_num']
-                receipt.installment_payment = instalment['installment_payment']
-                setattr(receipt, 'installment_payment_date',
-                        datetime.datetime.strptime(instalment['installment_payment_date'], '%Y-%m-%d'))
-                receipt.installment_payment_mode_id = instalment['installment_payment_mode_id']
-                receipt.installment_payment_transaction_number = instalment['installment_payment_transaction_number']
-                receipt.student_id = student.student_id
-                receipts_records_to_add.append(receipt)
-        bulk_insert(receipts_records_to_add)
+            # Add installment in receipt model
+            receipts_records_to_add = []
+            for instalment in data['installments']:
+                if 'installment_num' in instalment and instalment['installment_num'] and \
+                        'installment_payment' in instalment and instalment['installment_payment']:
+                    installment_num = instalment['installment_num']
+                    receipt = app.session.query(model.Receipt).filter(model.Receipt.student_id == int(student.student_id),
+                                                                      model.Receipt.installment_num == int(installment_num),
+                                                                      model.Receipt.deleted == 0).first()
+                    if not receipt:
+                        receipt = model.Receipt()
+
+                    receipt.installment_num = instalment['installment_num']
+                    receipt.installment_payment = instalment['installment_payment']
+                    setattr(receipt, 'installment_payment_date',
+                            datetime.datetime.strptime(instalment['installment_payment_date'], '%Y-%m-%d'))
+                    receipt.installment_payment_mode_id = instalment['installment_payment_mode_id']
+                    receipt.installment_payment_transaction_number = instalment['installment_payment_transaction_number']
+                    receipt.student_id = student.student_id
+                    receipts_records_to_add.append(receipt)
+            bulk_insert(receipts_records_to_add)
     return {'message': 'Admission confirmed'}, 201
 
 
@@ -259,8 +283,13 @@ def get_student_by_email_or_phone_num(current_user):
 def soft_delete_student(current_user, student_id):
     student = fetch_student_by_id(int(student_id))
     student.deleted = 1
-    # student.is_active = 0
+    student.is_active = 0
     insert_single_record(student)
+
+    receipts = fetch_receipts_by_student_id(int(student_id))
+    for receipt in receipts:
+        receipt.deleted = 1
+    bulk_insert(receipts)
     # Why do we not delete receipts post student deletion?
     # Because if any payment was done for deleted student then
     # we need to keep track of the receipts, and considering them as an income.

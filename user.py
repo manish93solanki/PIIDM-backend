@@ -3,7 +3,7 @@ from flask import current_app as app, request, Blueprint, jsonify
 from sqlalchemy import or_
 import model
 from auth_middleware import token_required
-from db_operations import bulk_insert
+from db_operations import bulk_insert, insert_single_record
 
 user_bp = Blueprint('user_bp', __name__, url_prefix='/api/user')
 
@@ -32,22 +32,34 @@ def add_user():
         if not request.is_json:
             pass
         data = request.get_json()
-        records_to_add = []
-        user = model.User()
-        if is_user_phone_num_exists(data['phone_num']):
-            return {'error': 'Phone number is already exist.'}, 409
-        if 'email' in data and user.email != data['email'] and is_user_email_exists(data['email']):
-            return {'error': 'Email is already exist.'}, 409
-        user.name = data['name']
-        user.phone_num = data['phone_num']
-        user.email = data['email']
-        user.password = data['password']
-        user.user_role_id = data['user_role_id']
-        records_to_add.append(user)
-        bulk_insert(records_to_add)
 
-        user = app.session.query(model.User).filter(model.User.phone_num == user.phone_num).first()
-        user_id = user.user_id
+        user = app.session.query(model.User).filter(
+            model.User.phone_num == data['phone_num'],
+            model.User.deleted == 1
+        ).first()
+        if user:
+            # Add the deleted user again
+            user.deleted = 0
+            bulk_insert([user])
+            user_id = user.user_id
+        else:
+            # insert new
+            records_to_add = []
+            user = model.User()
+            if is_user_phone_num_exists(data['phone_num']):
+                return {'error': 'Phone number is already exist.'}, 409
+            if 'email' in data and user.email != data['email'] and is_user_email_exists(data['email']):
+                return {'error': 'Email is already exist.'}, 409
+            user.name = data['name']
+            user.phone_num = data['phone_num']
+            user.email = data['email']
+            user.password = data['password']
+            user.user_role_id = data['user_role_id']
+            records_to_add.append(user)
+            bulk_insert(records_to_add)
+
+            user = app.session.query(model.User).filter(model.User.phone_num == user.phone_num).first()
+            user_id = user.user_id
     return {'message': 'User is created.', 'user_id': user_id}
 
 
@@ -90,12 +102,13 @@ def change_password(current_user, user_id):
         return jsonify({'error': str(ex)}), 500
 
 
-@user_bp.route('/delete/<delete_id>', methods=['DELETE'])
+@user_bp.route('/delete/<user_id>', methods=['DELETE'])
 @token_required
-def delete_user(current_user, delete_id):
-    app.session.query(model.User).filter(model.User.user_id == int(delete_id)).delete()
-    app.session.commit()
-    return {}
+def soft_delete_user(current_user, user_id):
+    user = app.session.query(model.User).filter(model.User.user_id == int(user_id)).first()
+    user.deleted = 1
+    insert_single_record(user)
+    return {'message': 'Successfully deleted..'}, 200
 
 
 @user_bp.route('/by_email_or_phone_num', methods=['GET'])

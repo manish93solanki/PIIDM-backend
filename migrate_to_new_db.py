@@ -272,12 +272,12 @@ if __name__ == '__main__':
           'batch_time_id': batch_time_id,
           'next_action_date': str(lead['next_action']) if lead['next_action'] else lead['next_action'],
           'next_action_remarks': lead['lead_next_action_remark'],
-          'details_sent': int(lead['detail_sent']),
+          'details_sent': 1 if int(lead['details_sent']) == 1 else 2,
           'visit_date': str(lead['visit_date']) if lead['visit_date'] else lead['visit_date'],
           'pitch_by': lead['pitch_by'],
           'demo_date': str(lead['demo_date']) if lead['demo_date'] else lead['demo_date'],
           'instructor': lead['Instructor'],
-          'broadcast': lead['broadcast'],
+          'broadcast': 1 if int(lead['broadcast']) == 1 else 2,
           'agent_id': our_agent_id,
           'fee_offer': lead['fee_offer'],
           'admission_status': admission_status,
@@ -286,6 +286,15 @@ if __name__ == '__main__':
         # print('lead data: ', data)
         url = f'{base_url}/leads/add'
         insert_data(url, data, token=True)  # insert records
+
+        # get lead_id by lead phone_num email
+        url = f'{base_url}/leads/by_email_or_phone_num'
+        query_params = {
+            'phone_num': '+91-' + lead['lead_contact_number']
+        }
+        # # print('user_query_params: ', user_query_params)
+        our_lead = fetch_single_record(url, query_params)  # fetch all users
+        our_lead_id = our_lead
 
         # create user on admission confirmation
         if admission_status:
@@ -411,6 +420,7 @@ if __name__ == '__main__':
                     'is_active': 1,
                     'is_document_verified': 1,
                     'user_id': our_user_id,
+                    'lead_id': our_lead_id,
                     'deleted': 0,
                 }
                 # print('student data: ', data)

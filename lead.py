@@ -182,6 +182,26 @@ def soft_delete_lead(current_user, lead_id):
         return jsonify({'error': str(ex)}), 500
 
 
+@lead_bp.route('/by_email_or_phone_num', methods=['GET'])
+@token_required
+def get_lead_by_email_or_phone_num(current_user):
+    lead = None
+    phone_num = request.args.get('phone_num', '')
+    email = request.args.get('email', '')
+    query = app.session.query(model.Lead).filter(model.Lead.deleted == 0)
+    if email:
+        query = query.filter(model.Lead.email == email)
+    else:
+        query = query.filter(model.Lead.phone_num == phone_num)
+    lead = query.first()
+    result = {}
+    if lead:
+        for key in lead.__table__.columns.keys():
+            value = getattr(lead, key)
+            result[key] = value
+    return jsonify(result), 200
+
+
 @lead_bp.route('/select/<lead_id>', methods=['GET'])
 @token_required
 def get_lead(current_user, lead_id):
