@@ -92,7 +92,8 @@ def fetch_single_record(url, data):
 
 
 if __name__ == '__main__':
-    base_url = 'http://127.0.0.1:3002/api'
+    # base_url = 'http://142.93.208.220:3002/api'
+    base_url = 'http://64.227.150.234:3002/api'
     sql_engine()
     # user_query = 'select * from users'
     # users = select_query(user_query)
@@ -272,7 +273,7 @@ if __name__ == '__main__':
           'batch_time_id': batch_time_id,
           'next_action_date': str(lead['next_action']) if lead['next_action'] else lead['next_action'],
           'next_action_remarks': lead['lead_next_action_remark'],
-          'details_sent': 1 if int(lead['details_sent']) == 1 else 2,
+          'details_sent': 1 if int(lead['detail_sent']) == 1 else 2,
           'visit_date': str(lead['visit_date']) if lead['visit_date'] else lead['visit_date'],
           'pitch_by': lead['pitch_by'],
           'demo_date': str(lead['demo_date']) if lead['demo_date'] else lead['demo_date'],
@@ -294,7 +295,9 @@ if __name__ == '__main__':
         }
         # # print('user_query_params: ', user_query_params)
         our_lead = fetch_single_record(url, query_params)  # fetch all users
-        our_lead_id = our_lead
+        if not our_lead:
+            continue
+        our_lead_id = our_lead['lead_id']
 
         # create user on admission confirmation
         if admission_status:
@@ -327,6 +330,14 @@ if __name__ == '__main__':
             #     'phone_num': lead['lead_contact_number']
             # }
             # update_data(url, data, token=True)  # insert records
+
+            deactivated_user_query = \
+                'select * from users where status = "0" and email = "{}"'.format(lead['lead_contact_number'])
+            deactivated_user = select_query(deactivated_user_query)
+            if 'status' in deactivated_user:
+                is_active = 0
+            else:
+                is_active = 1
 
             # create student
             student_query = f'select * from customers where lead_id = {int(lead["id"])}'
@@ -417,7 +428,7 @@ if __name__ == '__main__':
                     'total_fee': student['customer_offer'],
                     'total_fee_paid': total_fee_paid,
                     'total_pending_fee': student['customer_offer'] - total_fee_paid,
-                    'is_active': 1,
+                    'is_active': is_active,
                     'is_document_verified': 1,
                     'user_id': our_user_id,
                     'lead_id': our_lead_id,

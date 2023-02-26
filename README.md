@@ -1,7 +1,11 @@
 ### PIIDM APIs
 
 ### Mysql dependency for ubuntu
-`apt-get install default-libmysqlclient-dev`
+`apt-get install python3-dev default-libmysqlclient-dev build-essential`
+
+### Python virtual env
+`apt install python3.10-venv`
+`python3 -m venv .venv`
 
 ### DB Setup
 ```
@@ -11,6 +15,10 @@ flask db init
 flask db migrate -m "create tables"
 flask db upgrade
 ```
+
+### Run
+`gunicorn -b 127.0.0.1:3002 -w 4 --worker-class gevent app:app --log-level debug --limit-request-line 8000`
+
 
 ### Entry records to setup application
 `./login_first_time.sh`
@@ -23,9 +31,7 @@ flask db upgrade
 
 ### Replace with domain IP
 `find ./ -type f -exec sed -i -e  's/127.0.0.1/142.93.208.220/g' {} \;`
-
-### Run
-`gunicorn -b 127.0.0.1:3002 -w 4 --worker-class gevent app:app --log-level debug --limit-request-line 8000`
+`find ./ -type f -exec sed -i -e  's/127.0.0.1/64.227.150.234/g' {} \;`
 
 
 ### Country List
@@ -50,6 +56,16 @@ flask db upgrade
 `update user set phone_num = REPLACE(phone_num, '+91 ', '+91-') where phone_num LIKE '+91 %';`
 
 
+### Migrate DB steps:
+- Drop database.
+- Create database.
+- Run export app.py and flask upgrade
+- Run login sh file
+- Replace token placeholder with actual token.
+- Run first_time.sh file
+- Run migrate_to_new_db.py file
+- Exceute above update commands
+
 
 ### Data Tables:
 ```commandline
@@ -71,3 +87,20 @@ flask db upgrade
         ]
     });
 ```
+
+
+# Server Setup one-time:
+#### Python 3.10
+`sudo apt update && sudo apt upgrade -y`
+`sudo apt install software-properties-common -y`
+`sudo add-apt-repository ppa:deadsnakes/ppa`
+`sudo apt install python3.10`
+
+#### Mysql
+`sudo apt update`
+`sudo apt install mysql-server`
+`sudo systemctl start mysql.service`
+
+### Apache
+`apt install apache2`
+`systemctl status apache2`
