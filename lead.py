@@ -175,6 +175,9 @@ def update_lead(current_user, lead_id):
 def soft_delete_lead(current_user, lead_id):
     try:
         lead = fetch_lead_by_id(int(lead_id))
+        lead.phone_num = lead.phone_num + '::' + str(datetime.datetime.now()) + '::deleted' if lead.phone_num else lead.phone_num
+        lead.alternate_phone_num = lead.alternate_phone_num + '::' + str(datetime.datetime.now()) + '::deleted' if lead.alternate_phone_num else lead.alternate_phone_num
+        lead.email = lead.email + '::' + str(datetime.datetime.now()) + '::deleted' if lead.email else lead.email
         lead.deleted = 1
         insert_single_record(lead)
         return jsonify({'message': 'Successfully deleted..'}), 200

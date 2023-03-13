@@ -17,7 +17,7 @@ def generate_random_string():
 
 def sql_engine():
     global engine
-    conn_string = f'mysql://piidm_dev:piidm_dev_password123@localhost:3306/u776183671_piidm'
+    conn_string = f'mysql://piidm_online:piidm_online_password123@localhost:3306/u776183671_piidm_13_03'
     engine = create_engine(conn_string)
 
 
@@ -94,6 +94,7 @@ def fetch_single_record(url, data):
 if __name__ == '__main__':
     # base_url = 'http://142.93.208.220:3002/api'
     base_url = 'http://64.227.150.234:3002/api'
+    # base_url = 'http://127.0.0.1:3002/api'
     sql_engine()
     # user_query = 'select * from users'
     # users = select_query(user_query)
@@ -334,7 +335,7 @@ if __name__ == '__main__':
             deactivated_user_query = \
                 'select * from users where status = "0" and email = "{}"'.format(lead['lead_contact_number'])
             deactivated_user = select_query(deactivated_user_query)
-            if 'status' in deactivated_user:
+            if deactivated_user and 'status' in deactivated_user[0]:
                 is_active = 0
             else:
                 is_active = 1

@@ -41,18 +41,29 @@ flask db upgrade
 ### Run mysql
 `brew services restart mysql`
 `mysql -u root -p root12345`
+`SHOW VARIABLES LIKE 'validate_password%';` --> workaround for password error
+`SET GLOBAL validate_password.policy=LOW;` --> workaround for password error
+`CREATE USER 'piidm_online'@'localhost' IDENTIFIED WITH mysql_native_password BY 'piidm_online_password123';`
+`GRANT ALL PRIVILEGES ON * . * TO 'piidm_online'@'localhost';`
 
-`CREATE USER 'piidm_dev'@'localhost' IDENTIFIED WITH mysql_native_password BY 'piidm_dev_password123';`
-`GRANT ALL PRIVILEGES ON * . * TO 'piidm_dev'@'localhost';`
+`mysql -u piidm_online -p piidm_online_password123`
+`Create database piidm_online;`
+`use piidm_online;`
+`drop database piidm_online;`
 
-`mysql -u piidm_dev -p piidm_dev_password123`
-`Create database piidm_dev;`
-`use piidm_dev;`
-`drop database piidm_dev;`
+`select * from `lead` where phone_num LIKE '+91-+91%';`
+`update `lead` set phone_num = REPLACE(phone_num, '+91-+91', '+91-') where phone_num LIKE '+91-+91%';`
 
+`select * from student where phone_num NOT LIKE '+91%';`
 `update student set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`
+
+`select * from user where phone_num NOT LIKE '+91%';`
 `update user set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`
+
+`select * from student where phone_num LIKE '+91 %';`
 `update student set phone_num = REPLACE(phone_num, '+91 ', '+91-') where phone_num LIKE '+91 %';`
+
+`select * from user where phone_num LIKE '+91 %';`
 `update user set phone_num = REPLACE(phone_num, '+91 ', '+91-') where phone_num LIKE '+91 %';`
 
 
