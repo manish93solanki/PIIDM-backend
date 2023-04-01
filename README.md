@@ -54,8 +54,26 @@ flask db upgrade
 `select * from `lead` where phone_num LIKE '+91-+91%';`
 `update `lead` set phone_num = REPLACE(phone_num, '+91-+91', '+91-') where phone_num LIKE '+91-+91%';`
 
+`select * from `lead` where phone_num NOT LIKE '+91%';`
+`update `lead` set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`
+
+`select alternate_phone_num from `lead` where alternate_phone_num != '' and alternate_phone_num NOT LIKE '+91%';`
+`update `lead` set alternate_phone_num = CONCAT('+91-', alternate_phone_num) where `lead` where alternate_phone_num != '' and alternate_phone_num NOT LIKE '+91%';`
+
+`select * from `lead` where phone_num LIKE '+91- %';`
+`update `lead` set phone_num = REPLACE(phone_num, ' ', '') where phone_num LIKE '+91- %';`
+
+`select * from `lead` where phone_num = '+91- 99602 18121'`;
+`update `lead` set phone_num = '+91-9960218121' where phone_num = '+91- 99602 18121'`;
+
+`SELECT SUBSTRING_INDEX(phone_num, '/', 1) from `lead` where phone_num LIKE '%/%';`
+`update `lead` set phone_num = SUBSTRING_INDEX(phone_num, '/', 1) where phone_num LIKE '%/%';`
+
 `select * from student where phone_num NOT LIKE '+91%';`
 `update student set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`
+
+`select alternate_phone_num from student where alternate_phone_num NOT LIKE '+91%';`
+`update student set alternate_phone_num = CONCAT('+91-', alternate_phone_num) where alternate_phone_num NOT LIKE '+91%';`
 
 `select * from user where phone_num NOT LIKE '+91%';`
 `update user set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`
@@ -115,3 +133,23 @@ flask db upgrade
 ### Apache
 `apt install apache2`
 `systemctl status apache2`
+
+
+### For SSL
+https://app.zerossl.com/dashboard
+piidmindia@gmail.com
+Test1234
+
+#### For Gunicorn
+```commandline
+Domain name = IP address
+/var/www/html/certs
+/root/codemania/piidm-backend/.venv/bin/python3 /root/codemania/piidm-backend/.venv/bin/gunicorn -b 0.0.0.0:3002 -w 4 --worker-class gevent app:app --log-level debug --limit-request-line 8000 --certfile=/var/www/html/certs/certificate.crt --keyfile=/var/www/html/certs/private.key
+```
+
+#### For UI
+```commandline
+Domain name = online.piidm.com
+/var/www/online.piidm.com/certs
+vim /etc/apache2/sites-available/online.piidm.com.conf 
+```

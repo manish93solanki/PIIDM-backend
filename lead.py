@@ -1,10 +1,11 @@
 import datetime
 import traceback
-from flask import current_app as app, request, Blueprint, jsonify
+from flask import current_app as app, request, Blueprint, jsonify, send_file
 import model
 from auth_middleware import token_required
 from db_operations import bulk_insert, insert_single_record
 from sqlalchemy import or_, desc
+from scripts import upload_leads
 
 lead_bp = Blueprint('lead_bp', __name__, url_prefix='/api/leads')
 
@@ -141,6 +142,22 @@ def add_lead(current_user):
         return jsonify({'error': str(ex)}), 500
 
 
+@lead_bp.route('/upload-excel', methods=['POST'])
+@token_required
+def upload_excel_leads(current_user):
+    try:
+        if request.method == 'POST':
+            file = request.files['file']
+            if not file.filename.endswith('.xlsx'):
+                raise ValueError('Only Excel .xlsx is allowed.')
+            file_data = file.read()
+            missed_leads = upload_leads.run(file_data)
+            return jsonify(missed_leads)
+    except Exception as ex:
+        print(traceback.format_exc())
+        return jsonify({'error': str(ex)}), 500
+
+
 @lead_bp.route('/update/<lead_id>', methods=['PUT'])
 @token_required
 def update_lead(current_user, lead_id):
@@ -193,8 +210,10 @@ def get_lead_by_email_or_phone_num(current_user):
     email = request.args.get('email', '')
     query = app.session.query(model.Lead).filter(model.Lead.deleted == 0)
     if email:
+        # query = query.filter(model.Lead.email.like(f'%{email}%'))
         query = query.filter(model.Lead.email == email)
     else:
+        # query = query.filter(model.Lead.phone_num.like(f'%{phone_num}%'))
         query = query.filter(model.Lead.phone_num == phone_num)
     lead = query.first()
     result = {}
