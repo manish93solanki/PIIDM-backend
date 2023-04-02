@@ -66,8 +66,22 @@ flask db upgrade
 `select * from `lead` where phone_num = '+91- 99602 18121'`;
 `update `lead` set phone_num = '+91-9960218121' where phone_num = '+91- 99602 18121'`;
 
+`select lead_id, SUBSTRING(phone_num, 1, 14) as alt, name, phone_num from `lead` where length(phone_num) > 14 and phone_num NOT LIKE "%deleted%";`
+`update `lead` set phone_num = SUBSTRING(phone_num, 1, 14) where length(phone_num) > 14 and phone_num NOT LIKE "%deleted%";`
+
+`select lead_id, SUBSTRING(alternate_phone_num, 1, 14) as alt, name, alternate_phone_num from `lead`  where length(alternate_phone_num) > 14 and alternate_phone_num NOT LIKE "%deleted%";`
+`update `lead` set alternate_phone_num = SUBSTRING(alternate_phone_num, 1, 14) where length(alternate_phone_num) > 14 and alternate_phone_num NOT LIKE "%deleted%";`
+
 `SELECT SUBSTRING_INDEX(phone_num, '/', 1) from `lead` where phone_num LIKE '%/%';`
 `update `lead` set phone_num = SUBSTRING_INDEX(phone_num, '/', 1) where phone_num LIKE '%/%';`
+
+`select lead_id, name, lead_date, phone_num from `lead` where phone_num LIKE '+91-%-%';`
+`update `lead` set phone_num=REGEXP_REPLACE(phone_num, '-', '', 4, 2) where phone_num LIKE '+91-%-%';`
+
+`select lead_id, phone_num, name from `lead` where length(phone_num) > 14 and phone_num NOT LIKE "%deleted%";`
+
+`select lead_id, phone_num, name from `lead` where phone_num LIKE '% %' and phone_num NOT LIKE "%deleted%";`
+`update `lead` set phone_num = REPLACE(phone_num, ' ', '') where phone_num LIKE '% %' and phone_num NOT LIKE "%deleted%";`
 
 `select * from student where phone_num NOT LIKE '+91%';`
 `update student set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`
@@ -153,3 +167,7 @@ Domain name = online.piidm.com
 /var/www/online.piidm.com/certs
 vim /etc/apache2/sites-available/online.piidm.com.conf 
 ```
+
+
+#### Cron jobs
+`0 1 * * * /root/codemania/piidm-backend/.venv/bin/python /root/codemania/piidm-backend/jobs/deactivate_students.py >> /root/codemania/piidm-backend/cronjob_log.out`

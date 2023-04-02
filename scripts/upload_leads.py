@@ -252,7 +252,7 @@ def is_record_exist(phone_num):
     headers = {
         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770'
     }
-    response = requests.request("GET", url, headers=headers)
+    response = requests.request("GET", url, headers=headers, verify=False)
     #     print(response.text)
     if response.json():
         return True
@@ -324,7 +324,7 @@ def save_lead(df):
             'Content-Type': 'application/json'
         }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.request("POST", url, headers=headers, data=payload, verify=False)
         if 'error' in response.json():
             # print()
             # print(response.json())
@@ -340,9 +340,10 @@ def save_txt(file_name, txt_file_path, leads_not_saved):
     leads_not_saved = [list(x.values()) for x in leads_not_saved]
     print('leads_not_saved: ', leads_not_saved)
     with open(txt_file_path, 'w') as fp:
-        fp.write('Following are the missing leads, please check and add them manually...' + '\n\n')
-        fp.write('We are helping you giving few details about the leads so you can search through '
-                 'name OR phone number given below to find exact records in your original sheet. -> ' + file_name + '\n\n\n')
+
+        fp.write('Following are the missing leads: ' + '\n\n')
+        fp.write('Use below Name & Phone Number and search in your original document. \n'
+                 'Please check and add them manually. -> ' + file_name + '\n\n\n')
         for index, x in enumerate(leads_not_saved):
             info = ', '.join(filter(None, x))
             fp.write(f'{str(index + 1)} => {info}')
@@ -358,7 +359,7 @@ def run_manual(path):
     df = verify_columns(df)
     df = drop_unneccessary_columns(df)
     df = specific_date_parsing(df)
-    df['lead_date'] = df['lead_date'].apply(any_date_parser, year=2021)
+    df['lead_date'] = df['lead_date'].apply(any_date_parser, year=2022)
     df = specific_date_parsing(df)
     df = set_batch_time(df)
     df = set_course(df)
@@ -394,5 +395,5 @@ if __name__ == '__main__':
         # if '.xlsx' in x_file_name and x_file_name != 'Summer Internship.xlsx' and x_file_name != 'pcmc.xlsx' \
         #         and x_file_name != 'new.xlsx':
         #     run_manual(x_file_name)
-    x_file_name = 'Dec22 copy.xlsx'
+    x_file_name = 'Dec22.xlsx'
     run_manual(x_file_name)
