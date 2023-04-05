@@ -13,7 +13,8 @@ def fetch_students_not_paid_fee_on_time():
     # Fetch students who have not paid fee in one month after admission.
     query = f'''
             select student_id, name, admission_date, total_fee, total_fee_paid, total_pending_fee from student 
-            WHERE (JULIANDAY(DATE("now")) - JULIANDAY(student.admission_date)) > 31 and total_pending_fee > 0 and is_active = 1
+            WHERE (JULIANDAY(DATE("now")) - JULIANDAY(student.admission_date)) > 31 and total_pending_fee > 0 and 
+            is_active = 1
         '''
     cursor = CONNECTION.execute(query)
     print(f'\nTotal students will get deactivated: {len(list(cursor))}')

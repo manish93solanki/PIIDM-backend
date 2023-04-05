@@ -54,13 +54,14 @@ flask db upgrade
 `select * from `lead` where phone_num LIKE '+91-+91%';`
 `update `lead` set phone_num = REPLACE(phone_num, '+91-+91', '+91-') where phone_num LIKE '+91-+91%';`
 
-`select * from `lead` where phone_num NOT LIKE '+91%';`
+`select phone_num from `lead` where phone_num NOT LIKE '+91%';`
+`update `lead` set phone_num = '+91-' || phone_num where phone_num NOT LIKE '+91%';`
 `update `lead` set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`
 
 `select alternate_phone_num from `lead` where alternate_phone_num != '' and alternate_phone_num NOT LIKE '+91%';`
 `update `lead` set alternate_phone_num = CONCAT('+91-', alternate_phone_num) where `lead` where alternate_phone_num != '' and alternate_phone_num NOT LIKE '+91%';`
 
-`select * from `lead` where phone_num LIKE '+91- %';`
+`select phone_num from `lead` where phone_num LIKE '+91- %';`
 `update `lead` set phone_num = REPLACE(phone_num, ' ', '') where phone_num LIKE '+91- %';`
 
 `select * from `lead` where phone_num = '+91- 99602 18121'`;
@@ -75,8 +76,8 @@ flask db upgrade
 `SELECT SUBSTRING_INDEX(phone_num, '/', 1) from `lead` where phone_num LIKE '%/%';`
 `update `lead` set phone_num = SUBSTRING_INDEX(phone_num, '/', 1) where phone_num LIKE '%/%';`
 
-`select lead_id, name, lead_date, phone_num from `lead` where phone_num LIKE '+91-%-%';`
-`update `lead` set phone_num=REGEXP_REPLACE(phone_num, '-', '', 4, 2) where phone_num LIKE '+91-%-%';`
+**`select lead_id, name, lead_date, phone_num from `lead` where phone_num LIKE '+91-%-%';`
+**`update `lead` set phone_num=REGEXP_REPLACE(phone_num, '-', '', 4, 2) where phone_num LIKE '+91-%-%';`
 
 `select lead_id, phone_num, name from `lead` where length(phone_num) > 14 and phone_num NOT LIKE "%deleted%";`
 
@@ -87,6 +88,7 @@ flask db upgrade
 `update student set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`
 
 `select alternate_phone_num from student where alternate_phone_num NOT LIKE '+91%';`
+`update student set alternate_phone_num = '+91-' || alternate_phone_num where alternate_phone_num NOT LIKE '+91%';`
 `update student set alternate_phone_num = CONCAT('+91-', alternate_phone_num) where alternate_phone_num NOT LIKE '+91%';`
 
 `select * from user where phone_num NOT LIKE '+91%';`
