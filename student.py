@@ -24,7 +24,7 @@ def is_student_alternate_phone_num_exists(alternate_phone_num):
         or_(
             model.Student.phone_num == alternate_phone_num,
             model.Student.alternate_phone_num == alternate_phone_num
-        )
+        ),
     )
     records = list(cursor)
     return records
@@ -214,17 +214,18 @@ def update_student(current_user, student_id):
     if not request.is_json:
         return {'error': 'Bad Request.'}, 400
     data = request.get_json()
+
     student = fetch_student_by_id(int(student_id))
 
     # Check if student is already exist
-    if 'phone_num' in data and student.phone_num != data['phone_num'] and is_student_phone_num_exists(
+    if 'phone_num' in data and data['phone_num'] and student.phone_num != data['phone_num'] and is_student_phone_num_exists(
             data['phone_num']):
         return {'error': 'Phone number is already exist.'}, 409
-    if 'alternate_phone_num' in data and student.alternate_phone_num != data[
+    if 'alternate_phone_num' in data and data['alternate_phone_num'] and student.alternate_phone_num != data[
         'alternate_phone_num'] and is_student_alternate_phone_num_exists(
         data['alternate_phone_num']):
         return {'error': 'Alternate Phone number is already exist.'}, 409
-    if 'email' in data and student.email != data['email'] and is_student_email_exists(data['email']):
+    if 'email' in data and data['email'] and student.email != data['email'] and is_student_email_exists(data['email']):
         return {'error': 'Email is already exist.'}, 409
     for key, value in data.items():
         if key in ('admission_date', 'dob', ) and value:
