@@ -8,24 +8,28 @@
 - [X] Total paid fee must not exceed total fee and disable other instalments if full payment is done.
 - [X] Does not allow less than 1 for installment amount.
 - [X] Gunicorn setup for fast processing
-- [ ] Delete student by admin only
-- [ ] Assign student to specific tutor/agent in student listing.
-- [ ] Online Digital Marketing
+- [X] Delete student by admin only
+- [X] Assign student to specific tutor/agent in student listing.
+- [X] Online Digital Marketing
 - [X] Lead date automatically display - Current Date.
 - [X] Toast pop up as modal.
 - [X] Remove arrows in numbers 
 - [X] Alternate mobile number was missing during first time bcz of which split('-') exception raised.
-- [ ] Next action remark - Action item - call/email
 - [X] Student -> Allow user to view receipts before uploading documents.
 - [X] Change Student UI to default.
 - [X] Show error on Invalid Date
 - [X] Don't allow Future Date
-- [ ] Sr. no to Receipt NO.
-- [ ] Sort on Receipt Date.
-- [ ] Email Notification 
+- [X] Sr. no to Receipt NO.
+- [X] Sort on Receipt Date.
 - [X] Disable access of deactivated student.
 - [X] Fix mobile UI for student dashboard.
 - [X] Fix Youtube pop for student.
 - [] Deleting course, agent, user, source, batch_time is only allowed when they are in their children tables. If so, adjust them.
 - [X] Initial DB migrations
-- [] DB migrations - User, Agent (Pending - update user with phone & email)
+- [X] DB migrations - User, Agent (Pending - update user with phone & email)
+- [] Fix Fresh leads UI.
+- [] Fix courses, agents UI on mobile.
+- [ ] Email Notification 
+- [ ] Next action remark - Action item - call/email
+- [] Pending/Accept/View documents button on admin to review student documents.
+- [] Migrate photos of students

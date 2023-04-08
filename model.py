@@ -234,7 +234,7 @@ class Student(db.Model):
     # receipt_installment_3_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
     # receipt_installment_4_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
     is_active = Column(Integer, nullable=False, default=1)
-    is_document_verified = Column(Integer, nullable=False, default=0)  # 0=reset, 1=accept, 2=reject, 3=pending
+    is_document_verified = Column(Integer, nullable=False, default=0)  # 0=pending, 1=accept, 2=reject, 3=verification pending
     lead_id = Column(ForeignKey('lead.lead_id'), nullable=True)
     user_id = Column(ForeignKey('user.user_id'), nullable=True)
     deleted = Column(Integer, nullable=False, default=0)
