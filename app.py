@@ -11,6 +11,7 @@ from batch_time import batch_time_bp
 from city import city_bp
 from country import country_bp
 from course_content import course_content_bp
+from course_mode import course_mode_bp
 from model import db
 from agent import agent_bp
 from branch import branch_bp
@@ -25,8 +26,8 @@ from user_role import user_role_bp
 
 # SQLALCHEMY_DATABASE_URL = f'mysql://piidm_dev:piidm_dev_password123@localhost:3306/piidm_dev'
 # SQLALCHEMY_DATABASE_URL = f'mysql://piidm_online:piidm_online_password123@localhost:3306/piidm_online'
-# SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db'
-SQLALCHEMY_DATABASE_URL = f'sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db'
+SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db'
+# SQLALCHEMY_DATABASE_URL = f'sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db'
 # engine = create_engine(SQLALCHEMY_DATABASE_URL, convert_unicode=True, pool_size=1, max_overflow=0,
 #                        pool_recycle=1800, pool_pre_ping=True)
 engine = create_engine(SQLALCHEMY_DATABASE_URL, convert_unicode=True)
@@ -54,6 +55,7 @@ app.register_blueprint(user_role_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(branch_bp)
 app.register_blueprint(course_bp)
+app.register_blueprint(course_mode_bp)
 app.register_blueprint(course_content_bp)
 app.register_blueprint(source_bp)
 app.register_blueprint(agent_bp)

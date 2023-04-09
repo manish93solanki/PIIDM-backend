@@ -100,6 +100,11 @@ flask db upgrade
 `select * from user where phone_num LIKE '+91 %';`
 `update user set phone_num = REPLACE(phone_num, '+91 ', '+91-') where phone_num LIKE '+91 %';`
 
+`select course_id, course_mode_id from lead`
+`update lead set course_mode_id = course_id`
+
+`select course_id, course_mode_id from student`
+`update student set course_mode_id = course_id`
 
 ### Migrate DB steps:
 - Drop database.

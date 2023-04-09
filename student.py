@@ -91,6 +91,13 @@ def populate_student_record(student):
                 course_value = getattr(course, course_key)
                 student_result[key][course_key] = course_value
             student_result['course'] = student_result.pop(key)
+        if key == 'course_mode_id':
+            course_mode = student.course_mode
+            student_result[key] = {}
+            for course_mode_key in course_mode.__table__.columns.keys():
+                course_mode_value = getattr(course_mode, course_mode_key)
+                student_result[key][course_mode_key] = course_mode_value
+            student_result['course_mode'] = student_result.pop(key)
         if key == 'course_content_id':
             course_content = student.course_content
             student_result[key] = {}
@@ -378,7 +385,9 @@ def get_paginated_students_advanced(current_user):
     name = request.args.get('name', None)
     phone_number = request.args.get('phone_number', None)
     branch = request.args.get('branch', None)
+    
     course = request.args.get('course', None)
+    course_mode = request.args.get('course_mode', None)
     source = request.args.get('source', None)
     batch_time = request.args.get('batch_time', None)
     is_active = request.args.get('is_active', None)
@@ -395,6 +404,7 @@ def get_paginated_students_advanced(current_user):
     )) if phone_number else query
     query = query.filter(model.Student.branch_id == int(branch)) if branch else query
     query = query.filter(model.Student.course_id == int(course)) if course else query
+    query = query.filter(model.Student.course_mode_id == int(course_mode)) if course_mode else query
     query = query.filter(model.Student.source_id == int(source)) if source else query
     query = query.filter(model.Student.batch_time_id == int(batch_time)) if batch_time else query
     query = query.filter(model.Student.is_active == int(is_active)) if is_active else query

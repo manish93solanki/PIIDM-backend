@@ -31,5 +31,8 @@
 - [] Fix courses, agents UI on mobile.
 - [ ] Email Notification 
 - [ ] Next action remark - Action item - call/email
-- [] Pending/Accept/View documents button on admin to review student documents.
-- [] Migrate photos of students
+- [X] Migrate photos of students
+
+- [X] Pending/Accept/View documents button on admin to review student documents. - 5-6H
+- [X] Added course mode - 6H
+- [] Dashboard for course mode.

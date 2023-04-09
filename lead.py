@@ -96,6 +96,13 @@ def populate_lead_record(lead):
                 course_value = getattr(course, course_key)
                 lead_result[key][course_key] = course_value
             lead_result['course'] = lead_result.pop(key)
+        if key == 'course_mode_id':
+            course_mode = lead.course_mode
+            lead_result[key] = {}
+            for course_mode_key in course_mode.__table__.columns.keys():
+                course_mode_value = getattr(course_mode, course_mode_key)
+                lead_result[key][course_mode_key] = course_mode_value
+            lead_result['course_mode'] = lead_result.pop(key)
         if key == 'batch_time_id':
             batch_time = lead.batch_time
             lead_result[key] = {}
@@ -245,6 +252,7 @@ def get_leads(current_user):
         phone_number = request.args.get('phone_number', None)
         branch = request.args.get('branch', None)
         course = request.args.get('course', None)
+        course_mode = request.args.get('course_mode', None)
         batch_time = request.args.get('batch_time', None)
         status = request.args.get('status', None)
 
@@ -258,6 +266,7 @@ def get_leads(current_user):
         )) if phone_number else query
         query = query.filter(model.Lead.branch_id == int(branch)) if branch else query
         query = query.filter(model.Lead.course_id == int(course)) if course else query
+        query = query.filter(model.Lead.course_mode_id == int(course_mode)) if course_mode else query
         query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
         # query = query.filter(model.Lead.is_enrolled == int(status)) if status else query
 
@@ -303,6 +312,7 @@ def get_paginated_leads_advanced(current_user):
         phone_number = request.args.get('phone_number', None)
         branch = request.args.get('branch', None)
         course = request.args.get('course', None)
+        course_mode = request.args.get('course_mode', None)
         source = request.args.get('source', None)
         batch_time = request.args.get('batch_time', None)
         admission_status = request.args.get('admission_status', None)
@@ -319,6 +329,7 @@ def get_paginated_leads_advanced(current_user):
         )) if phone_number else query
         query = query.filter(model.Lead.branch_id == int(branch)) if branch else query
         query = query.filter(model.Lead.course_id == int(course)) if course else query
+        query = query.filter(model.Lead.course_mode_id == int(course_mode)) if course_mode else query
         query = query.filter(model.Lead.source_id == int(source)) if source else query
         query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
         query = query.filter(model.Lead.admission_status == int(admission_status)) if admission_status else query
