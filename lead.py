@@ -333,6 +333,7 @@ def get_paginated_leads_advanced(current_user):
         query = query.filter(model.Lead.source_id == int(source)) if source else query
         query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
         query = query.filter(model.Lead.admission_status == int(admission_status)) if admission_status else query
+        print(query)
         if current_user.user_role_id == 2:  # role == agent
             if is_fresh_leads:
                 # For fresh leads, Fetch those leads which are assigned to admin
@@ -371,6 +372,7 @@ def get_paginated_leads_advanced(current_user):
         print(query)
 
         leads = query.all()
+        print('\n\n\n leads: ', leads)
         lead_results = []
         for lead in leads:
             lead_result = populate_lead_record(lead)

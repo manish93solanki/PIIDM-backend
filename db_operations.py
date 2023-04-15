@@ -50,3 +50,9 @@ def bulk_insert(bulk_insert_records):
         raise
     # finally:
     #     app.session.close()
+
+
+def delete_single_record(record):
+    record.delete()
+
+

@@ -2,7 +2,7 @@ import datetime
 from flask import current_app as app, request, Blueprint, jsonify
 import model
 from auth_middleware import token_required
-from db_operations import bulk_insert, insert_single_record
+from db_operations import bulk_insert, insert_single_record, delete_single_record
 from sqlalchemy import or_, func, desc
 
 receipt_bp = Blueprint('receipt_bp', __name__, url_prefix='/api/receipts')
@@ -108,6 +108,15 @@ def soft_delete_receipt(current_user, receipt_id):
     receipt = fetch_receipt_by_id(int(receipt_id))
     receipt.deleted = 1
     insert_single_record(receipt)
+    return {'message': 'Successfully deleted..'}, 200
+
+
+@receipt_bp.route('/hard_delete/<receipt_id>', methods=['DELETE'])
+@token_required
+def hard_delete_receipt(current_user, receipt_id):
+    # receipt = fetch_receipt_by_id(int(receipt_id))
+    receipt = app.session.query(model.Receipt).filter(model.Receipt.receipt_id == receipt_id)
+    delete_single_record(receipt)
     return {'message': 'Successfully deleted..'}, 200
 
 

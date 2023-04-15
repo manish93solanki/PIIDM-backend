@@ -76,13 +76,13 @@ flask db upgrade
 `SELECT SUBSTRING_INDEX(phone_num, '/', 1) from `lead` where phone_num LIKE '%/%';`
 `update `lead` set phone_num = SUBSTRING_INDEX(phone_num, '/', 1) where phone_num LIKE '%/%';`
 
-**`select lead_id, name, lead_date, phone_num from `lead` where phone_num LIKE '+91-%-%';`
+**`select lead_id, name, lead_date, phone_num from `lead` where phone_num LIKE '+91-%-%' and phone_num NOT LIKE "%deleted%";`
 **`update `lead` set phone_num=REGEXP_REPLACE(phone_num, '-', '', 4, 2) where phone_num LIKE '+91-%-%';`
 
 `select lead_id, phone_num, name from `lead` where length(phone_num) > 14 and phone_num NOT LIKE "%deleted%";`
 
-`select lead_id, phone_num, name from `lead` where phone_num LIKE '% %' and phone_num NOT LIKE "%deleted%";`
-`update `lead` set phone_num = REPLACE(phone_num, ' ', '') where phone_num LIKE '% %' and phone_num NOT LIKE "%deleted%";`
+`select student_id, phone_num, name from `student` where phone_num LIKE '% %' and phone_num NOT LIKE "%deleted%";`
+`update `student` set phone_num = REPLACE(phone_num, ' ', '') where phone_num LIKE '% %' and phone_num NOT LIKE "%deleted%";`
 
 `select * from student where phone_num NOT LIKE '+91%';`
 `update student set phone_num = CONCAT('+91-', phone_num) where phone_num NOT LIKE '+91%';`

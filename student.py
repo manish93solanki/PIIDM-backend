@@ -2,7 +2,7 @@ import datetime
 from flask import current_app as app, request, Blueprint, jsonify, send_file
 import model
 from auth_middleware import token_required
-from db_operations import bulk_insert, insert_single_record
+from db_operations import bulk_insert, insert_single_record, delete_single_record
 from sqlalchemy import or_, asc, func, desc
 
 student_bp = Blueprint('student_bp', __name__, url_prefix='/api/students')
@@ -291,13 +291,17 @@ def get_student_by_email_or_phone_num(current_user):
 def soft_delete_student(current_user, student_id):
     student = fetch_student_by_id(int(student_id))
     student.deleted = 1
+    student.total_fee = 0
+    student.total_fee_paid = 0
+    student.total_pending_fee = 0
     student.is_active = 0
     insert_single_record(student)
 
+    # hard delete for receipts
     receipts = fetch_receipts_by_student_id(int(student_id))
     for receipt in receipts:
-        receipt.deleted = 1
-    bulk_insert(receipts)
+        receipt = app.session.query(model.Receipt).filter(model.Receipt.receipt_id == receipt.receipt_id)
+        delete_single_record(receipt)
     # Why do we not delete receipts post student deletion?
     # Because if any payment was done for deleted student then
     # we need to keep track of the receipts, and considering them as an income.
