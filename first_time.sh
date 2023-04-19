@@ -49,18 +49,33 @@ curl --location --request POST 'http://localhost:3002/api/source/add' \
     }
 ]'
 
-curl --location --request POST 'http://localhost:3002/api/batch_time/add' \
+curl --location 'http://localhost:3002/api/batch_time/add' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer <TOKEN>' \
---data-raw '[
+--data '[
     {
-        "name": "Morning"
+        "name": "8:00AM - 10:00AM"
     },
     {
-        "name": "Afternoon"
+        "name": "10:00AM - 12:00PM"
     },
     {
-        "name": "Evening"
+        "name": "12:00PM - 02:00PM"
+    },
+    {
+        "name": "01:00PM - 03:00PM"
+    },
+    {
+        "name": "03:00PM - 05:00PM"
+    },
+    {
+        "name": "05:00PM - 07:00PM"
+    },
+    {
+        "name": "07:00PM - 09:00PM"
+    },
+    {
+        "name": "Weekend (Sunday)"
     }
 ]'
 
@@ -1335,15 +1350,27 @@ curl --location --request POST 'http://localhost:3002/api/payment_mode/add' \
 ]'
 
 
-curl --location --request POST 'http://localhost:3002/api/course/add' \
---header 'Authorization: Bearer <TOKEN>' \
+curl --location 'http://localhost:3002/api/course/add' \
 --header 'Content-Type: application/json' \
---data-raw '[
+--header 'Authorization: Bearer <TOKEN>' \
+--data '[
     {
-        "name": "Classroom Digital Marketing"
+        "name": "Advanced Digital Marketing Course"
     },
     {
-        "name": "Online Digital Marketing"
+        "name": "Performance Marketing Course"
+    },
+    {
+        "name": "Advanced SEO Course"
+    },
+    {
+        "name": "Social Media Marketing Course"
+    },
+    {
+        "name": "Google Ads Course"
+    },
+    {
+        "name": "Wordpress Course"
     }
 ]'
 

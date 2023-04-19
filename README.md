@@ -178,3 +178,82 @@ vim /etc/apache2/sites-available/online.piidm.com.conf
 
 #### Cron jobs
 `0 1 * * * /root/codemania/piidm-backend/.venv/bin/python /root/codemania/piidm-backend/jobs/deactivate_students.py >> /root/codemania/piidm-backend/cronjob_log.out`
+
+
+## RUn these
+```commandline
+select * from course;
+delete from course;
+
+select distinct(course_id) from lead
+update lead set course_id = 1
+
+select distinct(course_id) from student
+update student set course_id = 1 
+
+
+select * from batch_time;
+delete from batch_time;
+
+select batch_time_id from lead
+update lead set batch_time_id = 4 where batch_time_id = 2;
+update lead set batch_time_id = 7 where batch_time_id = 3;
+select batch_time_id from student;
+update student set batch_time_id = 4 where batch_time_id = 2;
+update student set batch_time_id = 7 where batch_time_id = 3;
+```
+
+curl --location 'http://localhost:3002/api/course/add' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770' \
+--data '[
+    {
+        "name": "Advanced Digital Marketing Course"
+    },
+    {
+        "name": "Performance Marketing Course"
+    },
+    {
+        "name": "Advanced SEO Course"
+    },
+    {
+        "name": "Social Media Marketing Course"
+    },
+    {
+        "name": "Google Ads Course"
+    },
+    {
+        "name": "Wordpress Course"
+    }
+]'
+
+
+curl --location 'http://localhost:3002/api/batch_time/add' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770' \
+--data '[
+    {
+        "name": "8:00AM - 10:00AM"
+    },
+    {
+        "name": "10:00AM - 12:00PM"
+    },
+    {
+        "name": "12:00PM - 02:00PM"
+    },
+    {
+        "name": "01:00PM - 03:00PM"
+    },
+    {
+        "name": "03:00PM - 05:00PM"
+    },
+    {
+        "name": "05:00PM - 07:00PM"
+    },
+    {
+        "name": "07:00PM - 09:00PM"
+    },
+    {
+        "name": "Weekend (Sunday)"
+    }
+]'

@@ -35,4 +35,6 @@
 
 - [X] Pending/Accept/View documents button on admin to review student documents. - 5-6H
 - [X] Added course mode - 6H
+- [X] Added and updated course names - 6H
+- [X] Added and updated batch times - 6H
 - [] Dashboard for course mode.
