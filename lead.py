@@ -10,6 +10,7 @@ from scripts import upload_leads
 lead_bp = Blueprint('lead_bp', __name__, url_prefix='/api/leads')
 
 DEFAULT_COUNTRY = 'India'
+DEFAULT_STATE = 'Maharashtra'
 DEFAULT_CITY = 'Pune'
 DEFAULT_BRANCH = 'FC Road, Pune'
 DEFAULT_SOURCE = 'Google'
@@ -75,6 +76,13 @@ def populate_lead_record(lead):
                 country_value = getattr(country, country_key)
                 lead_result[key][country_key] = country_value
             lead_result['country'] = lead_result.pop(key)
+        if key == 'state_id':
+            state = lead.state
+            lead_result[key] = {}
+            for state_key in state.__table__.columns.keys():
+                state_value = getattr(state, state_key)
+                lead_result[key][state_key] = state_value
+            lead_result['state'] = lead_result.pop(key)
         if key == 'city_id':
             city = lead.city
             lead_result[key] = {}

@@ -122,6 +122,16 @@ class Country(db.Model):
     updated_at = Column(DateTime, nullable=False, default=func.now())
 
 
+class State(db.Model):
+    __tablename__ = 'state'
+
+    state_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(255), unique=True, nullable=False)
+    code = Column(VARCHAR(255), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
 class City(db.Model):
     __tablename__ = 'city'
 
@@ -142,6 +152,7 @@ class Lead(db.Model):
     lead_date = Column(Date, nullable=False)
     remarks = Column(Text, nullable=True)
     country_id = Column(ForeignKey('country.country_id'), nullable=False)
+    state_id = Column(ForeignKey('state.state_id'), nullable=True)
     area = Column(VARCHAR(255), nullable=True)
     city_id = Column(ForeignKey('city.city_id'), nullable=False)
     branch_id = Column(ForeignKey('branch.branch_id'), nullable=False)
@@ -157,6 +168,11 @@ class Lead(db.Model):
     demo_date = Column(Date, nullable=True)
     instructor = Column(VARCHAR(255), nullable=True)
     broadcast = Column(Integer, nullable=True)
+    age = Column(Integer, nullable=True, default=1)  # 1 = 18-25, 2 = 26-35, 3 = 36-Above
+    gender = Column(Integer, nullable=True, default=1)  # 1 = male, 2 = female
+    reason_to_join = Column(Integer, nullable=True, default=5)  # 1 = placement, 2 = skill update, 3 = business, 4 = freelancing, 5 = other
+    who_is = Column(Integer, nullable=True, default=1)  # 1 = student, 2 = working professional, 3 = business owner, 4 = housewife, 5 = job seeker
+    lead_status = Column(Integer, nullable=True, default=1)  # 1 = pending, 2 = invalid number, 3 = looking something else, 4 = joined somewhere, 5 = fake lead, 6 = not interested, 7 = not receiving, 8 = admission done
     agent_id = Column(ForeignKey('agent.agent_id'), nullable=False)
     fee_offer = Column(Integer, nullable=True)
     admission_status = Column(Integer, nullable=False, default=0)
@@ -171,6 +187,7 @@ class Lead(db.Model):
     batch_time = relationship('BatchTime')
     agent = relationship('Agent')
     country = relationship('Country')
+    state = relationship('State')
     city = relationship('City')
 
 
