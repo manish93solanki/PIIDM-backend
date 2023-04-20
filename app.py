@@ -27,8 +27,8 @@ from user_role import user_role_bp
 
 # SQLALCHEMY_DATABASE_URL = f'mysql://piidm_dev:piidm_dev_password123@localhost:3306/piidm_dev'
 # SQLALCHEMY_DATABASE_URL = f'mysql://piidm_online:piidm_online_password123@localhost:3306/piidm_online'
-SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db'
-# SQLALCHEMY_DATABASE_URL = f'sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db'
+# SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db'
+SQLALCHEMY_DATABASE_URL = f'sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db'
 # engine = create_engine(SQLALCHEMY_DATABASE_URL, convert_unicode=True, pool_size=1, max_overflow=0,
 #                        pool_recycle=1800, pool_pre_ping=True)
 engine = create_engine(SQLALCHEMY_DATABASE_URL, convert_unicode=True)
