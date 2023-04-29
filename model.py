@@ -102,6 +102,21 @@ class Agent(db.Model):
     user = relationship('User')
 
 
+class Trainer(db.Model):
+    __tablename__ = 'trainer'
+
+    trainer_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(255), nullable=False)
+    phone_num = Column(VARCHAR(255), unique=True, nullable=False)
+    email = Column(VARCHAR(255), unique=True, nullable=False)
+    user_id = Column(ForeignKey('user.user_id'), nullable=False)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    user = relationship('User')
+
+
 class BatchTime(db.Model):
     __tablename__ = 'batch_time'
 
@@ -174,6 +189,7 @@ class Lead(db.Model):
     who_is = Column(Integer, nullable=True, default=1)  # 1 = student, 2 = working professional, 3 = business owner, 4 = housewife, 5 = job seeker
     lead_status = Column(Integer, nullable=True, default=1)  # 1 = pending, 2 = invalid number, 3 = looking something else, 4 = joined somewhere, 5 = fake lead, 6 = not interested, 7 = not receiving, 8 = admission done
     agent_id = Column(ForeignKey('agent.agent_id'), nullable=False)
+    trainer_id = Column(ForeignKey('trainer.trainer_id'), nullable=True)
     fee_offer = Column(Integer, nullable=True)
     admission_status = Column(Integer, nullable=False, default=0)
     deleted = Column(Integer, nullable=False, default=0)
@@ -186,6 +202,7 @@ class Lead(db.Model):
     course_mode = relationship('CourseMode')
     batch_time = relationship('BatchTime')
     agent = relationship('Agent')
+    trainer = relationship('Trainer')
     country = relationship('Country')
     state = relationship('State')
     city = relationship('City')

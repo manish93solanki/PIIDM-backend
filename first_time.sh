@@ -10,6 +10,18 @@ curl --location --request POST 'http://localhost:3002/api/agent/add' \
     }
 ]'
 
+curl --location 'http://localhost:3002/api/trainer/add' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <TOKEN>' \
+--data-raw '[
+    {
+        "name": "trainer_admin",
+        "phone_num": "+91-0000000001",
+        "email": "trainer_admin@test.com",
+        "user_id": 2
+    }
+]'
+
 curl --location --request POST 'http://localhost:3002/api/branch/add' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer <TOKEN>' \

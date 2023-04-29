@@ -15,6 +15,7 @@ from course_content import course_content_bp
 from course_mode import course_mode_bp
 from model import db
 from agent import agent_bp
+from trainer import trainer_bp
 from branch import branch_bp
 from course import course_bp
 from lead import lead_bp
@@ -60,6 +61,7 @@ app.register_blueprint(course_mode_bp)
 app.register_blueprint(course_content_bp)
 app.register_blueprint(source_bp)
 app.register_blueprint(agent_bp)
+app.register_blueprint(trainer_bp)
 app.register_blueprint(country_bp)
 app.register_blueprint(state_bp)
 app.register_blueprint(city_bp)

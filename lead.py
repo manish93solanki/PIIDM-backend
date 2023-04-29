@@ -125,6 +125,13 @@ def populate_lead_record(lead):
                 agent_value = getattr(agent, agent_key)
                 lead_result[key][agent_key] = agent_value
             lead_result['agent'] = lead_result.pop(key)
+        if key == 'trainer_id':
+            trainer = lead.trainer
+            lead_result[key] = {}
+            for trainer_key in trainer.__table__.columns.keys():
+                trainer_value = getattr(trainer, trainer_key)
+                lead_result[key][trainer_key] = trainer_value
+            lead_result['trainer'] = lead_result.pop(key)
     return lead_result
 
 
@@ -380,7 +387,7 @@ def get_paginated_leads_advanced(current_user):
         print(query)
 
         leads = query.all()
-        print('\n\n\n leads: ', leads)
+        # print('\n\n\n leads: ', leads)
         lead_results = []
         for lead in leads:
             lead_result = populate_lead_record(lead)

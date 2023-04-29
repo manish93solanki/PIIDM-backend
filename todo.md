@@ -32,9 +32,16 @@
 - [ ] Email Notification 
 - [ ] Next action remark - Action item - call/email
 - [X] Migrate photos of students
+- [X] Pending/Accept/View documents button on admin to review student documents. - 5H
+- [X] Added course mode - 4H
+- [X] Added and updated course names - 4H
+- [X] Added and updated batch times - 3H
+- [X] Delete invoice only by admin - 4H
+- [X] Delete all invoices when admin deletes student profile - 3H
+- [X] Added age, gender, reason to join, who is, lead status - 3H
+- [X] Mapped lead_status with admission_status - 2H
+- [X] Highlighted with green and red status based on lead_status into lead - 3H
+- [X] reset lead_status to pending when admin deletes student profile - 1H
 
-- [X] Pending/Accept/View documents button on admin to review student documents. - 5-6H
-- [X] Added course mode - 6H
-- [X] Added and updated course names - 6H
-- [X] Added and updated batch times - 6H
+- [X] Disabled lead_status in lead - 1H
 - [] Dashboard for course mode.

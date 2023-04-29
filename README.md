@@ -185,17 +185,17 @@ vim /etc/apache2/sites-available/online.piidm.com.conf
 select * from course;
 delete from course;
 
-select distinct(course_id) from lead
-update lead set course_id = 1
+select distinct(course_id) from lead;
+update lead set course_id = 1;
 
-select distinct(course_id) from student
-update student set course_id = 1 
+select distinct(course_id) from student;
+update student set course_id = 1;
 
 
 select * from batch_time;
 delete from batch_time;
 
-select batch_time_id from lead
+select batch_time_id from lead;
 update lead set batch_time_id = 4 where batch_time_id = 2;
 update lead set batch_time_id = 7 where batch_time_id = 3;
 select batch_time_id from student;
@@ -417,3 +417,70 @@ curl --location 'http://localhost:3002/api/state/add' \
 select state_id from lead;
 update lead set state_id = 21;
 ``` 
+
+
+curl --location 'http://localhost:3002/api/course_mode/add' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770' \
+--header 'Content-Type: application/json' \
+--data '[
+    {
+        "name": "Classroom"
+    },
+    {
+        "name": "Online"
+    }
+]'
+
+```
+select admission_status, lead_status from lead where admission_status = 1;
+update lead set lead_status = 8  where admission_status = 1;
+```
+
+curl --location --request POST 'http://localhost:3002/api/source/add' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770' \
+--data-raw '[
+    {
+        "name": "LinkedIn"
+    },
+    {
+        "name": "SEO"
+    }
+]'
+
+
+------- 25th Apr - Trainer
+
+curl --location 'http://localhost:3002/api/user_role/add' \
+--header 'Content-Type: application/json' \
+--data '[
+    {
+        "name": "trainer"
+    }
+]'
+
+curl --location 'http://localhost:3002/api/user/add' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "trainer_admin",
+    "phone_num": "+91-0000000001",
+    "email": "trainer_admin@test.com",
+    "password": "trainer123",
+    "user_role_id": 4
+}'
+
+curl --location 'http://localhost:3002/api/trainer/add' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770' \
+--data-raw '[
+    {
+        "name": "trainer_admin",
+        "phone_num": "+91-0000000001",
+        "email": "trainer_admin@test.com",
+        "user_id": 1920
+    }
+]'
+
+select trainer_id from lead;
+update lead set trainer_id = 1 where trainer_id is null;
+
