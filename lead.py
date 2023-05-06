@@ -5,7 +5,7 @@ import model
 from auth_middleware import token_required
 from db_operations import bulk_insert, insert_single_record
 from sqlalchemy import or_, desc
-from scripts import upload_leads
+from scripts import upload_leads_for_api
 
 lead_bp = Blueprint('lead_bp', __name__, url_prefix='/api/leads')
 
@@ -173,7 +173,7 @@ def upload_excel_leads(current_user):
             if not file.filename.endswith('.xlsx'):
                 raise ValueError('Only Excel .xlsx is allowed.')
             file_data = file.read()
-            missed_leads = upload_leads.run(file_data)
+            missed_leads = upload_leads_for_api.run(file_data)
             return jsonify(missed_leads)
     except Exception as ex:
         print(traceback.format_exc())
@@ -229,14 +229,27 @@ def soft_delete_lead(current_user, lead_id):
 def get_lead_by_email_or_phone_num(current_user):
     lead = None
     phone_num = request.args.get('phone_num', '')
+    alternate_phone_num = request.args.get('alternate_phone_num', '')
     email = request.args.get('email', '')
     query = app.session.query(model.Lead).filter(model.Lead.deleted == 0)
+
     if email:
         # query = query.filter(model.Lead.email.like(f'%{email}%'))
         query = query.filter(model.Lead.email == email)
-    else:
+    elif alternate_phone_num:
         # query = query.filter(model.Lead.phone_num.like(f'%{phone_num}%'))
-        query = query.filter(model.Lead.phone_num == phone_num)
+        query = query.filter(or_(
+            model.Lead.phone_num == phone_num,
+            model.Lead.alternate_phone_num == phone_num,
+            model.Lead.phone_num == alternate_phone_num,
+            model.Lead.alternate_phone_num == alternate_phone_num
+        ))
+    else:
+        query = query.filter(or_(
+            model.Lead.phone_num == phone_num,
+            model.Lead.alternate_phone_num == phone_num
+        ))
+
     lead = query.first()
     result = {}
     if lead:
@@ -401,5 +414,7 @@ def get_paginated_leads_advanced(current_user):
             'draw': request.args.get('draw', type=int),
         }), 200
     except Exception as ex:
+        # import traceback
+        # print(traceback.format_exc())
         return jsonify({'error': str(ex)}), 500
 

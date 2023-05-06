@@ -42,6 +42,10 @@
 - [X] Mapped lead_status with admission_status - 2H
 - [X] Highlighted with green and red status based on lead_status into lead - 3H
 - [X] reset lead_status to pending when admin deletes student profile - 1H
+- [X] Made changes in Leads to add Trainer Profile - 5H
+- 
 
 - [X] Disabled lead_status in lead - 1H
+- [X] View/Update/Add/Delete/Change_Password Trainer profile. - 3H
 - [] Dashboard for course mode.
+- [] Dashboard for Trainer.

@@ -462,9 +462,9 @@ curl --location 'http://localhost:3002/api/user_role/add' \
 curl --location 'http://localhost:3002/api/user/add' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "name": "trainer_admin",
-    "phone_num": "+91-0000000001",
-    "email": "trainer_admin@test.com",
+    "name": "Vijay Gehlot",
+    "phone_num": "+91-8552077668",
+    "email": "vijay_gehlot_trainer@test.com",
     "password": "trainer123",
     "user_role_id": 4
 }'
@@ -474,10 +474,10 @@ curl --location 'http://localhost:3002/api/trainer/add' \
 --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770' \
 --data-raw '[
     {
-        "name": "trainer_admin",
-        "phone_num": "+91-0000000001",
-        "email": "trainer_admin@test.com",
-        "user_id": 1920
+        "name": "Vijay Gehlot",
+        "phone_num": "+91-8552077668",
+        "email": "vijay_gehlot_trainer@test.com",
+        "user_id": 2058
     }
 ]'
 
