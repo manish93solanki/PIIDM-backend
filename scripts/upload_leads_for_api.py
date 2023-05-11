@@ -227,6 +227,29 @@ def set_broadcast(df):
     return df
 
 
+def set_agent(df):
+    df['agent_id'].fillna('nan', inplace=True)
+    df['agent_id'] = df['agent_id'].replace({None: 'nan'})
+
+    def __get_agent_id(agent_email):
+        if agent_email is None:
+            return 1
+        agent_email = agent_email.lower().strip()
+        url = f"{PROTOCOL}://{BASE_URL}:3002/api/agent/by_email_or_phone_num?email={agent_email}"
+        headers = {
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770'
+        }
+        response = requests.request("GET", url, headers=headers, verify=False)
+        agent_res = response.json()
+        if agent_res and 'agent_id' in agent_res:
+            return agent_res['agent_id']
+        else:
+            return 1
+
+    df['agent_id'] = df['agent_id'].apply(__get_agent_id)
+    return df
+
+
 def is_record_exist(phone_num, alternate_phone_num=None):
     if alternate_phone_num:
         url = f"{PROTOCOL}://{BASE_URL}:3002/api/leads/by_email_or_phone_num?phone_num={phone_num}&alternate_phone_num={alternate_phone_num}"
@@ -309,7 +332,7 @@ def save_lead(df):
                 "demo_date": None,
                 "instructor": None,
                 "broadcast": row['broadcast'],
-                "agent_id": 1,
+                "agent_id": row['agent_id'],
                 "trainer_id": 1,
                 "fee_offer": None,
                 "is_student": 0
@@ -358,6 +381,8 @@ def run_manual(path):
     df = set_source(df)
     df = set_details_sent(df)
     df = set_broadcast(df)
+    df = set_agent(df)
+    print(df)
     leads_not_saved = save_lead(df)
     txt_file_path = f'{file_name}.txt'
     save_txt(file_name, txt_file_path, leads_not_saved)
@@ -378,6 +403,7 @@ def run(binary_path):
     df = set_source(df)
     df = set_details_sent(df)
     df = set_broadcast(df)
+    df = set_agent(df)
     leads_not_saved = save_lead(df)
     return leads_not_saved
 
