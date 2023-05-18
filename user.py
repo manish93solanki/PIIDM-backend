@@ -48,7 +48,7 @@ def add_user():
             user = model.User()
             if is_user_phone_num_exists(data['phone_num']):
                 return {'error': 'Phone number is already exist.'}, 409
-            if 'email' in data and user.email != data['email'] and is_user_email_exists(data['email']):
+            if 'email' in data and data['email'] and user.email != data['email'] and is_user_email_exists(data['email']):
                 return {'error': 'Email is already exist.'}, 409
             user.name = data['name']
             user.phone_num = data['phone_num']
@@ -73,7 +73,7 @@ def update_user(user_id):
         user = fetch_user_by_id(int(user_id))
         if 'phone_num' in data and user.phone_num != data['phone_num'] and is_user_phone_num_exists(data['phone_num']):
             return {'error': 'Phone number is already exist.'}, 409
-        if 'email' in data and user.email != data['email'] and is_user_email_exists(data['email']):
+        if 'email' in data and data['email'] and user.email != data['email'] and is_user_email_exists(data['email']):
             return {'error': 'Email is already exist.'}, 409
         for key, value in data.items():
             setattr(user, key, value)
