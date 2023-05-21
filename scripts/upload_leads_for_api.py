@@ -232,7 +232,7 @@ def set_agent(df):
     df['agent_id'] = df['agent_id'].replace({None: 'nan'})
 
     def __get_agent_id(agent_email):
-        if agent_email is None:
+        if agent_email is None or (not isinstance(agent_email, str)) or (not agent_email):
             return 1
         agent_email = agent_email.lower().strip()
         url = f"{PROTOCOL}://{BASE_URL}:3002/api/agent/by_email_or_phone_num?email={agent_email}"
@@ -312,7 +312,7 @@ def save_lead(df):
                 "name": row['name'],
                 "phone_num": phone_num,
                 "alternate_phone_num": alternate_phone_num,
-                "email": row['email'].strip() if row['email'] else None,
+                "email": row['email'].strip() if isinstance(row['email'], str) and row['email'] else None,
                 "lead_date": row['lead_date'].strip(),
                 "remarks": row['remark'],
                 "country_id": 98,
