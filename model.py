@@ -254,11 +254,11 @@ class Student(db.Model):
     dob = Column(Date, nullable=True)
     admission_date = Column(Date, nullable=False)
     area = Column(Text, nullable=True)
-    state = Column(VARCHAR(255), nullable=True)
     pincode = Column(VARCHAR(255), nullable=True)
     highest_education = Column(VARCHAR(255), nullable=True)
     occupation = Column(VARCHAR(255), nullable=True)
     purpose_for_course = Column(VARCHAR(255), nullable=True)
+    who_you_are = Column(VARCHAR(255), nullable=True)
     referred_by = Column(VARCHAR(255), nullable=True)
     front_image_path = Column(VARCHAR(255), nullable=True)
     back_image_path = Column(VARCHAR(255), nullable=True)
@@ -266,7 +266,10 @@ class Student(db.Model):
     branch_id = Column(ForeignKey('branch.branch_id'), nullable=False)
     country_id = Column(ForeignKey('country.country_id'), nullable=False)
     city_id = Column(ForeignKey('city.city_id'), nullable=False)
-    tutor_id = Column(ForeignKey('agent.agent_id'), nullable=False)  # tutor is agent
+    state_id = Column(ForeignKey('state.state_id'), nullable=True)
+    agent_id = Column(ForeignKey('agent.agent_id'), nullable=True)  # tutor is agent
+    # tutor_id = Column(ForeignKey('agent.agent_id'), nullable=False)  # tutor is agent
+    trainer_id = Column(ForeignKey('trainer.trainer_id'), nullable=True)
     course_id = Column(ForeignKey('course.course_id'), nullable=False)
     course_mode_id = Column(ForeignKey('course_mode.course_mode_id'), nullable=True)
     course_content_id = Column(ForeignKey('course_content.course_content_id'), nullable=False, default=1)
@@ -297,5 +300,7 @@ class Student(db.Model):
     agent = relationship('Agent')
     country = relationship('Country')
     city = relationship('City')
+    state = relationship('State')
+    trainer = relationship('Trainer')
     user = relationship('User')
     # receipt = relationship('Receipt')

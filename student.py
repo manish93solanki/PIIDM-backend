@@ -70,6 +70,13 @@ def populate_student_record(student):
                 country_value = getattr(country, country_key)
                 student_result[key][country_key] = country_value
             student_result['country'] = student_result.pop(key)
+        if key == 'state_id':
+            state = student.state
+            student_result[key] = {}
+            for state_key in state.__table__.columns.keys():
+                state_value = getattr(state, state_key)
+                student_result[key][state_key] = state_value
+            student_result['state'] = student_result.pop(key)
         if key == 'city_id':
             city = student.city
             student_result[key] = {}
@@ -112,13 +119,20 @@ def populate_student_record(student):
                 batch_time_value = getattr(batch_time, batch_time_key)
                 student_result[key][batch_time_key] = batch_time_value
             student_result['batch_time'] = student_result.pop(key)
-        if key == 'tutor_id':
+        if key == 'agent_id':
             agent = student.agent
             student_result[key] = {}
             for agent_key in agent.__table__.columns.keys():
                 agent_value = getattr(agent, agent_key)
                 student_result[key][agent_key] = agent_value
-            student_result['tutor'] = student_result.pop(key)
+            student_result['agent'] = student_result.pop(key)
+        if key == 'trainer_id':
+            trainer = student.trainer
+            student_result[key] = {}
+            for trainer_key in trainer.__table__.columns.keys():
+                trainer_value = getattr(trainer, trainer_key)
+                student_result[key][trainer_key] = trainer_value
+            student_result['trainer'] = student_result.pop(key)
     return student_result
 
 
@@ -417,9 +431,9 @@ def get_paginated_students_advanced(current_user):
         agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
         if agent_id:
             agent_id = agent_id[0]
-        query = query.filter(model.Student.tutor_id == agent_id)
+        query = query.filter(model.Student.agent_id == agent_id)
         total_students = model.Student.query.filter(model.Student.deleted == 0,
-                                                    model.Student.tutor_id == agent_id).count()
+                                                    model.Student.agent_id == agent_id).count()
 
     # pagination
     start = request.args.get('start', type=int)

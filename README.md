@@ -201,6 +201,21 @@ update lead set batch_time_id = 7 where batch_time_id = 3;
 select batch_time_id from student;
 update student set batch_time_id = 4 where batch_time_id = 2;
 update student set batch_time_id = 7 where batch_time_id = 3;
+
+UPDATE student set agent_id = tutor_id;
+select distinct(purpose_for_course) from student;
+update student set purpose_for_course='Placement' where purpose_for_course='Job';
+update student set purpose_for_course='Skill Update' where purpose_for_course='Knowledge';
+update student set purpose_for_course='Other' where purpose_for_course='' or purpose_for_course is NULL;
+
+select state_id from student where state_id is NULL;
+update student set state_id=21 where state_id is NULL;
+
+select distinct(trainer_id) from lead;
+select distinct(trainer_id) from student where trainer_id is NULL;
+select trainer_id from student where trainer_id is NULL;
+update student set trainer_id=1 where trainer_id is NULL;
+
 ```
 
 curl --location 'http://localhost:3002/api/course/add' \

@@ -47,5 +47,12 @@
 
 - [X] Disabled lead_status in lead - 1H
 - [X] View/Update/Add/Delete/Change_Password Trainer profile. - 3H
-- [] Dashboard for course mode.
+- [X] Upload leads. - 4H
+- [X] Changed radio to check for age & gender - 1H 
+- [X] Added new fields in Admission and Student LMS, Changes are made to leads, students, agents, student dashboard, student profile, and review student documents. - 5H - Upload pending 
+- [] Change toggle to arrow for left pane
+- [] Deactivate trainer
+- [] Assignment Submission through link or document upload in student section, also allow to change batch time & trainer.
+- [] Admin can create assignments.
 - [] Dashboard for Trainer.
+- [] Trainer/Agent/User can't be deleted if they are associated with any lead/student.
