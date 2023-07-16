@@ -377,11 +377,11 @@ def get_paginated_leads_advanced(current_user):
                 super_admin_agent_ids = [x[0] for x in super_admin_agent_ids]
                 print('super_admin_agent_ids: ', super_admin_agent_ids)
                 query = query.filter(model.Lead.agent_id.in_(super_admin_agent_ids))
-            else:
-                agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
-                if agent_id:
-                    agent_id = agent_id[0]
-                query = query.filter(model.Lead.agent_id == agent_id)
+            # else:
+            #     agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
+            #     if agent_id:
+            #         agent_id = agent_id[0]
+            #     query = query.filter(model.Lead.agent_id == agent_id)
 
         # pagination
         start = request.args.get('start', type=int)

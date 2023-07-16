@@ -129,10 +129,15 @@ def get_agent(current_user, agent_id):
 @token_required
 def get_agents(current_user):
     query = app.session.query(model.Agent).filter(model.Agent.deleted == 0)
-    if current_user.user_role_id == 2:
-        cursor = query.filter(model.Agent.user_id == current_user.user_id).all()
-    else:
+    module = request.args.get('module', None)
+    if module:
         cursor = query.all()
+    else:
+        if current_user.user_role_id == 2:
+            cursor = query.filter(model.Agent.user_id == current_user.user_id).all()
+        else:
+            cursor = query.all()
+
     agents = list(cursor)
     results = []
     for agent in agents:

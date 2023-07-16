@@ -24,13 +24,8 @@
 - [X] Disable access of deactivated student.
 - [X] Fix mobile UI for student dashboard.
 - [X] Fix Youtube pop for student.
-- [] Deleting course, agent, user, source, batch_time is only allowed when they are in their children tables. If so, adjust them.
 - [X] Initial DB migrations
 - [X] DB migrations - User, Agent (Pending - update user with phone & email)
-- [] Fix Fresh leads UI.
-- [] Fix courses, agents UI on mobile.
-- [ ] Email Notification 
-- [ ] Next action remark - Action item - call/email
 - [X] Migrate photos of students
 - [X] Pending/Accept/View documents button on admin to review student documents. - 5H
 - [X] Added course mode - 4H
@@ -43,16 +38,37 @@
 - [X] Highlighted with green and red status based on lead_status into lead - 3H
 - [X] reset lead_status to pending when admin deletes student profile - 1H
 - [X] Made changes in Leads to add Trainer Profile - 5H
-- 
-
 - [X] Disabled lead_status in lead - 1H
 - [X] View/Update/Add/Delete/Change_Password Trainer profile. - 3H
 - [X] Upload leads. - 4H
 - [X] Changed radio to check for age & gender - 1H 
-- [X] Added new fields in Admission and Student LMS, Changes are made to leads, students, agents, student dashboard, student profile, and review student documents. - 5H - Upload pending 
-- [] Change toggle to arrow for left pane
+- [X] Added new fields in Admission and Student LMS, Changes are made to leads, students, agents, student dashboard, student profile, and review student documents. - 6H 
+- [X] Minimize left sidebar menu on loading, and then handle with toggle by changing icon - 2H
+- [X] Split Columns for lead and modify Date formats - 3H
+- [X] Split Columns for students and modify Date formats - 2H
+- [X] UI changes and arrange filters  - 2H
+- [X] Persist filters values after editing of leads & students data - 4H
+- [X] UI Changes for leads form & fixed remark issue that got disappeared - 3H
+- [X] Leads to be shown to all users. - 1H
+- [X] Allow lead edit except fields - name, date, contacts, and email for other agents. - 2H
+- [X] Add agent name in remark section. (Ex. ----- (by agent_name)) - 1H
+
+- [] Open Edit lead form in modal.
+- [] receipt download as PDF
+- [] Generate form for students in leads before taking admission, show status - form send, form receive.
+
+- [] Set Unknown for Age & Gender.
+- [] Question? who_you_are in student will be "Student(Bachelor)" for previous students bcz this field was not there.
 - [] Deactivate trainer
 - [] Assignment Submission through link or document upload in student section, also allow to change batch time & trainer.
 - [] Admin can create assignments.
 - [] Dashboard for Trainer.
 - [] Trainer/Agent/User can't be deleted if they are associated with any lead/student.
+- [] Track activity of agents.
+
+
+- [] Deleting course, agent, user, source, batch_time is only allowed when they are in their children tables. If so, adjust them.
+- [] Fix Fresh leads UI.
+- [] Fix courses, agents UI on mobile.
+- [] Email Notification 
+- [] Next action remark - Action item - call/email
