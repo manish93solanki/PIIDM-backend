@@ -427,13 +427,13 @@ def get_paginated_students_advanced(current_user):
     query = query.filter(model.Student.batch_time_id == int(batch_time)) if batch_time else query
     query = query.filter(model.Student.is_active == int(is_active)) if is_active else query
 
-    if current_user.user_role_id == 2:  # role == agent
-        agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
-        if agent_id:
-            agent_id = agent_id[0]
-        query = query.filter(model.Student.agent_id == agent_id)
-        total_students = model.Student.query.filter(model.Student.deleted == 0,
-                                                    model.Student.agent_id == agent_id).count()
+    # if current_user.user_role_id == 2:  # role == agent
+    #     agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
+    #     if agent_id:
+    #         agent_id = agent_id[0]
+    #     query = query.filter(model.Student.agent_id == agent_id)
+    #     total_students = model.Student.query.filter(model.Student.deleted == 0,
+    #                                                 model.Student.agent_id == agent_id).count()
 
     # pagination
     start = request.args.get('start', type=int)
@@ -448,18 +448,28 @@ def get_paginated_students_advanced(current_user):
     )) if search_term else query
 
     total_filtered_students = query.count()  # total filtered students
-    total_admissions = query.count()  # total_admissions
-    total_dropouts = query.filter(model.Student.is_active == 0).count()
-    total_expected_earning = query.with_entities(func.sum(model.Student.total_fee)).scalar()
-    total_earning = query.with_entities(func.sum(model.Student.total_fee_paid)).scalar()
-    total_pending_fee = query.with_entities(func.sum(model.Student.total_pending_fee)).scalar()
+    if current_user.user_role_id == 2:  # role == agent
+        agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
+        if agent_id:
+            agent_id = agent_id[0]
+        total_admissions = query.filter(model.Student.agent_id == agent_id).count()  # total_admissions
+        total_dropouts = query.filter(model.Student.agent_id == agent_id, model.Student.is_active == 0).count()
+        total_expected_earning = query.filter(model.Student.agent_id == agent_id).with_entities(func.sum(model.Student.total_fee)).scalar()
+        total_earning = query.filter(model.Student.agent_id == agent_id).with_entities(func.sum(model.Student.total_fee_paid)).scalar()
+        total_pending_fee = query.filter(model.Student.agent_id == agent_id).with_entities(func.sum(model.Student.total_pending_fee)).scalar()
+    else:
+        total_admissions = query.count()  # total_admissions
+        total_dropouts = query.filter(model.Student.is_active == 0).count()
+        total_expected_earning = query.with_entities(func.sum(model.Student.total_fee)).scalar()
+        total_earning = query.with_entities(func.sum(model.Student.total_fee_paid)).scalar()
+        total_pending_fee = query.with_entities(func.sum(model.Student.total_pending_fee)).scalar()
+
     basic_stats = {
         'total_admissions': total_admissions,
         'total_dropouts': total_dropouts,
         'total_expected_earning': total_expected_earning,
         'total_earning': total_earning,
         'total_pending_fee': total_pending_fee
-
     }
 
     query = query.order_by(desc(model.Student.admission_date)).offset(start).limit(length)

@@ -130,7 +130,7 @@ def get_agent(current_user, agent_id):
 def get_agents(current_user):
     query = app.session.query(model.Agent).filter(model.Agent.deleted == 0)
     module = request.args.get('module', None)
-    if module:
+    if module and (module in ['lead', 'student']):
         cursor = query.all()
     else:
         if current_user.user_role_id == 2:
