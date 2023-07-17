@@ -172,7 +172,7 @@ def get_paginated_students_advanced(current_user):
         agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
         if agent_id:
             agent_id = agent_id[0]
-        filtered_student_ids = app.session.query(model.Student.student_id).filter(model.Student.tutor_id == agent_id)
+        filtered_student_ids = app.session.query(model.Student.student_id).filter(model.Student.agent_id == agent_id)
         # only those students which are associated with given agent
         query = query.filter(model.Receipt.student_id.in_(filtered_student_ids))
         total_receipts = model.Receipt.query.filter(model.Receipt.deleted == 0,
