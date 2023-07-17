@@ -149,7 +149,8 @@ def add_lead(current_user):
                 # Check if lead is already exist
                 if is_lead_phone_num_exists(item['phone_num']):
                     return {'error': 'Phone number is already exist.'}, 409
-                if 'alternate_phone_num' in item and item['alternate_phone_num'] and is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
+                if 'alternate_phone_num' in item and item['alternate_phone_num'] and is_lead_alternate_phone_num_exists(
+                        item['alternate_phone_num']):
                     return {'error': 'Alternate Phone number is already exist.'}, 409
                 if 'email' in item and item['email'] and is_lead_email_exists(item['email']):
                     return {'error': 'Email is already exist.'}, 409
@@ -192,11 +193,14 @@ def update_lead(current_user, lead_id):
             lead = fetch_lead_by_id(int(lead_id))
 
             # Check if lead is already exist
-            if 'phone_num' in item and item['phone_num'] and lead.phone_num != item['phone_num'] and is_lead_phone_num_exists(item['phone_num']):
+            if 'phone_num' in item and item['phone_num'] and lead.phone_num != item[
+                'phone_num'] and is_lead_phone_num_exists(item['phone_num']):
                 return {'error': 'Phone number is already exist.'}, 409
-            if 'alternate_phone_num' in item and item['alternate_phone_num'] and lead.alternate_phone_num != item['alternate_phone_num'] and is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
+            if 'alternate_phone_num' in item and item['alternate_phone_num'] and lead.alternate_phone_num != item[
+                'alternate_phone_num'] and is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
                 return {'error': 'Alternate Phone number is already exist.'}, 409
-            if 'email' in item and item['email'] and lead.email != item['email'] and is_lead_email_exists(item['email']):
+            if 'email' in item and item['email'] and lead.email != item['email'] and is_lead_email_exists(
+                    item['email']):
                 return {'error': 'Email is already exist.'}, 409
             for key, value in item.items():
                 if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
@@ -214,8 +218,10 @@ def update_lead(current_user, lead_id):
 def soft_delete_lead(current_user, lead_id):
     try:
         lead = fetch_lead_by_id(int(lead_id))
-        lead.phone_num = lead.phone_num + '::' + str(datetime.datetime.now()) + '::deleted' if lead.phone_num else lead.phone_num
-        lead.alternate_phone_num = lead.alternate_phone_num + '::' + str(datetime.datetime.now()) + '::deleted' if lead.alternate_phone_num else lead.alternate_phone_num
+        lead.phone_num = lead.phone_num + '::' + str(
+            datetime.datetime.now()) + '::deleted' if lead.phone_num else lead.phone_num
+        lead.alternate_phone_num = lead.alternate_phone_num + '::' + str(
+            datetime.datetime.now()) + '::deleted' if lead.alternate_phone_num else lead.alternate_phone_num
         lead.email = lead.email + '::' + str(datetime.datetime.now()) + '::deleted' if lead.email else lead.email
         lead.deleted = 1
         insert_single_record(lead)
@@ -344,6 +350,7 @@ def get_paginated_leads_advanced(current_user):
         source = request.args.get('source', None)
         batch_time = request.args.get('batch_time', None)
         admission_status = request.args.get('admission_status', None)
+        is_visited = request.args.get('is_visited', None)
         is_fresh_leads = request.args.get('is_fresh_leads', None)
 
         # filtering data
@@ -361,6 +368,7 @@ def get_paginated_leads_advanced(current_user):
         query = query.filter(model.Lead.source_id == int(source)) if source else query
         query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
         query = query.filter(model.Lead.admission_status == int(admission_status)) if admission_status else query
+        query = query.filter(model.Lead.visit_date.isnot(None)) if is_visited else query
         print(query)
         if current_user.user_role_id == 2:  # role == agent
             if is_fresh_leads:
@@ -417,4 +425,3 @@ def get_paginated_leads_advanced(current_user):
         # import traceback
         # print(traceback.format_exc())
         return jsonify({'error': str(ex)}), 500
-
