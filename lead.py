@@ -348,6 +348,7 @@ def get_paginated_leads_advanced(current_user):
         course = request.args.get('course', None)
         course_mode = request.args.get('course_mode', None)
         source = request.args.get('source', None)
+        agent = request.args.get('agent', None)
         batch_time = request.args.get('batch_time', None)
         admission_status = request.args.get('admission_status', None)
         is_visited = request.args.get('is_visited', None)
@@ -366,6 +367,7 @@ def get_paginated_leads_advanced(current_user):
         query = query.filter(model.Lead.course_id == int(course)) if course else query
         query = query.filter(model.Lead.course_mode_id == int(course_mode)) if course_mode else query
         query = query.filter(model.Lead.source_id == int(source)) if source else query
+        query = query.filter(model.Lead.agent_id == int(agent)) if agent else query
         query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
         query = query.filter(model.Lead.admission_status == int(admission_status)) if admission_status else query
         query = query.filter(model.Lead.visit_date.isnot(None)) if is_visited else query

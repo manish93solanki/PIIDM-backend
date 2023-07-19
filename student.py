@@ -407,6 +407,7 @@ def get_paginated_students_advanced(current_user):
     course = request.args.get('course', None)
     course_mode = request.args.get('course_mode', None)
     source = request.args.get('source', None)
+    agent = request.args.get('agent', None)
     batch_time = request.args.get('batch_time', None)
     is_active = request.args.get('is_active', None)
 
@@ -424,6 +425,7 @@ def get_paginated_students_advanced(current_user):
     query = query.filter(model.Student.course_id == int(course)) if course else query
     query = query.filter(model.Student.course_mode_id == int(course_mode)) if course_mode else query
     query = query.filter(model.Student.source_id == int(source)) if source else query
+    query = query.filter(model.Student.agent_id == int(agent)) if agent else query
     query = query.filter(model.Student.batch_time_id == int(batch_time)) if batch_time else query
     query = query.filter(model.Student.is_active == int(is_active)) if is_active else query
 
