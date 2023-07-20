@@ -330,7 +330,7 @@ def save_lead(df):
                 "visit_date": None,
                 "pitch_by": None,
                 "demo_date": None,
-                "instructor": None,
+                "referred_by": None,
                 "broadcast": row['broadcast'],
                 "agent_id": row['agent_id'],
                 "trainer_id": 1,
