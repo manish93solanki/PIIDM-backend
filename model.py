@@ -181,7 +181,7 @@ class Lead(db.Model):
     visit_date = Column(Date, nullable=True)
     pitch_by = Column(VARCHAR(255), nullable=True)
     demo_date = Column(Date, nullable=True)
-    instructor = Column(VARCHAR(255), nullable=True)
+    referred_by = Column(VARCHAR(255), nullable=True)
     broadcast = Column(Integer, nullable=True)
     age = Column(Integer, nullable=True, default=1)  # 1 = 18-25, 2 = 26-35, 3 = 36-Above
     gender = Column(Integer, nullable=True, default=1)  # 1 = male, 2 = female
