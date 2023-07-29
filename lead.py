@@ -125,6 +125,16 @@ def populate_lead_record(lead):
                 agent_value = getattr(agent, agent_key)
                 lead_result[key][agent_key] = agent_value
             lead_result['agent'] = lead_result.pop(key)
+        if key == 'pitch_by_id':
+            pitch_by = lead.pitch_by
+            if pitch_by:
+                lead_result[key] = {}
+                for pitch_by_key in pitch_by.__table__.columns.keys():
+                    pitch_by_value = getattr(pitch_by, pitch_by_key)
+                    lead_result[key][pitch_by_key] = pitch_by_value
+            else:
+                lead_result[key] = None
+            lead_result['pitch_by'] = lead_result.pop(key)
         if key == 'trainer_id':
             trainer = lead.trainer
             lead_result[key] = {}
