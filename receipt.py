@@ -184,7 +184,7 @@ def get_paginated_students_advanced(current_user):
     search_term = request.args.get('search[value]', type=str)
     print('search_term: ', search_term)
     student_sub_query = app.session.query(model.Student.student_id).filter(or_(
-        model.Student.name.like(f'{search_term}%'),
+        model.Student.name.like(f'%{search_term}%'),
         model.Student.phone_num.like(f'%{search_term}%'),
         model.Student.alternate_phone_num.like(f'%{search_term}%'),
         model.Student.email.like(f'{search_term}%'),

@@ -165,7 +165,7 @@ def get_paginated_trainers_advanced(current_user):
     search_term = request.args.get('search[value]', type=str)
     print('search_term: ', search_term)
     query = query.filter(or_(
-        model.Trainer.name.like(f'{search_term}%'),
+        model.Trainer.name.like(f'%{search_term}%'),
         model.Trainer.phone_num.like(f'%{search_term}%'),
         model.Trainer.email.like(f'{search_term}%'),
     )) if search_term else query

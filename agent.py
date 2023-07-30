@@ -173,7 +173,7 @@ def get_paginated_agents_advanced(current_user):
     search_term = request.args.get('search[value]', type=str)
     print('search_term: ', search_term)
     query = query.filter(or_(
-        model.Agent.name.like(f'{search_term}%'),
+        model.Agent.name.like(f'%{search_term}%'),
         model.Agent.phone_num.like(f'%{search_term}%'),
         model.Agent.email.like(f'{search_term}%'),
     )) if search_term else query

@@ -409,7 +409,7 @@ def get_paginated_leads_advanced(current_user):
         search_term = request.args.get('search[value]', type=str)
         print('search_term: ', search_term)
         query = query.filter(or_(
-            model.Lead.name.like(f'{search_term}%'),
+            model.Lead.name.like(f'%{search_term}%'),
             model.Lead.phone_num.like(f'%{search_term}%'),
             model.Lead.alternate_phone_num.like(f'%{search_term}%'),
             model.Lead.email.like(f'{search_term}%'),

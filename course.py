@@ -123,7 +123,7 @@ def get_paginated_courses_advanced(current_user):
     length = request.args.get('length', type=int)
     search_term = request.args.get('search[value]', type=str)
     print('search_term: ', search_term)
-    query = query.filter(model.Course.name.like(f'{search_term}%')) if search_term else query
+    query = query.filter(model.Course.name.like(f'%{search_term}%')) if search_term else query
 
     total_filtered_courses = query.count()  # total filtered courses
     basic_stats = {
