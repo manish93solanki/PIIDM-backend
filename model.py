@@ -210,6 +210,32 @@ class Lead(db.Model):
     city = relationship('City')
 
 
+class SubmittedLead(db.Model):
+    __tablename__ = 'submitted_lead'
+
+    submitted_lead_id = Column(Integer, primary_key=True, autoincrement=True)
+    submission_id = Column(Integer, nullable=True)
+    name = Column(VARCHAR(255), nullable=True)
+    phone_num = Column(VARCHAR(255), nullable=True)
+    email = Column(VARCHAR(255), nullable=True)
+    hash_id = Column(VARCHAR(255), nullable=True)
+    referer = Column(VARCHAR(255), nullable=True)
+    referer_title = Column(VARCHAR(255), nullable=True)
+    form_name = Column(VARCHAR(255), nullable=True)
+    campaign_id = Column(Integer, nullable=True)
+    user_id = Column(Integer, nullable=True)
+    user_ip = Column(VARCHAR(255), nullable=True)
+    user_agent = Column(VARCHAR(255), nullable=True)
+    actions_count = Column(Integer, nullable=True)
+    actions_succeeded_count = Column(Integer, nullable=True)
+    status = Column(VARCHAR(255), nullable=True)
+    submitted_status = Column(VARCHAR(255), nullable=True)
+    created_at_gmt = Column(DateTime, nullable=True)
+    updated_at_gmt = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now())
+
+
 class PaymentMode(db.Model):
     __tablename__ = 'payment_mode'
 
