@@ -13,11 +13,20 @@ sqlite_conn = sqliteengine.connect()
 
 
 def get_last_submission_id():
-    global sqlite_conn
+    global sqlite_conn, mysql_conn
     last_submission_id = 0
+
+    # Collect latest submission_id from our database - sqlite
     cursor = sqlite_conn.execute('SELECT submission_id from submitted_lead order by submission_id desc limit 1')
     for row in cursor.mappings():
         last_submission_id = row['submission_id']
+
+    # Collect latest submission_id from source - piidm.com database
+    if last_submission_id == 0:
+        cursor = mysql_conn.execute('SELECT id from wp_e_submissions order by id desc limit 1')
+        for row in cursor.mappings():
+            last_submission_id = row['id'] - 1
+
     print('last_submission_id: ', last_submission_id)
     return last_submission_id
 
@@ -41,9 +50,12 @@ def fetch_and_insert_data(last_submission_id):
             elif row_2['key'] == 'email':
                 submission_data['email'] = row_2['value']
             elif 'field' in row_2['key']:
-                submission_data['phone_num'] = row_2['value']
+                phone_num = row_2['value']
+                if phone_num:
+                    phone_num = phone_num.replace('+91', '')
+                    phone_num = ''.join(c for c in phone_num if c.isdigit())
+                submission_data['phone_num'] = phone_num
         # print(submission_data)
-        # submission_data['referer_title'] = submission_data['referer_title'].replace('🥇', ' ')
 
         sqlite_conn.execute(f'''
             INSERT INTO submitted_lead(
@@ -62,8 +74,10 @@ def fetch_and_insert_data(last_submission_id):
                 'actions_count',
                 'actions_succeeded_count',
                 'status',
+                'submitted_status',
                 'created_at_gmt',
-                'updated_at_gmt'
+                'updated_at_gmt',
+                'deleted'
             ) 
             VALUES(
                 {submission_data['id']},
@@ -81,8 +95,10 @@ def fetch_and_insert_data(last_submission_id):
                 {submission_data['actions_count']},
                 {submission_data['actions_succeeded_count']},
                 '{submission_data['status']}',
+                1,
                 '{submission_data['created_at_gmt']}',
-                '{submission_data['updated_at_gmt']}'
+                '{submission_data['updated_at_gmt']}',
+                0
             )
         ''')
 

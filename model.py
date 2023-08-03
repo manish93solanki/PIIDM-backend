@@ -229,9 +229,10 @@ class SubmittedLead(db.Model):
     actions_count = Column(Integer, nullable=True)
     actions_succeeded_count = Column(Integer, nullable=True)
     status = Column(VARCHAR(255), nullable=True)
-    submitted_status = Column(VARCHAR(255), nullable=True)
+    submitted_status = Column(Integer, nullable=True)  # 0=deleted, 1=new, 2=pending, 3=accepted, 4=rejected
     created_at_gmt = Column(DateTime, nullable=True)
     updated_at_gmt = Column(DateTime, nullable=True)
+    deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now())
 

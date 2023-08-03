@@ -35,9 +35,10 @@ def upgrade():
     sa.Column('actions_count', sa.Integer(), nullable=True),
     sa.Column('actions_succeeded_count', sa.Integer(), nullable=True),
     sa.Column('status', sa.VARCHAR(length=255), nullable=True),
-    sa.Column('submitted_status', sa.VARCHAR(length=255), nullable=True),
+    sa.Column('submitted_status', sa.Integer(), nullable=True),
     sa.Column('created_at_gmt', sa.DateTime(), nullable=True),
     sa.Column('updated_at_gmt', sa.DateTime(), nullable=True),
+    sa.Column('deleted', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
     sa.PrimaryKeyConstraint('submitted_lead_id')
