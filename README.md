@@ -179,6 +179,9 @@ vim /etc/apache2/sites-available/online.piidm.com.conf
 #### Cron jobs
 `0 1 * * * /root/codemania/piidm-backend/.venv/bin/python /root/codemania/piidm-backend/jobs/deactivate_students.py >> /root/codemania/piidm-backend/cronjob_log.out`
 
+#### SSH Tunnel port forwarding for MYSQL
+- This is used for inserting submission leads from piidm.com MYSQL to sqlite.
+`ssh -p 65002 -fN -L 127.0.0.1:3307:127.0.0.1:3306 u776183671@89.117.157.123`
 
 ## RUn these
 ```commandline
@@ -202,7 +205,10 @@ select batch_time_id from student;
 update student set batch_time_id = 4 where batch_time_id = 2;
 update student set batch_time_id = 7 where batch_time_id = 3;
 
+select distinct(agent_id) from student;
+select distinct(tutor_id) from student;
 UPDATE student set agent_id = tutor_id;
+select agent_id, tutor_id from student;
 select distinct(purpose_for_course) from student;
 update student set purpose_for_course='Placement' where purpose_for_course='Job';
 update student set purpose_for_course='Skill Update' where purpose_for_course='Knowledge';

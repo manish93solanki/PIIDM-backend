@@ -52,7 +52,18 @@
 - [X] Leads to be shown to all users. - 1H
 - [X] Allow lead edit except fields - name, date, contacts, and email for other agents. - 2H
 - [X] Add agent name in remark section. (Ex. ----- (by agent_name)) - 1H
-
+- [X] Everyone is allowed to insure admission for other agents. - 1H
+- [X] Added is_visited filter. - 1H
+- [X] Show all agents admission and disable few fields - 1H
+- [X] Collections must be shown for logged In agent only. - 1H
+- [X] Add filter by agent in both leads & students. - 1H
+- [X] Add filter by last month in both leads & students. - 1H
+- [X] Show 100 records by default & Increase size of search bar - 1H
+- [X] Added pitch by & referred by in leads. - 1H
+- [X] Pitch By and visit date should be populated automatically if user selects checkbox of auto-populate - 2H
+- [X] Disable pitch by and visit date & maintain consistency on populating pitch by and should be changed on edit leads - 1H
+- [X] Fixed fresh leads for instructor. Now, instructor becomes trainer - 1H
+- [X] Agent cannot change other agent's students fee - 1H
 - [] Open Edit lead form in modal.
 - [] receipt download as PDF
 - [] Generate form for students in leads before taking admission, show status - form send, form receive.

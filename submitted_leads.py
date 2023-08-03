@@ -35,6 +35,10 @@ def populate_submitted_lead_record(submitted_lead):
     submitted_lead_result = {}
     for key in submitted_lead.__table__.columns.keys():
         value = getattr(submitted_lead, key)
+        if key in ('created_at_gmt', ) and value:
+            # print('------> ', key, value)
+            value = str(value)  # datetime.datetime.strptime(str(value), '%Y-%m-%d %H:%M:%S')
+            # print('value: ', value)
         submitted_lead_result[key] = value
     return submitted_lead_result
 

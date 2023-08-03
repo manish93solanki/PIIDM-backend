@@ -49,10 +49,11 @@ def fetch_and_insert_data(last_submission_id):
                 submission_data['name'] = row_2['value']
             elif row_2['key'] == 'email':
                 submission_data['email'] = row_2['value']
-            elif 'field' in row_2['key']:
+            elif 'field' in row_2['key'] or 'phone' == row_2['key']:
                 phone_num = row_2['value']
                 if phone_num:
                     phone_num = phone_num.replace('+91', '')
+                    phone_num = phone_num.lstrip('0')
                     phone_num = ''.join(c for c in phone_num if c.isdigit())
                 submission_data['phone_num'] = phone_num
         # print(submission_data)
