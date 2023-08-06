@@ -189,11 +189,13 @@ class Lead(db.Model):
     reason_to_join = Column(Integer, nullable=True, default=5)  # 1 = placement, 2 = skill update, 3 = business, 4 = freelancing, 5 = other
     who_is = Column(Integer, nullable=True, default=1)  # 1 = student, 2 = working professional, 3 = business owner, 4 = housewife, 5 = job seeker
     lead_status = Column(Integer, nullable=True, default=1)  # 1 = pending, 2 = invalid number, 3 = looking something else, 4 = joined somewhere, 5 = fake lead, 6 = not interested, 7 = not receiving, 8 = admission done
+    lead_insertion_mechanism_type = Column(Integer, nullable=True, default=1)  # 1=manual, 2=auto
     agent_id = Column(ForeignKey('agent.agent_id'), nullable=False)
     trainer_id = Column(ForeignKey('trainer.trainer_id'), nullable=True)
     fee_offer = Column(Integer, nullable=True)
     admission_status = Column(Integer, nullable=False, default=0)
     deleted = Column(Integer, nullable=False, default=0)
+    submitted_lead_id = Column(ForeignKey('submitted_lead.submitted_lead_id'), nullable=True)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
 
@@ -208,6 +210,7 @@ class Lead(db.Model):
     country = relationship('Country')
     state = relationship('State')
     city = relationship('City')
+    submitted_lead = relationship('SubmittedLead')
 
 
 class SubmittedLead(db.Model):

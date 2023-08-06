@@ -14,7 +14,7 @@ sqlite_conn = sqliteengine.connect()
 
 def get_last_submission_id():
     global sqlite_conn, mysql_conn
-    last_submission_id = 0
+    last_submission_id = 0  #13260 - starting ID
 
     # Collect latest submission_id from our database - sqlite
     cursor = sqlite_conn.execute('SELECT submission_id from submitted_lead order by submission_id desc limit 1')
@@ -83,8 +83,8 @@ def fetch_and_insert_data(last_submission_id):
             VALUES(
                 {submission_data['id']},
                 '{submission_data['name']}',
-                '{submission_data['email']}',
                 '{submission_data['phone_num']}',
+                '{submission_data['email']}',
                 '{submission_data['hash_id']}',
                 '{submission_data['referer']}',
                 '{submission_data['referer_title'].replace("'s", " ")}',

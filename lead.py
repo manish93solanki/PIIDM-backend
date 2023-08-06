@@ -52,6 +52,20 @@ def fetch_lead_by_id(lead_id):
     return record
 
 
+def fetch_lead_by_id_and_is_assigned_to_admin(lead_id):
+    super_admin_user_id = app.session.query(model.User.user_id).filter(
+        model.User.user_role_id == 1).first()  # get super_admin user_id
+    super_admin_user_id = super_admin_user_id[0]
+    super_admin_agent_id = app.session.query(model.Agent.agent_id).filter(
+        model.Agent.user_id == super_admin_user_id).first()  # get super_admin user_id
+    super_admin_agent_id = super_admin_agent_id[0]
+    print('super_admin_agent_id: ', super_admin_agent_id)
+
+    record = app.session.query(model.Lead).filter(model.Lead.lead_id == lead_id).\
+        filter(model.Lead.agent_id == super_admin_agent_id).first()
+    return record
+
+
 def populate_lead_record(lead):
     lead_result = {}
     for key in lead.__table__.columns.keys():
@@ -142,6 +156,16 @@ def populate_lead_record(lead):
                 trainer_value = getattr(trainer, trainer_key)
                 lead_result[key][trainer_key] = trainer_value
             lead_result['trainer'] = lead_result.pop(key)
+        if key == 'submitted_lead_id':
+            submitted_lead = lead.submitted_lead
+            if submitted_lead:
+                lead_result[key] = {}
+                for submitted_lead_key in submitted_lead.__table__.columns.keys():
+                    submitted_lead_value = getattr(submitted_lead, submitted_lead_key)
+                    lead_result[key][submitted_lead_key] = submitted_lead_value
+            else:
+                lead_result[key] = None
+            lead_result['submitted_lead'] = lead_result.pop(key)
     return lead_result
 
 
@@ -197,10 +221,16 @@ def update_lead(current_user, lead_id):
     try:
         if not request.is_json:
             return {'error': 'Bad Request.'}, 400
+        for_fresh_lead = request.args.get('for_fresh_lead', 0)
         data = request.get_json()
         records_to_add = []
         for item in data:
-            lead = fetch_lead_by_id(int(lead_id))
+            if for_fresh_lead:
+                lead = fetch_lead_by_id_and_is_assigned_to_admin(int(lead_id))
+                if lead is None:
+                    return jsonify({'error': 'Accept lead is already assigned to another agent.'}), 404
+            else:
+                lead = fetch_lead_by_id(int(lead_id))
 
             # Check if lead is already exist
             if 'phone_num' in item and item['phone_num'] and lead.phone_num != item[

@@ -181,6 +181,7 @@ vim /etc/apache2/sites-available/online.piidm.com.conf
 
 #### SSH Tunnel port forwarding for MYSQL
 - This is used for inserting submission leads from piidm.com MYSQL to sqlite.
+- `autossh -M 25555 -p 65002 -fN -L 127.0.0.1:3307:127.0.0.1:3306 u776183671@89.117.157.123`
 `ssh -p 65002 -fN -L 127.0.0.1:3307:127.0.0.1:3306 u776183671@89.117.157.123`
 
 ## RUn these
@@ -504,4 +505,9 @@ curl --location 'http://localhost:3002/api/trainer/add' \
 
 select trainer_id from lead;
 update lead set trainer_id = 1 where trainer_id is null;
+
+
+## Helpful Links:
+`https://linuxize.com/post/how-to-setup-passwordless-ssh-login/`
+`https://www.harding.motd.ca/autossh/`
 
