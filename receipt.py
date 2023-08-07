@@ -159,14 +159,24 @@ def get_paginated_students_advanced(current_user):
     total_receipts = model.Receipt.query.filter(model.Receipt.deleted == 0).count()
 
     # request params
+    branch = request.args.get('branch', None)
+    course = request.args.get('course', None)
+    payment_mode = request.args.get('payment_mode', None)
+    source = request.args.get('source', None)
+    agent = request.args.get('agent', None)
     from_date = request.args.get('from_date', None)
     to_date = request.args.get('to_date', None)
 
     # filtering data
-    query = app.session.query(model.Receipt)
+    query = app.session.query(model.Receipt).join(model.Student)
     query = query.filter(model.Receipt.deleted == 0)
     query = query.filter(
         model.Receipt.installment_payment_date.between(from_date, to_date)) if from_date and to_date else query
+    query = query.filter(model.Student.branch_id == int(branch)) if branch else query
+    query = query.filter(model.Student.course_id == int(course)) if course else query
+    query = query.filter(model.Receipt.installment_payment_mode_id == int(payment_mode)) if payment_mode else query
+    query = query.filter(model.Student.branch_id == int(branch)) if branch else query
+    query = query.filter(model.Student.agent_id == int(agent)) if agent else query
 
     if current_user.user_role_id == 2:  # role == agent
         agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
@@ -201,6 +211,7 @@ def get_paginated_students_advanced(current_user):
     }
 
     query = query.order_by(desc(model.Receipt.receipt_id)).offset(start).limit(length)
+    # print(query)
 
     receipts = query.all()
     receipt_results = []

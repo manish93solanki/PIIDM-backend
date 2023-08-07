@@ -64,6 +64,14 @@
 - [X] Disable pitch by and visit date & maintain consistency on populating pitch by and should be changed on edit leads - 1H
 - [X] Fixed fresh leads for instructor. Now, instructor becomes trainer - 1H
 - [X] Agent cannot change other agent's students fee - 1H
+- [X] Persist searched text in search bar & search on last name - 1H
+- [X] Connecting, Fetching, Display submission leads from portal - 4H
+- [X] Created UI data tables for submitted leads - 2H
+- [X] Created new module & related APIs of submitted leads - 2H
+- [X] Assigned submitted leads to agent, handle various things for completing submission leads module - 3H
+- [X] Reject & Accept submitted leads, coloring & disabling rejected & accept leads - 2H
+- [X] Added filters of agent, source, branch, and payment mode for Receipts. - 1.5H  
+- [] Show lead time.
 - [] Open Edit lead form in modal.
 - [] receipt download as PDF
 - [] Generate form for students in leads before taking admission, show status - form send, form receive.
