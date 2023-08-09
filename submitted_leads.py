@@ -39,6 +39,16 @@ def populate_submitted_lead_record(submitted_lead):
             # print('------> ', key, value)
             value = str(value)  # datetime.datetime.strptime(str(value), '%Y-%m-%d %H:%M:%S')
             # print('value: ', value)
+        if key == 'agent_id':
+            agent = submitted_lead.agent
+            if agent:
+                submitted_lead_result[key] = {}
+                for agent_key in agent.__table__.columns.keys():
+                    agent_value = getattr(agent, agent_key)
+                    submitted_lead_result[key][agent_key] = agent_value
+            else:
+                submitted_lead_result[key] = None
+            submitted_lead_result['agent'] = submitted_lead_result.pop(key)
         submitted_lead_result[key] = value
     return submitted_lead_result
 

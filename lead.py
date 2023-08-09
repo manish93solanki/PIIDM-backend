@@ -279,28 +279,70 @@ def get_lead_by_email_or_phone_num(current_user):
     email = request.args.get('email', '')
     query = app.session.query(model.Lead).filter(model.Lead.deleted == 0)
 
-    if email:
-        # query = query.filter(model.Lead.email.like(f'%{email}%'))
-        query = query.filter(model.Lead.email == email)
-    elif alternate_phone_num:
-        # query = query.filter(model.Lead.phone_num.like(f'%{phone_num}%'))
+    if phone_num and alternate_phone_num and email:
+        query = query.filter(or_(
+            model.Lead.phone_num == phone_num,
+            model.Lead.alternate_phone_num == phone_num,
+            model.Lead.phone_num == alternate_phone_num,
+            model.Lead.alternate_phone_num == alternate_phone_num,
+            model.Lead.email == email
+        ))
+    elif phone_num and alternate_phone_num:
         query = query.filter(or_(
             model.Lead.phone_num == phone_num,
             model.Lead.alternate_phone_num == phone_num,
             model.Lead.phone_num == alternate_phone_num,
             model.Lead.alternate_phone_num == alternate_phone_num
         ))
-    else:
+    elif phone_num and email:
+        query = query.filter(or_(
+            model.Lead.phone_num == phone_num,
+            model.Lead.alternate_phone_num == phone_num,
+            model.Lead.email == email
+        ))
+    elif phone_num:
         query = query.filter(or_(
             model.Lead.phone_num == phone_num,
             model.Lead.alternate_phone_num == phone_num
         ))
+    elif alternate_phone_num:
+        query = query.filter(or_(
+            model.Lead.phone_num == alternate_phone_num,
+            model.Lead.alternate_phone_num == alternate_phone_num
+        ))
+    elif email:
+        query = query.filter(
+            model.Lead.email == email
+        )
+
+    # if email:
+    #     # query = query.filter(model.Lead.email.like(f'%{email}%'))
+    #     query = query.filter(model.Lead.email == email)
+    # elif alternate_phone_num:
+    #     # query = query.filter(model.Lead.phone_num.like(f'%{phone_num}%'))
+    #     query = query.filter(or_(
+    #         model.Lead.phone_num == phone_num,
+    #         model.Lead.alternate_phone_num == phone_num,
+    #         model.Lead.phone_num == alternate_phone_num,
+    #         model.Lead.alternate_phone_num == alternate_phone_num
+    #     ))
+    # else:
+    #     query = query.filter(or_(
+    #         model.Lead.phone_num == phone_num,
+    #         model.Lead.alternate_phone_num == phone_num
+    #     ))
 
     lead = query.first()
     result = {}
     if lead:
         for key in lead.__table__.columns.keys():
             value = getattr(lead, key)
+            if key == 'agent_id':
+                agent = lead.agent
+                result['agent'] = {}
+                for agent_key in agent.__table__.columns.keys():
+                    agent_value = getattr(agent, agent_key)
+                    result['agent'][agent_key] = agent_value
             result[key] = value
     return jsonify(result), 200
 

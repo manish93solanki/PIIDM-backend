@@ -235,9 +235,13 @@ class SubmittedLead(db.Model):
     submitted_status = Column(Integer, nullable=True)  # 0=deleted, 1=new, 2=pending, 3=accepted, 4=rejected
     created_at_gmt = Column(DateTime, nullable=True)
     updated_at_gmt = Column(DateTime, nullable=True)
+    remark = Column(VARCHAR(255), nullable=True)
+    agent_id = Column(ForeignKey('agent.agent_id'), nullable=True)
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     updated_at = Column(DateTime, nullable=False, server_default=func.now())
+
+    agent = relationship('Agent')
 
 
 class PaymentMode(db.Model):
