@@ -70,7 +70,14 @@
 - [X] Created new module & related APIs of submitted leads - 2H
 - [X] Assigned submitted leads to agent, handle various things for completing submission leads module - 3H
 - [X] Reject & Accept submitted leads, coloring & disabling rejected & accept leads - 2H
-- [X] Added filters of agent, source, branch, and payment mode for Receipts. - 1.5H  
+- [X] Added filters of agent, source, branch, and payment mode for Receipts. - 1.5H
+- [X] Accept and reject fresh lead - 3H
+- [X] Create lead from fresh lead if it is not exist - 2H
+- [X] Populate fresh lead values to modal and assign agent for that lead - 2H
+- [X] Auto-reject with remark if there is a duplicate fresh lead - 2H
+- [X] Handle necessary scenario to make fresh leads functionality works properly - 2H
+- [X] Optimized API calls. During login, call all the prerequisite endpoints and removed/modified from necessary locations. - 4H
+- [X] Lead distributor portal, showing fresh leads to lead_distributor user, same priviliges are given for assigning agents, remark, accept and reject - 4H
 - [] Show lead time.
 - [] Open Edit lead form in modal.
 - [] receipt download as PDF

@@ -70,7 +70,7 @@ def populate_lead_record(lead):
     lead_result = {}
     for key in lead.__table__.columns.keys():
         value = getattr(lead, key)
-        if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
+        if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date', 'lead_time') and value:
             # value = datetime.datetime.strftime('%Y-%m-%d')
             value = str(value)
 

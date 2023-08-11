@@ -1,11 +1,12 @@
 import enum
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ARRAY, Boolean, CheckConstraint, Column, Date, DateTime, Float, ForeignKey, Integer, \
-    UniqueConstraint, text, Enum, VARCHAR, Text
+    UniqueConstraint, text, Enum, VARCHAR, Text, Time
 from sqlalchemy.orm import relationship, column_property, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql.functions import coalesce, func
+import datetime
 
 db = SQLAlchemy()
 
@@ -165,6 +166,7 @@ class Lead(db.Model):
     alternate_phone_num = Column(VARCHAR(255), nullable=True)
     email = Column(VARCHAR(255), nullable=True)
     lead_date = Column(Date, nullable=False)
+    lead_time = Column(Time, nullable=True, default=datetime.datetime.now().time())
     remarks = Column(Text, nullable=True)
     country_id = Column(ForeignKey('country.country_id'), nullable=False)
     state_id = Column(ForeignKey('state.state_id'), nullable=True)
