@@ -488,7 +488,7 @@ def get_paginated_leads_advanced(current_user):
         )) if search_term else query
 
         total_filtered_leads = query.count()
-        query = query.order_by(desc(model.Lead.lead_date)).offset(start).limit(length)
+        query = query.order_by(desc(model.Lead.lead_date), desc(model.Lead.created_at)).offset(start).limit(length)
         print(query)
 
         leads = query.all()

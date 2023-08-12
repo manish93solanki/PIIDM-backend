@@ -474,7 +474,7 @@ def get_paginated_students_advanced(current_user):
         'total_pending_fee': total_pending_fee
     }
 
-    query = query.order_by(desc(model.Student.admission_date)).offset(start).limit(length)
+    query = query.order_by(desc(model.Student.admission_date), desc(model.Student.created_at)).offset(start).limit(length)
     print(query)
 
     students = query.all()
