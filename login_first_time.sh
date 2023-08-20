@@ -30,13 +30,13 @@ curl --location --request POST 'http://localhost:3002/api/user/add' \
     }
 '
 
-curl --location --request POST 'http://localhost:5002/api/user/add' \
+curl --location --request POST 'http://localhost:3002/api/user/add' \
 --header 'Content-Type: application/json' \
 --data-raw '
     {
         "name": "Lead Distributor",
         "phone_num": "+91-0000000001",
-        "email": "lead_distributor@test.com",
+        "email": "leads@test.com",
         "password": "ld123",
         "user_role_id": 5
     }

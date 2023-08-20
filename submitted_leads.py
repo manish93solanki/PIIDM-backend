@@ -119,11 +119,13 @@ def get_paginated_submitted_leads_advanced(current_user):
         # request params
         from_date = request.args.get('from_date', None)
         to_date = request.args.get('to_date', None)
+        agent = request.args.get('agent', None)
 
         # filtering data
         query = app.session.query(model.SubmittedLead)
         query = query.filter(model.SubmittedLead.deleted == 0)
         query = query.filter(model.SubmittedLead.created_at_gmt.between(from_date, to_date)) if from_date and to_date else query
+        query = query.filter(model.SubmittedLead.agent_id == int(agent)) if agent else query
         print(query)
 
         # pagination
