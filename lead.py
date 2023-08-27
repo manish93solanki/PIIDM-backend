@@ -344,6 +344,10 @@ def get_lead_by_email_or_phone_num(current_user):
                     agent_value = getattr(agent, agent_key)
                     result['agent'][agent_key] = agent_value
             result[key] = value
+
+            if key in ('lead_time',):
+                result[key] = str(value)
+
     return jsonify(result), 200
 
 
