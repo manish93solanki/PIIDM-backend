@@ -26,7 +26,7 @@ def add_source(current_user):
 @token_required
 def delete_source(current_user, delete_id):
     app.session.query(model.Source).filter(model.Source.source_id == int(delete_id)).delete()
-    app.session.commit()
+    # app.session.commit()
     return {}
 
 

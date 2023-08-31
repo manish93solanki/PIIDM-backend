@@ -26,7 +26,7 @@ def add_batch_time(current_user):
 @token_required
 def delete_batch_time(current_user, delete_id):
     app.session.query(model.BatchTime).filter(model.BatchTime.batch_time_id == int(delete_id)).delete()
-    app.session.commit()
+    # app.session.commit()
     return {}
 
 

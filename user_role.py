@@ -23,7 +23,7 @@ def add_user_role():
 @user_role_bp.route('/delete/<delete_id>', methods=['DELETE'])
 def delete_user_role(delete_id):
     app.session.query(model.UserRole).filter(model.UserRole.user_role_id == int(delete_id)).delete()
-    app.session.commit()
+    # app.session.commit()
     return {}
 
 

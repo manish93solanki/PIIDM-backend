@@ -342,3 +342,26 @@ class Student(db.Model):
     trainer = relationship('Trainer')
     user = relationship('User')
     # receipt = relationship('Receipt')
+
+
+class Batch(db.Model):
+    __tablename__ = 'batch'
+
+    batch_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(255), nullable=False)
+    batch_date = Column(Date, nullable=False)
+    total_seats = Column(Integer, nullable=False, default=40)
+    seats_occupied = Column(Integer, nullable=False, default=0)
+    seats_vacant = Column(Integer, nullable=False, default=40)
+    course_id = Column(ForeignKey('course.course_id'), nullable=False)
+    batch_time_id = Column(ForeignKey('batch_time.batch_time_id'), nullable=False)
+    course_mode_id = Column(ForeignKey('course_mode.course_mode_id'), nullable=False)
+    branch_id = Column(ForeignKey('branch.branch_id'), nullable=False)
+    trainer_id = Column(ForeignKey('trainer.trainer_id'), nullable=False)
+    deleted = Column(Integer, nullable=False, default=0)
+
+    course = relationship('Course')
+    batch_time = relationship('BatchTime')
+    course_mode = relationship('CourseMode')
+    branch = relationship('Branch')
+    trainer = relationship('Trainer')

@@ -26,6 +26,7 @@ from student import student_bp
 from user import user_bp
 from user_role import user_role_bp
 from submitted_leads import submitted_lead_bp
+from batch import batch_bp
 
 # SQLALCHEMY_DATABASE_URL = f'mysql://piidm_dev:piidm_dev_password123@localhost:3306/piidm_dev'
 # SQLALCHEMY_DATABASE_URL = f'mysql://piidm_online:piidm_online_password123@localhost:3306/piidm_online'
@@ -72,7 +73,8 @@ app.register_blueprint(student_bp)
 app.register_blueprint(payment_mode_bp)
 app.register_blueprint(receipt_bp)
 app.register_blueprint(submitted_lead_bp)
+app.register_blueprint(batch_bp)
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=3002)
+    app.run(debug=True, host='0.0.0.0', port=3002)
 

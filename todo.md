@@ -78,7 +78,9 @@
 - [X] Handle necessary scenario to make fresh leads functionality works properly - 2H
 - [X] Optimized API calls. During login, call all the prerequisite endpoints and removed/modified from necessary locations. - 4H
 - [X] Lead distributor portal, showing fresh leads to lead_distributor user, same priviliges are given for assigning agents, remark, accept and reject - 4H
-- [] Show lead time.
+- [X] Added filters in submitted_leads - 3H
+- [X] Show lead time. - 2H
+- [x] Added module for Batches, Add/edit/update/delete/populate batches - 5H
 - [] Open Edit lead form in modal.
 - [] receipt download as PDF
 - [] Generate form for students in leads before taking admission, show status - form send, form receive.

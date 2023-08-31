@@ -26,7 +26,7 @@ def add_city(current_user):
 @token_required
 def delete_city(current_user, delete_id):
     app.session.query(model.City).filter(model.City.city_id == int(delete_id)).delete()
-    app.session.commit()
+    # app.session.commit()
     return {}
 
 

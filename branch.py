@@ -26,7 +26,7 @@ def add_branch(current_user):
 @token_required
 def delete_branch(current_user, delete_id):
     app.session.query(model.Branch).filter(model.Branch.branch_id == int(delete_id)).delete()
-    app.session.commit()
+    # app.session.commit()
     return {}
 
 
