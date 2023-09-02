@@ -314,6 +314,7 @@ class Student(db.Model):
     json_course_learning_progress = Column(Text, nullable=True)
     batch_time_id = Column(ForeignKey('batch_time.batch_time_id'), nullable=False)
     source_id = Column(ForeignKey('source.source_id'), nullable=False)
+    batch_id = Column(ForeignKey('batch.batch_id'), nullable=True)
     total_fee = Column(Integer, nullable=False)
     total_fee_paid = Column(Integer, nullable=False)
     total_pending_fee = Column(Integer, nullable=False)
@@ -335,6 +336,7 @@ class Student(db.Model):
     course_mode = relationship('CourseMode')
     course_content = relationship('CourseContent')
     batch_time = relationship('BatchTime')
+    batch = relationship('Batch')
     agent = relationship('Agent')
     country = relationship('Country')
     city = relationship('City')
@@ -348,6 +350,7 @@ class Batch(db.Model):
     __tablename__ = 'batch'
 
     batch_id = Column(Integer, primary_key=True, autoincrement=True)
+    batch_num = Column(Integer, nullable=False)
     name = Column(VARCHAR(255), nullable=False)
     batch_date = Column(Date, nullable=False)
     total_seats = Column(Integer, nullable=False, default=40)

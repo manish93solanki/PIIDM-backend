@@ -3,6 +3,8 @@ import model
 from auth_middleware import token_required
 from db_operations import bulk_insert
 import datetime
+from sqlalchemy import desc
+
 
 batch_bp = Blueprint('batch_bp', __name__, url_prefix='/api/batch')
 
@@ -78,7 +80,17 @@ def add_batch(current_user):
         print('data: ', data)
         records_to_add = []
         for item in data:
+            # increment batch_num by 1.
+            last_batch_num = app.session.query(model.Batch.batch_num).order_by(desc(model.Batch.batch_num)).first()
+            if last_batch_num is None:
+                last_batch_num = 1000  # Starting batch_num
+            elif last_batch_num and last_batch_num[0] is not None:
+                last_batch_num = last_batch_num[0]  # Starting batch_num
+            last_batch_num += 1
+
             batch = model.Batch()
+            setattr(batch, 'batch_num', last_batch_num)
+
             # Check if batch is already exist
             if is_batch_name_exists(item['name']):
                 return {'error': 'Batch name is already exist.'}, 409
@@ -115,6 +127,41 @@ def update_batch(current_user, batch_id):
         return jsonify({'error': str(ex)}), 500
 
 
+@batch_bp.route('/update_and_get_seats/<student_id>/<batch_id>', methods=['PUT'])
+@token_required
+def update_and_get_seats_batch(current_user, student_id, batch_id):
+    try:
+        records_to_update = []
+        if not request.is_json:
+            return {'error': 'Bad Request.'}, 400
+
+        add_and_sub_seat_by_1 = 1
+
+        old_batch_id = app.session.query(model.Student.batch_id).filter(model.Student.student_id == int(student_id)).first()
+        old_batch_id = old_batch_id[0]
+        if old_batch_id:
+            # Update Old Batch details
+            batch = fetch_batch_by_id(int(old_batch_id))
+            batch.seats_occupied -= int(add_and_sub_seat_by_1)
+            batch.seats_vacant += int(add_and_sub_seat_by_1)
+            records_to_update.append(batch)
+
+        # Update Batch with new details
+        if batch_id and batch_id != 'null':
+            batch = fetch_batch_by_id(int(batch_id))
+            batch.seats_occupied += int(add_and_sub_seat_by_1)
+            batch.seats_vacant -= int(add_and_sub_seat_by_1)
+            records_to_update.append(batch)
+
+        if records_to_update:
+            bulk_insert(records_to_update)
+
+        results = get_all_batches()
+        return jsonify(results), 200
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
+
+
 @batch_bp.route('/delete/<delete_id>', methods=['DELETE'])
 @token_required
 def delete_batch(current_user, delete_id):
@@ -126,6 +173,11 @@ def delete_batch(current_user, delete_id):
 @batch_bp.route('/all', methods=['GET'])
 @token_required
 def get_batches(current_user):
+    results = get_all_batches()
+    return jsonify(results), 200
+
+
+def get_all_batches():
     cursor = app.session.query(model.Batch).all()
     batches = list(cursor)
     results = []
@@ -135,7 +187,7 @@ def get_batches(current_user):
             value = getattr(batch, key)
             res[key] = value
         results.append(res)
-    return jsonify(results), 200
+    return results
 
 
 @batch_bp.route('/select/<batch_id>', methods=['GET'])
@@ -169,7 +221,7 @@ def get_paginated_batch_advanced(current_user):
         'total_batches': total_filtered_batch
     }
 
-    query = query.offset(start).limit(length)
+    query = query.order_by(desc(model.Batch.batch_date)).offset(start).limit(length)
 
     batches = query.all()
     batch_results = []

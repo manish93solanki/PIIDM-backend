@@ -119,6 +119,14 @@ def populate_student_record(student):
                 batch_time_value = getattr(batch_time, batch_time_key)
                 student_result[key][batch_time_key] = batch_time_value
             student_result['batch_time'] = student_result.pop(key)
+        if key == 'batch_id':
+            batch = student.batch
+            student_result[key] = {}
+            if batch:
+                for batch_key in batch.__table__.columns.keys():
+                    batch_value = getattr(batch, batch_key)
+                    student_result[key][batch_key] = batch_value
+            student_result['batch'] = student_result.pop(key)
         if key == 'agent_id':
             agent = student.agent
             student_result[key] = {}
@@ -409,6 +417,7 @@ def get_paginated_students_advanced(current_user):
     source = request.args.get('source', None)
     agent = request.args.get('agent', None)
     batch_time = request.args.get('batch_time', None)
+    batch = request.args.get('batch', None)
     is_active = request.args.get('is_active', None)
 
     # filtering data
@@ -427,6 +436,7 @@ def get_paginated_students_advanced(current_user):
     query = query.filter(model.Student.source_id == int(source)) if source else query
     query = query.filter(model.Student.agent_id == int(agent)) if agent else query
     query = query.filter(model.Student.batch_time_id == int(batch_time)) if batch_time else query
+    query = query.filter(model.Student.batch_id == int(batch)) if batch else query
     query = query.filter(model.Student.is_active == int(is_active)) if is_active else query
 
     # if current_user.user_role_id == 2:  # role == agent

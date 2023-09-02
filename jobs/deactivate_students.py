@@ -10,10 +10,19 @@ CONNECTION = engine.connect()
 
 
 def fetch_students_not_paid_fee_on_time():
-    # Fetch students who have not paid fee in one month after admission.
+    # # Fetch students who have not paid fee in one month after admission.
+    # query = f'''
+    #         select student_id, name, admission_date, total_fee, total_fee_paid, total_pending_fee from student
+    #         WHERE (JULIANDAY(DATE("now")) - JULIANDAY(student.admission_date)) > 31 and total_pending_fee > 0 and
+    #         is_active = 1
+    #     '''
+
+    # Fetch students who have not paid fee in one month after batch_date.
     query = f'''
-            select student_id, name, admission_date, total_fee, total_fee_paid, total_pending_fee from student 
-            WHERE (JULIANDAY(DATE("now")) - JULIANDAY(student.admission_date)) > 31 and total_pending_fee > 0 and 
+            select student_id, student.name, admission_date, batch_date, total_fee, total_fee_paid, total_pending_fee from student 
+            join batch
+            on student.batch_id = batch.batch_id 
+            WHERE (JULIANDAY(DATE("now")) - JULIANDAY(batch.batch_date)) > 31 and total_pending_fee > 0 and 
             is_active = 1
         '''
     cursor = CONNECTION.execute(query)
@@ -21,10 +30,18 @@ def fetch_students_not_paid_fee_on_time():
 
 
 def deactivate_student():
-    # Fetch students who have not paid fee in one month after admission.
+    # # Fetch students who have not paid fee in one month after admission.
+    # query = f'''
+    #         UPDATE student SET is_active = 0
+    #         WHERE (JULIANDAY(DATE("now")) - JULIANDAY(student.admission_date)) > 31 and total_pending_fee > 0 and is_active = 1
+    #     '''
+
+    # Fetch students who have not paid fee in one month after batch_date.
     query = f'''
             UPDATE student SET is_active = 0
-            WHERE (JULIANDAY(DATE("now")) - JULIANDAY(student.admission_date)) > 31 and total_pending_fee > 0 and is_active = 1
+            from (SELECT batch_id, batch_date from batch) as b 
+            WHERE student.batch_id = b.batch_id 
+                and (JULIANDAY(DATE("now")) - JULIANDAY(b.batch_date)) > 31 and total_pending_fee > 0 and is_active = 1
         '''
     CONNECTION.execute(query)
     print(f'\nStudents got deactivated who have not paid fee on time.')
