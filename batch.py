@@ -131,6 +131,7 @@ def update_batch(current_user, batch_id):
 @token_required
 def update_and_get_seats_batch(current_user, student_id, batch_id):
     try:
+        batch_id = int(batch_id)
         records_to_update = []
         if not request.is_json:
             return {'error': 'Bad Request.'}, 400
@@ -148,7 +149,7 @@ def update_and_get_seats_batch(current_user, student_id, batch_id):
 
         # Update Batch with new details
         if batch_id and batch_id != 'null':
-            batch = fetch_batch_by_id(int(batch_id))
+            batch = fetch_batch_by_id(batch_id)
             batch.seats_occupied += int(add_and_sub_seat_by_1)
             batch.seats_vacant -= int(add_and_sub_seat_by_1)
             records_to_update.append(batch)
@@ -156,7 +157,14 @@ def update_and_get_seats_batch(current_user, student_id, batch_id):
         if records_to_update:
             bulk_insert(records_to_update)
 
-        results = get_all_batches()
+        current_batch = {}
+        all_batches = get_all_batches()  # All batches
+        if batch_id and batch_id != 'null':
+            for dict_batch in all_batches:
+                if dict_batch['batch_id'] == batch_id:
+                    current_batch = dict_batch
+                    break
+        results = {'all_batches': all_batches, 'current_batch': current_batch}
         return jsonify(results), 200
     except Exception as ex:
         return jsonify({'error': str(ex)}), 500
