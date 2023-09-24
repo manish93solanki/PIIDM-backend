@@ -188,9 +188,12 @@ class Lead(db.Model):
     broadcast = Column(Integer, nullable=True)
     age = Column(Integer, nullable=True, default=1)  # 1 = 18-25, 2 = 26-35, 3 = 36-Above
     gender = Column(Integer, nullable=True, default=1)  # 1 = male, 2 = female
-    reason_to_join = Column(Integer, nullable=True, default=5)  # 1 = placement, 2 = skill update, 3 = business, 4 = freelancing, 5 = other
-    who_is = Column(Integer, nullable=True, default=1)  # 1 = student, 2 = working professional, 3 = business owner, 4 = housewife, 5 = job seeker
-    lead_status = Column(Integer, nullable=True, default=1)  # 1 = pending, 2 = invalid number, 3 = looking something else, 4 = joined somewhere, 5 = fake lead, 6 = not interested, 7 = not receiving, 8 = admission done
+    reason_to_join = Column(Integer, nullable=True,
+                            default=5)  # 1 = placement, 2 = skill update, 3 = business, 4 = freelancing, 5 = other
+    who_is = Column(Integer, nullable=True,
+                    default=1)  # 1 = student, 2 = working professional, 3 = business owner, 4 = housewife, 5 = job seeker
+    lead_status = Column(Integer, nullable=True,
+                         default=1)  # 1 = pending, 2 = invalid number, 3 = looking something else, 4 = joined somewhere, 5 = fake lead, 6 = not interested, 7 = not receiving, 8 = admission done
     lead_insertion_mechanism_type = Column(Integer, nullable=True, default=1)  # 1=manual, 2=auto
     agent_id = Column(ForeignKey('agent.agent_id'), nullable=False)
     trainer_id = Column(ForeignKey('trainer.trainer_id'), nullable=True)
@@ -323,7 +326,8 @@ class Student(db.Model):
     # receipt_installment_3_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
     # receipt_installment_4_id = Column(ForeignKey('receipt.receipt_id'), nullable=True)
     is_active = Column(Integer, nullable=False, default=1)
-    is_document_verified = Column(Integer, nullable=False, default=0)  # 0=pending, 1=accept, 2=reject, 3=verification pending
+    is_document_verified = Column(Integer, nullable=False,
+                                  default=0)  # 0=pending, 1=accept, 2=reject, 3=verification pending
     lead_id = Column(ForeignKey('lead.lead_id'), nullable=True)
     user_id = Column(ForeignKey('user.user_id'), nullable=True)
     deleted = Column(Integer, nullable=False, default=0)
@@ -368,3 +372,40 @@ class Batch(db.Model):
     course_mode = relationship('CourseMode')
     branch = relationship('Branch')
     trainer = relationship('Trainer')
+
+
+class HR(db.Model):
+    __tablename__ = 'hr'
+
+    hr_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(255), nullable=False)
+    phone_num = Column(VARCHAR(255), unique=True, nullable=False)
+    email = Column(VARCHAR(255), unique=True, nullable=False)
+    user_id = Column(ForeignKey('user.user_id'), nullable=False)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    user = relationship('User')
+
+
+class Placement(db.Model):
+    __tablename__ = 'placement'
+
+    placement_id = Column(Integer, primary_key=True, autoincrement=True)
+    joined_course_for = Column(VARCHAR(255), nullable=True)  # 1=Job, 2=Skills, 3=Business, 4=Freelancing
+    education = Column(VARCHAR(255), nullable=True)
+    technical_knowledge = Column(VARCHAR(255), nullable=True)
+    project = Column(VARCHAR(255), nullable=True)
+    mock_test = Column(VARCHAR(255), nullable=True)
+    test = Column(VARCHAR(255), nullable=True)
+    communication = Column(VARCHAR(255), nullable=True)
+    preferred_location = Column(VARCHAR(255), nullable=True)
+    remark = Column(VARCHAR(255), nullable=True)
+    status = Column(Integer, nullable=True)   # 1=Not Interested, 2=On-Going, 3=Placed
+    student_id = Column(ForeignKey('student.student_id'), nullable=False)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    student = relationship('Student')

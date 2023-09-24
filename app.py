@@ -27,13 +27,11 @@ from user import user_bp
 from user_role import user_role_bp
 from submitted_leads import submitted_lead_bp
 from batch import batch_bp
+from hr import hr_bp
+from placement import placement_bp
 
-# SQLALCHEMY_DATABASE_URL = f'mysql://piidm_dev:piidm_dev_password123@localhost:3306/piidm_dev'
-# SQLALCHEMY_DATABASE_URL = f'mysql://piidm_online:piidm_online_password123@localhost:3306/piidm_online'
 # SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db'
 SQLALCHEMY_DATABASE_URL = f'sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db'
-# engine = create_engine(SQLALCHEMY_DATABASE_URL, convert_unicode=True, pool_size=1, max_overflow=0,
-#                        pool_recycle=1800, pool_pre_ping=True)
 engine = create_engine(SQLALCHEMY_DATABASE_URL, convert_unicode=True)
 Session = scoped_session(sessionmaker(autocommit=True, bind=engine))
 
@@ -74,6 +72,8 @@ app.register_blueprint(payment_mode_bp)
 app.register_blueprint(receipt_bp)
 app.register_blueprint(submitted_lead_bp)
 app.register_blueprint(batch_bp)
+app.register_blueprint(hr_bp)
+app.register_blueprint(placement_bp)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=3002)

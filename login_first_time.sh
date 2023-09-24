@@ -1,3 +1,5 @@
+curl --location --request GET 'http://localhost:3002/api/user_role/all'
+
 curl --location --request POST 'http://localhost:3002/api/user_role/add' \
 --header 'Content-Type: application/json' \
 --data-raw '[
@@ -15,6 +17,9 @@ curl --location --request POST 'http://localhost:3002/api/user_role/add' \
     },
     {
         "name": "lead_distributor"
+    },
+    {
+        "name": "hr"
     }
 ]'
 

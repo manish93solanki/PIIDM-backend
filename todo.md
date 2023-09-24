@@ -80,7 +80,9 @@
 - [X] Lead distributor portal, showing fresh leads to lead_distributor user, same priviliges are given for assigning agents, remark, accept and reject - 4H
 - [X] Added filters in submitted_leads - 3H
 - [X] Show lead time. - 2H
-- [x] Added module for Batches, Add/edit/update/delete/populate batches - 5H
+- [X] Added module for Batches, Add/edit/update/delete/populate batches - 5H
+- [X] Disable contacts & email in edit leads for all agents except admin - 1H
+- 
 - [] Open Edit lead form in modal.
 - [] receipt download as PDF
 - [] Generate form for students in leads before taking admission, show status - form send, form receive.
