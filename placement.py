@@ -162,13 +162,6 @@ def update_placement(current_user, placement_id):
         records_to_add = []
         for item in data:
             placement = fetch_placement_by_id(int(placement_id))
-
-            # Check if placement is already exist
-            if 'phone_num' in item and placement.phone_num != item['phone_num'] and is_placement_phone_num_exists(
-                    item['phone_num']):
-                return {'error': 'Phone number is already exist.'}, 409
-            if 'email' in item and placement.email != item['email'] and is_placement_email_exists(item['email']):
-                return {'error': 'Email is already exist.'}, 409
             for key, value in item.items():
                 setattr(placement, key, value)
             records_to_add.append(placement)
@@ -252,7 +245,7 @@ def get_paginated_placements_advanced(current_user):
     # Get students who are new for the placements
     new_students_for_placements_ids = list(set(students_paid_fees_fully_ids) - set(students_already_in_placements_ids))
 
-    students = app.session.query(model.Student.student_id).filter(
+    students = app.session.query(model.Student).filter(
         model.Student.student_id.in_(new_students_for_placements_ids), model.Student.deleted == 0
     ).all()
     for student in students:
@@ -266,7 +259,7 @@ def get_paginated_placements_advanced(current_user):
     total_placements = model.Placement.query.filter(model.Placement.deleted == 0).count()
 
     # filtering data
-    query = app.session.query(model.Placement)
+    query = app.session.query(model.Placement).join(model.Student)
     query = query.filter(model.Placement.deleted == 0)
 
     if current_user.user_role_id == 2:  # role == placement
@@ -286,9 +279,9 @@ def get_paginated_placements_advanced(current_user):
     search_term = request.args.get('search[value]', type=str)
     print('search_term: ', search_term)
     query = query.filter(or_(
-        model.Placement.name.like(f'%{search_term}%'),
-        model.Placement.phone_num.like(f'%{search_term}%'),
-        model.Placement.email.like(f'{search_term}%'),
+        model.Student.name.like(f'%{search_term}%'),
+        model.Student.phone_num.like(f'%{search_term}%'),
+        model.Student.email.like(f'{search_term}%'),
     )) if search_term else query
 
     total_filtered_placements = query.count()  # total filtered placements
