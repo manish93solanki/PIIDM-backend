@@ -82,7 +82,16 @@
 - [X] Show lead time. - 2H
 - [X] Added module for Batches, Add/edit/update/delete/populate batches - 5H
 - [X] Disable contacts & email in edit leads for all agents except admin - 1H
-- 
+- [X] Assign batch to student, filteration on batch, auto-calc for seats in batches, assign/de-assign batch for student and seat adjustments - 7H
+- [X] disable batch for next selection if seats are fulled, modify logic of deactivating students based on batch_date, allow batch creation in agent portal - 7H
+- [X] Assign batch, and replace batch info of student with batch component - 5H
+- [X] Disabled phone & email in edit leads - 1H
+- [X] Fix issue of changing agent automatically - 1H
+- [X] Creating HR & Placement section, Add, edit and change password for HR, List HR detail, List placements by joining details with students. - 5H
+- [X] show only those students who have paid total fees - 2H
+- [X] Modified in search filter for placement - 2H
+- [X] Added dropdown for neccessary fields in the placements, Edit and update placement details, persist search results in placement, Highlight placed & not placed students - 7H
+- [X] Added filters for status and dates in placements module - 2H
 - [] Open Edit lead form in modal.
 - [] receipt download as PDF
 - [] Generate form for students in leads before taking admission, show status - form send, form receive.

@@ -258,9 +258,27 @@ def get_paginated_placements_advanced(current_user):
 
     total_placements = model.Placement.query.filter(model.Placement.deleted == 0).count()
 
+    # request params
+    from_date = request.args.get('from_date', None)
+    to_date = request.args.get('to_date', None)
+    status = request.args.get('status', None)
+
     # filtering data
     query = app.session.query(model.Placement).join(model.Student)
     query = query.filter(model.Placement.deleted == 0)
+    query = query.filter(model.Placement.created_at.between(from_date, to_date)) if from_date and to_date else query
+
+    # TODO
+    # status == 'Not yet placed' and NULL/Empty both are same. make default to "Not yet placed" in all entries.
+    # query = query.filter(model.Placement.status.in_(status)) if status else query
+    if status:
+        if status == 'Not yet placed':
+            query = query.filter(or_(
+                model.Placement.status == status,
+                model.Placement.status.is_(None)
+            ))
+        else:
+            query = query.filter(model.Placement.status == status)
 
     if current_user.user_role_id == 2:  # role == placement
         placement_id = app.session.query(model.Placement.placement_id).filter(
