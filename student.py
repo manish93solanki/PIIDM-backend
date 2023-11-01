@@ -419,6 +419,7 @@ def get_paginated_students_advanced(current_user):
     batch_time = request.args.get('batch_time', None)
     batch = request.args.get('batch', None)
     is_active = request.args.get('is_active', None)
+    has_pending_fee = request.args.get('has_pending_fee', None)
 
     # filtering data
     query = app.session.query(model.Student)
@@ -438,6 +439,7 @@ def get_paginated_students_advanced(current_user):
     query = query.filter(model.Student.batch_time_id == int(batch_time)) if batch_time else query
     query = query.filter(model.Student.batch_id == int(batch)) if batch else query
     query = query.filter(model.Student.is_active == int(is_active)) if is_active else query
+    query = query.filter(model.Student.total_pending_fee > 0) if has_pending_fee else query
 
     # if current_user.user_role_id == 2:  # role == agent
     #     agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
