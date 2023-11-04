@@ -428,6 +428,8 @@ def get_paginated_leads_advanced(current_user):
         # request params
         from_date = request.args.get('from_date', None)
         to_date = request.args.get('to_date', None)
+        next_action_from_date = request.args.get('next_action_from_date', None)
+        next_action_to_date = request.args.get('next_action_to_date', None)
         name = request.args.get('name', None)
         phone_number = request.args.get('phone_number', None)
         branch = request.args.get('branch', None)
@@ -444,6 +446,7 @@ def get_paginated_leads_advanced(current_user):
         query = app.session.query(model.Lead)
         query = query.filter(model.Lead.deleted == 0)
         query = query.filter(model.Lead.lead_date.between(from_date, to_date)) if from_date and to_date else query
+        query = query.filter(model.Lead.next_action_date.between(next_action_from_date, next_action_to_date)) if next_action_from_date and next_action_to_date else query
         query = query.filter(model.Lead.name.like(f'{name}%')) if name else query
         query = query.filter(or_(
             model.Lead.phone_num == phone_number,
