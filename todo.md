@@ -92,6 +92,9 @@
 - [X] Modified in search filter for placement - 2H
 - [X] Added dropdown for neccessary fields in the placements, Edit and update placement details, persist search results in placement, Highlight placed & not placed students - 7H
 - [X] Added filters for status and dates in placements module - 2H
+- [X] Has pending Fee filter - 3H
+- [X] Next Action Date filter - 2H
+- [X] Fix issue of lead time - 2H
 - [] Open Edit lead form in modal.
 - [] receipt download as PDF
 - [] Generate form for students in leads before taking admission, show status - form send, form receive.

@@ -191,6 +191,8 @@ def add_lead(current_user):
                 for key, value in item.items():
                     if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
                         value = datetime.datetime.strptime(value, '%Y-%m-%d')
+                    if key in ('lead_time',) and value:
+                        value = datetime.datetime.strptime(value, '%H:%M').time()
                     setattr(lead, key, value)
                 records_to_add.append(lead)
             bulk_insert(records_to_add)
