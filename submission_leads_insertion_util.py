@@ -8,13 +8,14 @@ ssh -p 65002 -fN -L 127.0.0.1:3307:127.0.0.1:3306 u776183671@89.117.157.123
 mysqlengine = create_engine('mysql+pymysql://u776183671_QNQO7:xLvfwq2NuC@127.0.0.1:3307/u776183671_7Ytda')
 mysql_conn = mysqlengine.connect()
 
-sqliteengine = create_engine('sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db')
+# sqliteengine = create_engine('sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db')
+sqliteengine = create_engine('sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db')
 sqlite_conn = sqliteengine.connect()
 
 
 def get_last_submission_id():
     global sqlite_conn, mysql_conn
-    last_submission_id = 0  #13260 - starting ID
+    last_submission_id = 0  #16453 - starting ID
 
     # Collect latest submission_id from our database - sqlite
     cursor = sqlite_conn.execute('SELECT submission_id from submitted_lead order by submission_id desc limit 1')
@@ -46,7 +47,7 @@ def fetch_and_insert_data(last_submission_id):
             # print()
             # print(row_2)
             if row_2['key'] == 'name':
-                submission_data['name'] = row_2['value']
+                submission_data['name'] = row_2['value'].replace('\'', ' ')
             elif row_2['key'] == 'email':
                 submission_data['email'] = row_2['value']
             elif 'field' in row_2['key'] or 'phone' == row_2['key']:
