@@ -36,6 +36,39 @@ def is_student_email_exists(email):
     return records
 
 
+def is_student_phone_num_and_course_exists(phone_num, course_id):
+    cursor = app.session.query(model.Student).filter(
+        or_(
+            model.Student.phone_num == phone_num,
+            model.Student.alternate_phone_num == phone_num
+        ),
+        model.Student.course_id == course_id
+    )
+    records = list(cursor)
+    return records
+
+
+def is_student_alternate_phone_num_and_course_exists(alternate_phone_num, course_id):
+    cursor = app.session.query(model.Student).filter(
+        or_(
+            model.Student.phone_num == alternate_phone_num,
+            model.Student.alternate_phone_num == alternate_phone_num
+        ),
+        model.Student.course_id == course_id
+    )
+    records = list(cursor)
+    return records
+
+
+def is_student_email_and_course_exists(email, course_id):
+    cursor = app.session.query(model.Student).filter(
+        model.Student.email == email,
+        model.Student.course_id == course_id
+    )
+    records = list(cursor)
+    return records
+
+
 def fetch_student_by_id(student_id):
     record = app.session.query(model.Student).filter(model.Student.student_id == student_id).first()
     return record
@@ -199,19 +232,26 @@ def add_student(current_user):
             # insert new
             student = model.Student()
             # Check if student is already exist
-            if 'phone_num' in data and data['phone_num'] and student.phone_num != data['phone_num'] and is_student_phone_num_exists(data['phone_num']):
-                return {'error': 'Phone number is already exist.'}, 409
-            if 'alternate_phone_num' in data and data['alternate_phone_num'] and student.alternate_phone_num != data['alternate_phone_num'] and is_student_alternate_phone_num_exists(data['alternate_phone_num']):
-                return {'error': 'Alternate Phone number is already exist.'}, 409
-            if 'email' in data and data['email'] and student.email != data['email'] and is_student_email_exists(data['email']):
-                return {'error': 'Email is already exist.'}, 409
+            if 'phone_num' in data and data['phone_num'] and student.phone_num != data['phone_num'] \
+                    and is_student_phone_num_and_course_exists(data['phone_num'], data['course_id']):
+                return {'error': 'Phone number with selected course is already exist.'}, 409
+            if 'alternate_phone_num' in data and data['alternate_phone_num'] \
+                    and student.alternate_phone_num != data['alternate_phone_num'] \
+                    and is_student_alternate_phone_num_and_course_exists(data['alternate_phone_num'], data['course_id']):
+                return {'error': 'Alternate Phone number with selected course is already exist.'}, 409
+            if 'email' in data and data['email'] and student.email != data['email'] \
+                    and is_student_email_and_course_exists(data['email'], data['course_id']):
+                return {'error': 'Email with selected course is already exist.'}, 409
             for key, value in data.items():
                 if key in ('admission_date', 'dob', ) and value:
                     value = datetime.datetime.strptime(value, '%Y-%m-%d')
                 setattr(student, key, value)
             bulk_insert([student])
 
-            student = app.session.query(model.Student).filter(model.Student.phone_num == data['phone_num']).first()
+            student = app.session.query(model.Student).filter(
+                model.Student.phone_num == data['phone_num'],
+                model.Student.phone_num == data['course_id']
+            ).first()
 
             # Add installment in receipt model
             receipts_records_to_add = []
@@ -247,15 +287,17 @@ def update_student(current_user, student_id):
     student = fetch_student_by_id(int(student_id))
 
     # Check if student is already exist
-    if 'phone_num' in data and data['phone_num'] and student.phone_num != data['phone_num'] and is_student_phone_num_exists(
-            data['phone_num']):
-        return {'error': 'Phone number is already exist.'}, 409
-    if 'alternate_phone_num' in data and data['alternate_phone_num'] and student.alternate_phone_num != data[
-        'alternate_phone_num'] and is_student_alternate_phone_num_exists(
-        data['alternate_phone_num']):
-        return {'error': 'Alternate Phone number is already exist.'}, 409
-    if 'email' in data and data['email'] and student.email != data['email'] and is_student_email_exists(data['email']):
-        return {'error': 'Email is already exist.'}, 409
+    if 'phone_num' in data and data['phone_num'] and student.phone_num != data['phone_num'] \
+            and is_student_phone_num_and_course_exists(data['phone_num'], data['course_id']):
+        return {'error': 'Phone number with selected course is already exist.'}, 409
+    if 'alternate_phone_num' in data and data['alternate_phone_num'] \
+            and student.alternate_phone_num != data['alternate_phone_num'] \
+            and is_student_alternate_phone_num_and_course_exists(data['alternate_phone_num'], data['course_id']):
+        return {'error': 'Alternate Phone number with selected course is already exist.'}, 409
+    if 'email' in data and data['email'] and student.email != data['email'] \
+            and is_student_email_and_course_exists(data['email'], data['course_id']):
+        return {'error': 'Email with selected course is already exist.'}, 409
+
     for key, value in data.items():
         if key in ('admission_date', 'dob', ) and value:
             value = datetime.datetime.strptime(value, '%Y-%m-%d')
@@ -291,6 +333,7 @@ def update_student(current_user, student_id):
 @student_bp.route('/by_email_or_phone_num', methods=['GET'])
 @token_required
 def get_student_by_email_or_phone_num(current_user):
+    # TODO: Add course_id for unique constraint
     student = None
     phone_num = request.args.get('phone_num', '')
     email = request.args.get('email', '')
@@ -344,6 +387,15 @@ def get_student(current_user, student_id):
         receipt_result = populate_receipt_record(receipt)
         student_result['installments'].append(receipt_result)
     return jsonify(student_result), 200
+
+
+@student_bp.route('/count_accounts/<user_id>', methods=['GET'])
+@token_required
+def count_student_accounts(current_user, user_id):
+    num_students = app.session.query(model.Student).filter(model.Student.user_id == int(user_id),
+                                                           model.Student.deleted == 0).count()
+    print('num_students: ', num_students)
+    return jsonify({'num_students': num_students}), 200
 
 
 # @student_bp.route('/select/user/<user_id>', methods=['GET'])
@@ -522,11 +574,19 @@ def get_paginated_students_installments_advanced(current_user):
 
     # request params
     req_student_id = request.args.get('student_id', None)
+    req_user_id = request.args.get('user_id', None)
 
     # filtering data
     query = app.session.query(model.Student)
     query = query.filter(model.Student.deleted == 0)
-    query = query.filter(model.Student.student_id == int(req_student_id)) if req_student_id else query
+    if req_user_id:
+        # For student_dashboard when having multiple students/courses for single query.
+        student_ids = app.session.query(model.Student.student_id).filter(model.Student.user_id == req_user_id).all()
+        student_ids = [x[0] for x in student_ids]
+        query = query.filter(model.Student.student_id.in_(student_ids))
+    else:
+        query = query.filter(model.Student.student_id == int(req_student_id)) if req_student_id else query
+    # query = query.filter(model.Student.student_id == int(req_student_id)) if req_student_id else query
 
     # pagination
     start = request.args.get('start', type=int)
@@ -549,21 +609,25 @@ def get_paginated_students_installments_advanced(current_user):
     query = query.offset(start).limit(length)
     print(query)
 
-    student = query.first()
-    student_result = []
-    if student:
-        student_result = populate_student_record(student)
-        # Get student receipts
-        installments = []
-        receipt_records = get_all_receipts_by_student(student.student_id)
-        for receipt in receipt_records:
-            receipt_result = populate_receipt_record(receipt)
+    students = query.all()
+    list_students_result = []
+    for student in students:
+        print('student: ', student)
+        student_result = []
+        if student:
+            student_result = populate_student_record(student)
+            # Get student receipts
+            installments = []
+            receipt_records = get_all_receipts_by_student(student.student_id)
+            for receipt in receipt_records:
+                receipt_result = populate_receipt_record(receipt)
 
-            installments.append(receipt_result)
-        student_result = installments
+                installments.append(receipt_result)
+            student_result = installments
+            list_students_result.extend(student_result)
     # response
     return jsonify({
-        'data': student_result,
+        'data': list_students_result,
         'recordsFiltered': total_filtered_students,
         'recordsTotal': total_students,
         'draw': request.args.get('draw', type=int),

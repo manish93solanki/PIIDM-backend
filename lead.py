@@ -47,6 +47,39 @@ def is_lead_email_exists(email):
     return records
 
 
+def is_lead_phone_num_and_course_exists(phone_num, course_id):
+    cursor = app.session.query(model.Lead).filter(
+        or_(
+            model.Lead.phone_num == phone_num,
+            model.Lead.alternate_phone_num == phone_num
+        ),
+        model.Lead.course_id == course_id
+    )
+    records = list(cursor)
+    return records
+
+
+def is_lead_alternate_phone_num_and_course_exists(alternate_phone_num, course_id):
+    cursor = app.session.query(model.Lead).filter(
+        or_(
+            model.Lead.phone_num == alternate_phone_num,
+            model.Lead.alternate_phone_num == alternate_phone_num
+        ),
+        model.Lead.course_id == course_id
+    )
+    records = list(cursor)
+    return records
+
+
+def is_lead_email_and_course_exists(email, course_id):
+    cursor = app.session.query(model.Lead).filter(
+        model.Lead.email == email,
+        model.Lead.course_id == course_id
+    )
+    records = list(cursor)
+    return records
+
+
 def fetch_lead_by_id(lead_id):
     record = app.session.query(model.Lead).filter(model.Lead.lead_id == lead_id).first()
     return record
@@ -181,13 +214,14 @@ def add_lead(current_user):
             for item in data:
                 lead = model.Lead()
                 # Check if lead is already exist
-                if is_lead_phone_num_exists(item['phone_num']):
-                    return {'error': 'Phone number is already exist.'}, 409
-                if 'alternate_phone_num' in item and item['alternate_phone_num'] and is_lead_alternate_phone_num_exists(
-                        item['alternate_phone_num']):
-                    return {'error': 'Alternate Phone number is already exist.'}, 409
-                if 'email' in item and item['email'] and is_lead_email_exists(item['email']):
-                    return {'error': 'Email is already exist.'}, 409
+                if is_lead_phone_num_and_course_exists(item['phone_num'], item['course_id']):
+                    return {'error': 'Phone number with selected source is already exist.'}, 409
+                if 'alternate_phone_num' in item and item['alternate_phone_num'] \
+                        and is_lead_alternate_phone_num_and_course_exists(item['alternate_phone_num'], item['course_id']):
+                    return {'error': 'Alternate Phone number with selected source is already exist.'}, 409
+                if 'email' in item and item['email'] \
+                        and is_lead_email_and_course_exists(item['email'], item['course_id']):
+                    return {'error': 'Email with selected source is already exist.'}, 409
                 for key, value in item.items():
                     if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
                         value = datetime.datetime.strptime(value, '%Y-%m-%d')
@@ -204,6 +238,7 @@ def add_lead(current_user):
 @lead_bp.route('/upload-excel', methods=['POST'])
 @token_required
 def upload_excel_leads(current_user):
+    # TODO: Add course_id for unique constraints
     try:
         if request.method == 'POST':
             file = request.files['file']
@@ -235,15 +270,16 @@ def update_lead(current_user, lead_id):
                 lead = fetch_lead_by_id(int(lead_id))
 
             # Check if lead is already exist
-            if 'phone_num' in item and item['phone_num'] and lead.phone_num != item[
-                'phone_num'] and is_lead_phone_num_exists(item['phone_num']):
-                return {'error': 'Phone number is already exist.'}, 409
-            if 'alternate_phone_num' in item and item['alternate_phone_num'] and lead.alternate_phone_num != item[
-                'alternate_phone_num'] and is_lead_alternate_phone_num_exists(item['alternate_phone_num']):
-                return {'error': 'Alternate Phone number is already exist.'}, 409
-            if 'email' in item and item['email'] and lead.email != item['email'] and is_lead_email_exists(
-                    item['email']):
-                return {'error': 'Email is already exist.'}, 409
+            if 'phone_num' in item and item['phone_num'] and lead.phone_num != item['phone_num'] \
+                    and is_lead_phone_num_and_course_exists(item['phone_num'], item['course_id']):
+                return {'error': 'Phone number with selected course is already exist.'}, 409
+            if 'alternate_phone_num' in item and item['alternate_phone_num'] \
+                    and lead.alternate_phone_num != item['alternate_phone_num'] \
+                    and is_lead_alternate_phone_num_and_course_exists(item['alternate_phone_num'], item['course_id']):
+                return {'error': 'Alternate Phone number with selected course is already exist.'}, 409
+            if 'email' in item and item['email'] and lead.email != item['email'] \
+                    and is_lead_email_and_course_exists(item['email'], item['course_id']):
+                return {'error': 'Email with selected course is already exist.'}, 409
             for key, value in item.items():
                 if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
                     value = datetime.datetime.strptime(value, '%Y-%m-%d')
@@ -275,6 +311,7 @@ def soft_delete_lead(current_user, lead_id):
 @lead_bp.route('/by_email_or_phone_num', methods=['GET'])
 @token_required
 def get_lead_by_email_or_phone_num(current_user):
+    # TODO: Add course_id for unique constraints
     lead = None
     phone_num = request.args.get('phone_num', '')
     alternate_phone_num = request.args.get('alternate_phone_num', '')
@@ -315,6 +352,102 @@ def get_lead_by_email_or_phone_num(current_user):
     elif email:
         query = query.filter(
             model.Lead.email == email
+        )
+
+    # if email:
+    #     # query = query.filter(model.Lead.email.like(f'%{email}%'))
+    #     query = query.filter(model.Lead.email == email)
+    # elif alternate_phone_num:
+    #     # query = query.filter(model.Lead.phone_num.like(f'%{phone_num}%'))
+    #     query = query.filter(or_(
+    #         model.Lead.phone_num == phone_num,
+    #         model.Lead.alternate_phone_num == phone_num,
+    #         model.Lead.phone_num == alternate_phone_num,
+    #         model.Lead.alternate_phone_num == alternate_phone_num
+    #     ))
+    # else:
+    #     query = query.filter(or_(
+    #         model.Lead.phone_num == phone_num,
+    #         model.Lead.alternate_phone_num == phone_num
+    #     ))
+
+    lead = query.first()
+    result = {}
+    if lead:
+        for key in lead.__table__.columns.keys():
+            value = getattr(lead, key)
+            if key == 'agent_id':
+                agent = lead.agent
+                result['agent'] = {}
+                for agent_key in agent.__table__.columns.keys():
+                    agent_value = getattr(agent, agent_key)
+                    result['agent'][agent_key] = agent_value
+            result[key] = value
+
+            if key in ('lead_time',):
+                result[key] = str(value)
+
+    return jsonify(result), 200
+
+
+@lead_bp.route('/by_email_or_phone_num_and_course_name', methods=['GET'])
+@token_required
+def get_lead_by_email_or_phone_num_and_course_name(current_user):
+    # TODO: Add course_id for unique constraints
+    lead = None
+    phone_num = request.args.get('phone_num', '')
+    alternate_phone_num = request.args.get('alternate_phone_num', '')
+    email = request.args.get('email', '')
+    course_name = request.args.get('course_name', '')
+    course_name = course_name.replace('__', ' ')
+    query = app.session.query(model.Lead).filter(model.Lead.deleted == 0)
+
+    if phone_num and alternate_phone_num and email:
+        query = query.filter(or_(
+            model.Lead.phone_num == phone_num,
+            model.Lead.alternate_phone_num == phone_num,
+            model.Lead.phone_num == alternate_phone_num,
+            model.Lead.alternate_phone_num == alternate_phone_num,
+            model.Lead.email == email
+        ))
+    elif phone_num and alternate_phone_num:
+        query = query.filter(or_(
+            model.Lead.phone_num == phone_num,
+            model.Lead.alternate_phone_num == phone_num,
+            model.Lead.phone_num == alternate_phone_num,
+            model.Lead.alternate_phone_num == alternate_phone_num
+        ))
+    elif phone_num and email:
+        query = query.filter(or_(
+            model.Lead.phone_num == phone_num,
+            model.Lead.alternate_phone_num == phone_num,
+            model.Lead.email == email
+        ))
+    elif phone_num:
+        query = query.filter(or_(
+            model.Lead.phone_num == phone_num,
+            model.Lead.alternate_phone_num == phone_num
+        ))
+    elif alternate_phone_num:
+        query = query.filter(or_(
+            model.Lead.phone_num == alternate_phone_num,
+            model.Lead.alternate_phone_num == alternate_phone_num
+        ))
+    elif email:
+        query = query.filter(
+            model.Lead.email == email
+        )
+
+    if course_name:
+        course = app.session.query(model.Course).filter(model.Course.name == course_name,
+                                                        model.Course.deleted == 0).first()
+        if course is None:
+            # Ge default course
+            course = app.session.query(model.Course).filter(model.Course.course_id == 1,
+                                                            model.Course.deleted == 0).first()
+        print('course: ', course.course_id)
+        query = query.filter(
+            model.Lead.course_id == course.course_id
         )
 
     # if email:

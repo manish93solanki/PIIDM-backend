@@ -93,6 +93,20 @@ def get_course(current_user, course_id):
     return jsonify(course_result), 200
 
 
+@course_bp.route('/select/course_by_name/<course_name>', methods=['GET'])
+@token_required
+def get_course_by_name(current_user, course_name):
+    course = app.session.query(model.Course).filter(model.Course.name == course_name,
+                                                    model.Course.deleted == 0).first()
+    if course is None:
+        # Ge default course
+        course = app.session.query(model.Course).filter(model.Course.course_id == 1,
+                                                        model.Course.deleted == 0).first()
+
+    course_result = populate_course_record(course)
+    return jsonify(course_result), 200
+
+
 @course_bp.route('/all', methods=['GET'])
 @token_required
 def get_courses(current_user):

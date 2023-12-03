@@ -136,6 +136,25 @@ def update_and_get_seats_batch(current_user, student_id, batch_id):
         if not request.is_json:
             return {'error': 'Bad Request.'}, 400
 
+        # Validation - Raise exception if the same student is allocated with same/different batches having same course.
+        user_id = app.session.query(model.Student.user_id).filter(model.Student.student_id == int(student_id)).first()
+        user_id = user_id[0]
+        students = app.session.query(model.Student).filter(model.Student.user_id == int(user_id)).all()
+        old_batches_course_ids = []
+        for student in students:
+            if student.student_id != int(student_id):
+                # Ignore batch_id of current student_id
+                old_batch = fetch_batch_by_id(int(student.batch_id))
+                old_batches_course_ids.append(old_batch.course_id)
+        if old_batches_course_ids:
+            # Update Old Batch details
+            if batch_id and batch_id != 'null':
+                new_batch = fetch_batch_by_id(int(batch_id))
+                if new_batch.course_id in old_batches_course_ids:
+                    return {'error': 'Selected batch has the same course which is already allocated to current student. '
+                                     '<br> Please select different batch'}, 400
+
+        # Update Batch and adjust seats
         add_and_sub_seat_by_1 = 1
 
         old_batch_id = app.session.query(model.Student.batch_id).filter(model.Student.student_id == int(student_id)).first()

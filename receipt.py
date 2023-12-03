@@ -203,7 +203,7 @@ def get_paginated_students_advanced(current_user):
 
     total_filtered_receipts = query.count() # total filtered receipts
     total_earning = query.with_entities(func.sum(model.Receipt.installment_payment)).scalar()
-    #TODO: Need a student subquery to get total_pending_fee, total_expected_earning in future
+    # TODO: Need a student subquery to get total_pending_fee, total_expected_earning in future
     # total_earning = query.with_entities(func.sum(model.Receipt.total_fee_paid)).scalar()
     # total_pending_fee = query.with_entities(func.sum(model.Receipt.total_pending_fee)).scalar()
     basic_stats = {

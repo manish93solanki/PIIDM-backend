@@ -1537,6 +1537,15 @@ curl --location 'http://localhost:3002/api/course/add' \
     },
     {
         "name": "Wordpress Course"
+    },
+    {
+        "name": "Masters in Digital Marketing Course"
+    },
+    {
+        "name": "Advanced Graphics Design Course"
+    },
+    {
+        "name": "2 Months Graphics Design Course"
     }
 ]'
 

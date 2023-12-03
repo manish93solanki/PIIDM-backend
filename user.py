@@ -43,20 +43,39 @@ def add_user():
             bulk_insert([user])
             user_id = user.user_id
         else:
-            # insert new
             records_to_add = []
-            user = model.User()
-            if is_user_phone_num_exists(data['phone_num']):
-                return {'error': 'Phone number is already exist.'}, 409
-            if 'email' in data and data['email'] and user.email != data['email'] and is_user_email_exists(data['email']):
-                return {'error': 'Email is already exist.'}, 409
-            user.name = data['name']
-            user.phone_num = data['phone_num']
-            user.email = data['email']
-            user.password = data['password']
-            user.user_role_id = data['user_role_id']
-            records_to_add.append(user)
-            bulk_insert(records_to_add)
+            user = None
+            # insert new
+            if 'skip_validation_of_existing_user' in data and data['skip_validation_of_existing_user']:
+                # Skip phone_num and email validation and simply return user if exits
+                if 'email' in data and data['email']:
+                    user = app.session.query(model.User).filter(
+                        or_(
+                            model.User.phone_num == data['phone_num'],
+                            model.User.email == data['email']
+                        )
+                    ).first()
+                else:
+                    user = app.session.query(model.User).filter(
+                        model.User.phone_num == data['phone_num']
+                    ).first()
+            else:
+                # Allow validation of phone_num and email of user.
+                if is_user_phone_num_exists(data['phone_num']):
+                    return {'error': 'Phone number is already exist.'}, 409
+                if 'email' in data and data['email'] and is_user_email_exists(data['email']):
+                    return {'error': 'Email is already exist.'}, 409
+
+            if user is None:
+                # Add new user
+                user = model.User()
+                user.name = data['name']
+                user.phone_num = data['phone_num']
+                user.email = data['email']
+                user.password = data['password']
+                user.user_role_id = data['user_role_id']
+                records_to_add.append(user)
+                bulk_insert(records_to_add)
 
             user = app.session.query(model.User).filter(model.User.phone_num == user.phone_num).first()
             user_id = user.user_id

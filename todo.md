@@ -1,3 +1,6 @@
+### Business Logic
+- Modifying course_mode, batch_time, branch, course, trainer values for student are not reflected because these values are fully depended upon batch type. 
+
 ### Task Management
 
 - [X] Create user while creating student
@@ -95,6 +98,28 @@
 - [X] Has pending Fee filter - 3H
 - [X] Next Action Date filter - 2H
 - [X] Fix issue of lead time - 2H
+- [X] HR dashboard - 5H
+- [X] Change password for HR - 1H
+- [X] Edit batche, edit student, review & accept student documents for HR - 1H
+- [X] Added Course manually through API - 1H
+- [X] Unique contraint on mobile + course_name for student admission.
+- [X] Allow leads with same phone_num and email. - 1H
+- [X] Allow students with same phone_num and email. - 1H
+- [X] Students with same phone_num and email are allowed but with different courses. - 1H
+- [X] User is allowed to mapped with multiple students(having different courses) with same phone_num and email. - 2H
+- [X] If single user has multiple courses with different student_id then ignore deleting user until it reaches to single student/course per user. - 2H
+- [X] Raise exception if the same student is allocated with same/different batches having same course. - 4H
+- [X] Added course_name for validation in submitted_leads - 5H
+- [X] Display all courses receipts in student profile - 2H
+- [] Allow multiple courses for student
+
+- [] Student can have multiple course in his portal.
+- [] Add course content and map with relevant course.
+- [] Allow multiple courses per student.
+- [] Automatically assign same Agent during lead creation if lead with same phone_num is already exist. ??
+- [] What if student modifies its phone_num or email with some numbers that doesn't have any user. ??
+- [] Adjust student profile in student_dashboard, show courses and batch in separate pane. ??
+- [] Make unique uploads for student. ??
 - [] Open Edit lead form in modal.
 - [] receipt download as PDF
 - [] Generate form for students in leads before taking admission, show status - form send, form receive.
