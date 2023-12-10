@@ -196,7 +196,7 @@ def login():
         student_id = None
         student_is_active = None
         student_is_document_verified = None
-        student = app.session.query(model.Student).filter(model.Student.deleted == 0, model.Student.user_id == user.user_id).first()
+        student = app.session.query(model.Student).filter(model.Student.deleted == 0, model.Student.user_id == user.user_id).order_by(model.Student.student_id.asc()).first()
         if student:
             student_id = student.student_id
             student_is_active = student.is_active

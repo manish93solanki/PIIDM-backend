@@ -14,7 +14,7 @@ def is_student_phone_num_exists(phone_num):
             model.Student.phone_num == phone_num,
             model.Student.alternate_phone_num == phone_num
         )
-    )
+    ).order_by(model.Student.student_id.asc())
     records = list(cursor)
     return records
 
@@ -25,13 +25,15 @@ def is_student_alternate_phone_num_exists(alternate_phone_num):
             model.Student.phone_num == alternate_phone_num,
             model.Student.alternate_phone_num == alternate_phone_num
         ),
-    )
+    ).order_by(model.Student.student_id.asc())
     records = list(cursor)
     return records
 
 
 def is_student_email_exists(email):
-    cursor = app.session.query(model.Student).filter(model.Student.email == email)
+    cursor = app.session.query(model.Student).filter(
+        model.Student.email == email
+    ).order_by(model.Student.student_id.asc())
     records = list(cursor)
     return records
 
@@ -83,7 +85,7 @@ def populate_student_record(student):
     student_result = {}
     for key in student.__table__.columns.keys():
         value = getattr(student, key)
-        if key in ('admission_date', 'dob', ) and value:
+        if key in ('admission_date', 'dob',) and value:
             # value = datetime.datetime.strftime('%Y-%m-%d')
             value = str(value)
 
@@ -223,7 +225,7 @@ def add_student(current_user):
             bulk_insert([student])
             receipts_records_to_readd = []
             receipts = app.session.query(model.Receipt).filter(model.Receipt.student_id == int(student.student_id),
-                                                              model.Receipt.deleted == 1).all()
+                                                               model.Receipt.deleted == 1).all()
             for receipt in receipts:
                 receipt.deleted = 0
                 receipts_records_to_readd.append(receipt)
@@ -231,19 +233,47 @@ def add_student(current_user):
         else:
             # insert new
             student = model.Student()
-            # Check if student is already exist
+            # Check if student with course is already exist
             if 'phone_num' in data and data['phone_num'] and student.phone_num != data['phone_num'] \
                     and is_student_phone_num_and_course_exists(data['phone_num'], data['course_id']):
                 return {'error': 'Phone number with selected course is already exist.'}, 409
             if 'alternate_phone_num' in data and data['alternate_phone_num'] \
                     and student.alternate_phone_num != data['alternate_phone_num'] \
-                    and is_student_alternate_phone_num_and_course_exists(data['alternate_phone_num'], data['course_id']):
+                    and is_student_alternate_phone_num_and_course_exists(data['alternate_phone_num'],
+                                                                         data['course_id']):
                 return {'error': 'Alternate Phone number with selected course is already exist.'}, 409
             if 'email' in data and data['email'] and student.email != data['email'] \
                     and is_student_email_and_course_exists(data['email'], data['course_id']):
                 return {'error': 'Email with selected course is already exist.'}, 409
+
+            # Check if student  is already exist
+            existing_student = None
+            if 'phone_num' in data and data['phone_num'] and student.phone_num != data['phone_num']:
+                existing_student = is_student_phone_num_exists(data['phone_num'])
+            elif 'alternate_phone_num' in data and data['alternate_phone_num'] \
+                    and student.alternate_phone_num != data['alternate_phone_num']:
+                existing_student = is_student_alternate_phone_num_exists(data['alternate_phone_num'])
+            elif 'email' in data and data['email'] and student.email != data['email']:
+                existing_student = is_student_email_exists(data['email'])
+
+            # If same student exists then reuse its values.
+            existing_student = existing_student[0] if existing_student else None
+
+            reuse_student_keys = ('name', 'phone_num', 'alternate_phone_num', 'email', 'dob', 'area', 'pincode',
+                                  'highest_education', 'occupation', 'purpose_for_course', 'who_you_are', 'referred_by',
+                                  'front_image_path', 'back_image_path', 'passport_image_path', 'country_id', 'city_id',
+                                  'state_id', 'agent_id', 'source_id', 'is_document_verified', 'user_id')
+            for key in reuse_student_keys:
+                value = getattr(existing_student, key)
+                if key in ('dob',) and value:
+                    value = datetime.datetime.strptime(value, '%Y-%m-%d')
+                setattr(student, key, value)
+
             for key, value in data.items():
-                if key in ('admission_date', 'dob', ) and value:
+                if existing_student and key in reuse_student_keys:
+                    continue
+                # new values for current student
+                if key in ('admission_date', 'dob',) and value:
                     value = datetime.datetime.strptime(value, '%Y-%m-%d')
                 setattr(student, key, value)
             bulk_insert([student])
@@ -259,9 +289,10 @@ def add_student(current_user):
                 if 'installment_num' in instalment and instalment['installment_num'] and \
                         'installment_payment' in instalment and instalment['installment_payment']:
                     installment_num = instalment['installment_num']
-                    receipt = app.session.query(model.Receipt).filter(model.Receipt.student_id == int(student.student_id),
-                                                                      model.Receipt.installment_num == int(installment_num),
-                                                                      model.Receipt.deleted == 0).first()
+                    receipt = app.session.query(model.Receipt).filter(
+                        model.Receipt.student_id == int(student.student_id),
+                        model.Receipt.installment_num == int(installment_num),
+                        model.Receipt.deleted == 0).first()
                     if not receipt:
                         receipt = model.Receipt()
 
@@ -270,7 +301,8 @@ def add_student(current_user):
                     setattr(receipt, 'installment_payment_date',
                             datetime.datetime.strptime(instalment['installment_payment_date'], '%Y-%m-%d'))
                     receipt.installment_payment_mode_id = instalment['installment_payment_mode_id']
-                    receipt.installment_payment_transaction_number = instalment['installment_payment_transaction_number']
+                    receipt.installment_payment_transaction_number = instalment[
+                        'installment_payment_transaction_number']
                     receipt.student_id = student.student_id
                     receipts_records_to_add.append(receipt)
             bulk_insert(receipts_records_to_add)
@@ -299,7 +331,7 @@ def update_student(current_user, student_id):
         return {'error': 'Email with selected course is already exist.'}, 409
 
     for key, value in data.items():
-        if key in ('admission_date', 'dob', ) and value:
+        if key in ('admission_date', 'dob',) and value:
             value = datetime.datetime.strptime(value, '%Y-%m-%d')
         setattr(student, key, value)
     bulk_insert([student])
@@ -463,7 +495,7 @@ def get_paginated_students_advanced(current_user):
     name = request.args.get('name', None)
     phone_number = request.args.get('phone_number', None)
     branch = request.args.get('branch', None)
-    
+
     course = request.args.get('course', None)
     course_mode = request.args.get('course_mode', None)
     source = request.args.get('source', None)
@@ -520,9 +552,12 @@ def get_paginated_students_advanced(current_user):
             agent_id = agent_id[0]
         total_admissions = query.filter(model.Student.agent_id == agent_id).count()  # total_admissions
         total_dropouts = query.filter(model.Student.agent_id == agent_id, model.Student.is_active == 0).count()
-        total_expected_earning = query.filter(model.Student.agent_id == agent_id).with_entities(func.sum(model.Student.total_fee)).scalar()
-        total_earning = query.filter(model.Student.agent_id == agent_id).with_entities(func.sum(model.Student.total_fee_paid)).scalar()
-        total_pending_fee = query.filter(model.Student.agent_id == agent_id).with_entities(func.sum(model.Student.total_pending_fee)).scalar()
+        total_expected_earning = query.filter(model.Student.agent_id == agent_id).with_entities(
+            func.sum(model.Student.total_fee)).scalar()
+        total_earning = query.filter(model.Student.agent_id == agent_id).with_entities(
+            func.sum(model.Student.total_fee_paid)).scalar()
+        total_pending_fee = query.filter(model.Student.agent_id == agent_id).with_entities(
+            func.sum(model.Student.total_pending_fee)).scalar()
     else:
         total_admissions = query.count()  # total_admissions
         total_dropouts = query.filter(model.Student.is_active == 0).count()
@@ -538,7 +573,8 @@ def get_paginated_students_advanced(current_user):
         'total_pending_fee': total_pending_fee
     }
 
-    query = query.order_by(desc(model.Student.admission_date), desc(model.Student.created_at)).offset(start).limit(length)
+    query = query.order_by(desc(model.Student.admission_date), desc(model.Student.created_at)).offset(start).limit(
+        length)
     print(query)
 
     students = query.all()

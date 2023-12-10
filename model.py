@@ -83,9 +83,12 @@ class CourseContent(db.Model):
     name = Column(VARCHAR(255), unique=True, nullable=False)
     instructor_name = Column(VARCHAR(255), nullable=False)
     json_modules = Column(Text, nullable=True)
+    course_id = Column(ForeignKey('course.course_id'), nullable=True)
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    course = relationship('Course')
 
 
 class Agent(db.Model):

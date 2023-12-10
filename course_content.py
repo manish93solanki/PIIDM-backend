@@ -9,13 +9,19 @@ course_content_bp = Blueprint('course_content_bp', __name__, url_prefix='/api/co
 
 
 def is_course_content_name_exists(name):
-    cursor = app.session.query(model.CourseContent).filter(model.CourseContent.name == name)
+    cursor = app.session.query(model.CourseContent).filter(
+        model.CourseContent.name == name,
+        model.CourseContent.deleted == 0
+    )
     records = list(cursor)
     return records
 
 
 def fetch_course_content_by_id(course_content_id):
-    record = app.session.query(model.CourseContent).filter(model.CourseContent.course_content_id == course_content_id).first()
+    record = app.session.query(model.CourseContent).filter(
+        model.CourseContent.course_content_id == course_content_id,
+        model.CourseContent.deleted == 0
+    ).first()
     return record
 
 

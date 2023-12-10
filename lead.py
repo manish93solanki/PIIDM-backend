@@ -215,13 +215,13 @@ def add_lead(current_user):
                 lead = model.Lead()
                 # Check if lead is already exist
                 if is_lead_phone_num_and_course_exists(item['phone_num'], item['course_id']):
-                    return {'error': 'Phone number with selected source is already exist.'}, 409
+                    return {'error': 'Phone number with selected course is already exist.'}, 409
                 if 'alternate_phone_num' in item and item['alternate_phone_num'] \
                         and is_lead_alternate_phone_num_and_course_exists(item['alternate_phone_num'], item['course_id']):
-                    return {'error': 'Alternate Phone number with selected source is already exist.'}, 409
+                    return {'error': 'Alternate Phone number with selected course is already exist.'}, 409
                 if 'email' in item and item['email'] \
                         and is_lead_email_and_course_exists(item['email'], item['course_id']):
-                    return {'error': 'Email with selected source is already exist.'}, 409
+                    return {'error': 'Email with selected course is already exist.'}, 409
                 for key, value in item.items():
                     if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
                         value = datetime.datetime.strptime(value, '%Y-%m-%d')
