@@ -12,7 +12,7 @@ gevent==22.10.2
 rich==13.2.0
 requests==2.28.2
 python-dotenv==0.21.1
-pandas==2.8.2
+pandas==2.8.2 #2.1.4
 openpyxl==3.1.2
 urllib3==1.23
 pymysql==1.1.0

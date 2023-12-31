@@ -29,8 +29,9 @@ from batch import batch_bp
 from hr import hr_bp
 from placement import placement_bp
 
-SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db'
-# SQLALCHEMY_DATABASE_URL = f'sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db'
+# SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db'
+# SQLALCHEMY_DATABASE_URL = f'sqlite:///C:\\Users\\pooja\\Documents\\NITIN\\codemania\\piidm-backend\\piidm_online_sqlite.db'
+SQLALCHEMY_DATABASE_URL = f'sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db'
 engine = create_engine(SQLALCHEMY_DATABASE_URL, convert_unicode=True)
 Session = scoped_session(sessionmaker(autocommit=True, bind=engine))
 

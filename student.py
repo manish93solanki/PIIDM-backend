@@ -71,14 +71,41 @@ def is_student_email_and_course_exists(email, course_id):
     return records
 
 
+def get_course_content_id_by_course_id(course_id, default_course_content_id=1):
+    course = fetch_course_by_course_id(course_id)
+    course_content = fetch_course_content_by_course_name(course_name=course.name)
+    if course_content:
+        return course_content.course_content_id
+    else:
+        return default_course_content_id
+
+
 def fetch_student_by_id(student_id):
     record = app.session.query(model.Student).filter(model.Student.student_id == student_id).first()
+    return record
+
+
+def fetch_student_by_user_id_and_course_content_id(user_id, course_content_id):
+    record = app.session.query(model.Student).filter(
+        model.Student.user_id == user_id,
+        model.Student.course_content_id == course_content_id
+    ).first()
     return record
 
 
 def fetch_receipts_by_student_id(student_id):
     records = app.session.query(model.Receipt).filter(model.Receipt.student_id == student_id).all()
     return records
+
+
+def fetch_course_by_course_id(course_id):
+    record = app.session.query(model.Course).filter(model.Course.course_id == course_id).first()
+    return record
+
+
+def fetch_course_content_by_course_name(course_name):
+    record = app.session.query(model.CourseContent).filter(model.CourseContent.name == course_name).first()
+    return record
 
 
 def populate_student_record(student):
@@ -213,6 +240,9 @@ def add_student(current_user):
         if not request.is_json:
             return {'error': 'Bad Request.'}, 400
         data = request.get_json()
+        # Get course_content_id by course_id
+        if 'course_id' in data:
+            data['course_content_id'] = get_course_content_id_by_course_id(data['course_id'])
 
         student = app.session.query(model.Student).filter(
             model.Student.deleted == 1,
@@ -263,11 +293,13 @@ def add_student(current_user):
                                   'highest_education', 'occupation', 'purpose_for_course', 'who_you_are', 'referred_by',
                                   'front_image_path', 'back_image_path', 'passport_image_path', 'country_id', 'city_id',
                                   'state_id', 'agent_id', 'source_id', 'is_document_verified', 'user_id')
-            for key in reuse_student_keys:
-                value = getattr(existing_student, key)
-                if key in ('dob',) and value:
-                    value = datetime.datetime.strptime(value, '%Y-%m-%d')
-                setattr(student, key, value)
+            if existing_student:
+                for key in reuse_student_keys:
+                    value = getattr(existing_student, key)
+                    if key in ('dob',) and value:
+                        if type(value) is str:
+                            value = datetime.datetime.strptime(value, '%Y-%m-%d')
+                    setattr(student, key, value)
 
             for key, value in data.items():
                 if existing_student and key in reuse_student_keys:
@@ -315,6 +347,9 @@ def update_student(current_user, student_id):
     if not request.is_json:
         return {'error': 'Bad Request.'}, 400
     data = request.get_json()
+    # Get course_content_id by course_id
+    if 'course_id' in data:
+        data['course_content_id'] = get_course_content_id_by_course_id(data['course_id'])
 
     student = fetch_student_by_id(int(student_id))
 
@@ -335,7 +370,6 @@ def update_student(current_user, student_id):
             value = datetime.datetime.strptime(value, '%Y-%m-%d')
         setattr(student, key, value)
     bulk_insert([student])
-    print('\nstudent: ', student.student_id, '\n')
 
     # Add installment in receipt model
     if 'installments' in data:
@@ -359,6 +393,26 @@ def update_student(current_user, student_id):
                 receipt.student_id = student.student_id
                 receipts_records_to_add.append(receipt)
         bulk_insert(receipts_records_to_add)
+    return {'message': 'Successfully Updated.'}, 200
+
+
+@student_bp.route('/update/document_verification/<student_id>', methods=['PUT'])
+@token_required
+def update_document_verification_of_student(current_user, student_id):
+    """
+    This special endpoint will update is_document_verified status of all the students that belong to same user
+    """
+    if not request.is_json:
+        return {'error': 'Bad Request.'}, 400
+    data = request.get_json()
+
+    student = fetch_student_by_id(int(student_id))
+    user_id = student.user_id
+    students = app.session.query(model.Student).filter(model.Student.user_id == int(user_id),
+                                                       model.Student.deleted == 0).all()
+    for student in students:
+        student.is_document_verified = data['is_document_verified']
+    bulk_insert(students)
     return {'message': 'Successfully Updated.'}, 200
 
 
@@ -421,29 +475,46 @@ def get_student(current_user, student_id):
     return jsonify(student_result), 200
 
 
+@student_bp.route('/select/user/<user_id>', methods=['GET'])
+@token_required
+def get_student_by_user_id(current_user, user_id):
+    students = app.session.query(model.Student).filter(model.Student.user_id == int(user_id),
+                                                       model.Student.deleted == 0).all()
+    multiple_students_result = []
+    for student in students:
+        student_result = populate_student_record(student)
+        student_result['installments'] = []
+
+        # Get student receipts
+        receipt_records = get_all_receipts_by_student(student.student_id)
+        for receipt in receipt_records:
+            receipt_result = populate_receipt_record(receipt)
+            student_result['installments'].append(receipt_result)
+        multiple_students_result.append(student_result)
+    return jsonify(multiple_students_result), 200
+
+
+@student_bp.route('/select/user/<user_id>/course_content/<course_content_id>', methods=['GET'])
+@token_required
+def get_student_by_user_id_and_course_content_id(current_user, user_id, course_content_id):
+    student = fetch_student_by_user_id_and_course_content_id(user_id, course_content_id)
+    student_result = populate_student_record(student)
+    student_result['installments'] = []
+
+    # Get student receipts
+    receipt_records = get_all_receipts_by_student(student.student_id)
+    for receipt in receipt_records:
+        receipt_result = populate_receipt_record(receipt)
+        student_result['installments'].append(receipt_result)
+    return jsonify(student_result), 200
+
+
 @student_bp.route('/count_accounts/<user_id>', methods=['GET'])
 @token_required
 def count_student_accounts(current_user, user_id):
     num_students = app.session.query(model.Student).filter(model.Student.user_id == int(user_id),
                                                            model.Student.deleted == 0).count()
-    print('num_students: ', num_students)
     return jsonify({'num_students': num_students}), 200
-
-
-# @student_bp.route('/select/user/<user_id>', methods=['GET'])
-# @token_required
-# def get_student_by_user_id(current_user, user_id):
-#     student = app.session.query(model.Student).filter(model.Student.user_id == int(user_id),
-#                                                       model.Student.deleted == 0).first()
-#     student_result = populate_student_record(student)
-#     student_result['installments'] = []
-#
-#     # Get student receipts
-#     receipt_records = get_all_receipts_by_student(student.student_id)
-#     for receipt in receipt_records:
-#         receipt_result = populate_receipt_record(receipt)
-#         student_result['installments'].append(receipt_result)
-#     return jsonify(student_result), 200
 
 
 @student_bp.route('/select-all', methods=['GET'])
@@ -537,7 +608,6 @@ def get_paginated_students_advanced(current_user):
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
     search_term = request.args.get('search[value]', type=str)
-    print('search_term: ', search_term)
     query = query.filter(or_(
         model.Student.name.like(f'%{search_term}%'),
         model.Student.phone_num.like(f'%{search_term}%'),
@@ -575,7 +645,6 @@ def get_paginated_students_advanced(current_user):
 
     query = query.order_by(desc(model.Student.admission_date), desc(model.Student.created_at)).offset(start).limit(
         length)
-    print(query)
 
     students = query.all()
     student_results = []
@@ -643,12 +712,10 @@ def get_paginated_students_installments_advanced(current_user):
     }
 
     query = query.offset(start).limit(length)
-    print(query)
 
     students = query.all()
     list_students_result = []
     for student in students:
-        print('student: ', student)
         student_result = []
         if student:
             student_result = populate_student_record(student)
@@ -678,6 +745,7 @@ def get_paginated_students_installments_advanced(current_user):
 def upload_image(current_user):
     image = request.files["image"]
     image_path = f'data/uploaded_images/{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")}-{image.filename}'
+    # image_path = f'data/uploaded_images/{datetime.datetime.now().strftime("%Y-%m-%dT%SZ")}-{image.filename}'
     image.save(image_path)
     return jsonify({'message': 'Image uploaded successfully.', 'data': image_path}), 200
 

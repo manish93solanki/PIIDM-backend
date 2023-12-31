@@ -196,7 +196,13 @@ def login():
         student_id = None
         student_is_active = None
         student_is_document_verified = None
+        multiple_student_ids = []
+        students = app.session.query(model.Student).filter(model.Student.deleted == 0,
+                                                          model.Student.user_id == user.user_id).order_by(
+            model.Student.student_id.asc()).all()
+        multiple_student_ids = [x.student_id for x in students]
         student = app.session.query(model.Student).filter(model.Student.deleted == 0, model.Student.user_id == user.user_id).order_by(model.Student.student_id.asc()).first()
+
         if student:
             student_id = student.student_id
             student_is_active = student.is_active
@@ -223,7 +229,8 @@ def login():
                     "agent_id": agent_id,
                     "student_id": student_id,
                     "student_is_active": student_is_active,
-                    "student_is_document_verified": student_is_document_verified
+                    "student_is_document_verified": student_is_document_verified,
+                    "multiple_student_ids": multiple_student_ids
                 }
             except Exception as e:
                 return {
