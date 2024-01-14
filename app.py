@@ -28,6 +28,7 @@ from submitted_leads import submitted_lead_bp
 from batch import batch_bp
 from hr import hr_bp
 from placement import placement_bp
+from call_logs import call_logs_bp
 
 # SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db'
 # SQLALCHEMY_DATABASE_URL = f'sqlite:///C:\\Users\\pooja\\Documents\\NITIN\\codemania\\piidm-backend\\piidm_online_sqlite.db'
@@ -74,6 +75,7 @@ app.register_blueprint(submitted_lead_bp)
 app.register_blueprint(batch_bp)
 app.register_blueprint(hr_bp)
 app.register_blueprint(placement_bp)
+app.register_blueprint(call_logs_bp)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=3002)

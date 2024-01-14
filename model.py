@@ -127,6 +127,21 @@ class BatchTime(db.Model):
     updated_at = Column(DateTime, nullable=False, default=func.now())
 
 
+class CallLogs(db.Model):
+    __tablename__ = 'call_logs'
+
+    call_logs_id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(ForeignKey('user.user_id'), nullable=True)
+    phone_num = Column(VARCHAR(255), nullable=True)
+    call_time = Column(DateTime, nullable=True)
+    call_time_duration = Column(VARCHAR(255), nullable=True)
+    call_type = Column(VARCHAR(255), nullable=True)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    user = relationship('User')
+
+
 class Country(db.Model):
     __tablename__ = 'country'
 
