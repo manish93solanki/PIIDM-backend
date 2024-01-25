@@ -32,13 +32,16 @@ def add_call_logs():
         data = request.get_json()
         has_agent = False
         records_to_add = []
+        user_id = None
         for item in data:
             user_phone_num = str(item['user_phone_num'])
             missing_zeros = 10 - len(user_phone_num)
             zeros_prefix = '0' * missing_zeros
             user_phone_num = f'{zeros_prefix}{user_phone_num}'
             if has_agent is False:
-                if is_agent_exist(user_phone_num):
+                agent = is_agent_exist(user_phone_num)
+                user_id = agent.user_id
+                if agent:
                     has_agent = True
             if has_agent is False:
                 return {'message': 'User is invalid.'}, 201
@@ -53,7 +56,7 @@ def add_call_logs():
                 call_logs.call_time = call_time
                 call_logs.call_type = call_type
                 call_logs.call_time_duration = item['call_time_duration']
-                call_logs.user_id = item['user_id']
+                call_logs.user_id = user_id
                 records_to_add.append(call_logs)
         bulk_insert(records_to_add)
     return {'message': 'Call Logs are saved.'}, 201
