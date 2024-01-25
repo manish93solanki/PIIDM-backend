@@ -34,6 +34,9 @@ def add_call_logs():
         records_to_add = []
         for item in data:
             user_phone_num = item['user_phone_num']
+            missing_zeros = 10 - len(user_phone_num)
+            zeros_prefix = '0' * missing_zeros
+            user_phone_num = f'{zeros_prefix}{user_phone_num}'
             if has_agent is False:
                 if is_agent_exist(user_phone_num):
                     has_agent = True
