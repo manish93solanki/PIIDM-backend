@@ -40,8 +40,8 @@ def add_call_logs():
             user_phone_num = f'{zeros_prefix}{user_phone_num}'
             if has_agent is False:
                 agent = is_agent_exist(user_phone_num)
-                user_id = agent.user_id
                 if agent:
+                    user_id = agent.user_id
                     has_agent = True
             if has_agent is False:
                 return {'message': 'User is invalid.'}, 201
