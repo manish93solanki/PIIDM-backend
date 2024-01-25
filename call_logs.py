@@ -14,8 +14,9 @@ def is_agent_exist(user_phone_num):
     ).first()
 
 
-def fetch_existing_call_logs(phone_num, call_time, call_type):
+def fetch_existing_call_logs(user_id, phone_num, call_time, call_type):
     record = app.session.query(model.CallLogs).filter(
+        model.CallLogs.user_id == user_id,
         model.CallLogs.phone_num == phone_num,
         model.CallLogs.call_time == call_time,
         model.CallLogs.call_type == call_type,
@@ -49,7 +50,7 @@ def add_call_logs():
             phone_num = phone_num[-10:]  # only last 10 digits
             call_time = datetime.datetime.strptime(item['call_time'], '%d-%m-%Y %H:%M:%S')
             call_type = item['call_type']
-            record = fetch_existing_call_logs(phone_num, call_time, call_type)
+            record = fetch_existing_call_logs(user_id, phone_num, call_time, call_type)
             if record is None:
                 call_logs = model.CallLogs()
                 call_logs.phone_num = phone_num
