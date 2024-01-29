@@ -23,6 +23,16 @@ def populate_course_record(course):
     course_result = {}
     for key in course.__table__.columns.keys():
         value = getattr(course, key)
+        if key == 'course_category_id':
+            course_category = course.course_category
+            if course_category:
+                course_result[key] = {}
+                for course_category_key in course_category.__table__.columns.keys():
+                    course_category_value = getattr(course_category, course_category_key)
+                    course_result[key][course_category_key] = course_category_value
+            else:
+                course_result[key] = None
+            course_result['course_category'] = course_result.pop(key)
         course_result[key] = value
     return course_result
 
@@ -114,11 +124,8 @@ def get_courses(current_user):
     courses = list(cursor)
     results = []
     for course in courses:
-        res = {}
-        for key in course.__table__.columns.keys():
-            value = getattr(course, key)
-            res[key] = value
-        results.append(res)
+        course_result = populate_course_record(course)
+        results.append(course_result)
     return jsonify(results), 200
 
 

@@ -56,14 +56,27 @@ class Source(db.Model):
     updated_at = Column(DateTime, nullable=False, default=func.now())
 
 
+class CourseCategory(db.Model):
+    __tablename__ = 'course_category'
+
+    course_category_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(255), unique=True, nullable=False)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+
 class Course(db.Model):
     __tablename__ = 'course'
 
     course_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(VARCHAR(255), unique=True, nullable=False)
+    course_category_id = Column(ForeignKey('course_category.course_category_id'), nullable=True)
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    course_category = relationship('CourseCategory')
 
 
 class CourseMode(db.Model):

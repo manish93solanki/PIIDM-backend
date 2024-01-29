@@ -117,6 +117,15 @@
 - [X] Automatically set profile details if a new course is assigned to the existing student - 4H
 - [X] Modified course curriculum of the student so he/she can take any course at any time - 3H
 - [X] Fixed issue of allowing old student for batch selection - 2H
+- [X] Setup of Android Studio, Flutter and emulator - 5H
+- [X] Fetch call logs from Android phone and showing in app - 5H
+- [X] Text box and submit button to enter agent phone_number - 2H
+- [X] Validation of phone number - 2H
+- [X] Created endpoint for call logs and storing into DB - 5H
+- [X] Calling of endpoint from apk and related activity - 4H
+- [X] Ignoring duplicate call logs for each agent - 3H
+- [X] Added course category and added a foriegn of it into course table - 4H
+- [X] Created category and sub menu for course under it - 3H
 - [] Automatically assign same Agent during lead creation if lead with same phone_num is already exist. ??
 - [] What if student modifies its phone_num or email with some numbers that doesn't have any user. ??
 - [] Make unique uploads for student. ??

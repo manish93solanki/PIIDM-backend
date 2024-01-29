@@ -106,6 +106,13 @@ flask db upgrade
 `select course_id, course_mode_id from student`
 `update student set course_mode_id = course_id`
 
+`update course set course_category_id = 1 where course_id = 1;`
+`update course set course_category_id = 1 where course_id = 7;`
+`update course set course_category_id = 2 where course_id = 8;`
+`update course set course_category_id = 2 where course_id = 9;`
+
+
+
 ### Migrate DB steps:
 - Drop database.
 - Create database.

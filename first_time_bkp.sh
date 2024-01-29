@@ -1335,6 +1335,19 @@ curl --location --request POST 'http://localhost:3002/api/payment_mode/add' \
 ]'
 
 
+curl --location 'http://localhost:3002/api/course_category/add' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <TOKEN>' \
+--data '[
+    {
+        "name": "Digital Marketing Course"
+    },
+    {
+        "name": "Graphic Design Course"
+    }
+]'
+
+
 curl --location --request POST 'http://localhost:3002/api/course/add' \
 --header 'Authorization: Bearer <TOKEN>' \
 --header 'Content-Type: application/json' \

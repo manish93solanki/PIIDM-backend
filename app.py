@@ -8,6 +8,7 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from batch_time import batch_time_bp
 from city import city_bp
+from course_category import course_category_bp
 from state import state_bp
 from country import country_bp
 from course_content import course_content_bp
@@ -76,6 +77,7 @@ app.register_blueprint(batch_bp)
 app.register_blueprint(hr_bp)
 app.register_blueprint(placement_bp)
 app.register_blueprint(call_logs_bp)
+app.register_blueprint(course_category_bp)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=3002)
