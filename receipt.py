@@ -160,7 +160,7 @@ def get_paginated_students_advanced(current_user):
 
     # request params
     branch = request.args.get('branch', None)
-    course = request.args.get('course', None)
+    course = request.args.getlist('course[]')
     payment_mode = request.args.get('payment_mode', None)
     source = request.args.get('source', None)
     agent = request.args.get('agent', None)
@@ -173,7 +173,7 @@ def get_paginated_students_advanced(current_user):
     query = query.filter(
         model.Receipt.installment_payment_date.between(from_date, to_date)) if from_date and to_date else query
     query = query.filter(model.Student.branch_id == int(branch)) if branch else query
-    query = query.filter(model.Student.course_id == int(course)) if course else query
+    query = query.filter(model.Student.course_id.in_(course)) if course else query
     query = query.filter(model.Receipt.installment_payment_mode_id == int(payment_mode)) if payment_mode else query
     query = query.filter(model.Student.branch_id == int(branch)) if branch else query
     query = query.filter(model.Student.agent_id == int(agent)) if agent else query

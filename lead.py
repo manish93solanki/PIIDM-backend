@@ -595,7 +595,7 @@ def get_paginated_leads_advanced(current_user):
         query = query.filter(model.Lead.batch_time_id == int(batch_time)) if batch_time else query
         query = query.filter(model.Lead.admission_status == int(admission_status)) if admission_status else query
         query = query.filter(model.Lead.visit_date.isnot(None)) if is_visited else query
-        print(query)
+        # print(query)
         if current_user.user_role_id == 2:  # role == agent
             if is_fresh_leads:
                 # For fresh leads, Fetch those leads which are assigned to admin
@@ -605,11 +605,11 @@ def get_paginated_leads_advanced(current_user):
                 super_admin_user_ids = app.session.query(model.User.user_id).filter(
                     model.User.user_role_id == 1).all()  # get super_admin user_id
                 super_admin_user_ids = [x[0] for x in super_admin_user_ids]
-                print('super_admin_user_ids: ', super_admin_user_ids)
+                # print('super_admin_user_ids: ', super_admin_user_ids)
                 super_admin_agent_ids = app.session.query(model.Agent.agent_id).filter(
                     model.Agent.user_id.in_(super_admin_user_ids)).all()  # get super_admin user_id
                 super_admin_agent_ids = [x[0] for x in super_admin_agent_ids]
-                print('super_admin_agent_ids: ', super_admin_agent_ids)
+                # print('super_admin_agent_ids: ', super_admin_agent_ids)
                 query = query.filter(model.Lead.agent_id.in_(super_admin_agent_ids))
             # else:
             #     agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.user_id == current_user.user_id).first()
@@ -621,7 +621,7 @@ def get_paginated_leads_advanced(current_user):
         start = request.args.get('start', type=int)
         length = request.args.get('length', type=int)
         search_term = request.args.get('search[value]', type=str)
-        print('search_term: ', search_term)
+        # print('search_term: ', search_term)
         query = query.filter(or_(
             model.Lead.name.like(f'%{search_term}%'),
             model.Lead.phone_num.like(f'%{search_term}%'),
@@ -631,7 +631,7 @@ def get_paginated_leads_advanced(current_user):
 
         total_filtered_leads = query.count()
         query = query.order_by(desc(model.Lead.lead_date), desc(model.Lead.created_at)).offset(start).limit(length)
-        print(query)
+        # print(query)
 
         leads = query.all()
         # print('\n\n\n leads: ', leads)

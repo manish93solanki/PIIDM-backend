@@ -107,7 +107,14 @@ flask db upgrade
 `update student set course_mode_id = course_id`
 
 `update course set course_category_id = 1 where course_id = 1;`
+`update course set course_category_id = 1 where course_id = 2;`
+`update course set course_category_id = 1 where course_id = 3;`
+`update course set course_category_id = 1 where course_id = 4;`
+`update course set course_category_id = 1 where course_id = 5;`
+`update course set course_category_id = 1 where course_id = 6;`
 `update course set course_category_id = 1 where course_id = 7;`
+
+
 `update course set course_category_id = 2 where course_id = 8;`
 `update course set course_category_id = 2 where course_id = 9;`
 
