@@ -113,10 +113,16 @@ flask db upgrade
 `update course set course_category_id = 1 where course_id = 5;`
 `update course set course_category_id = 1 where course_id = 6;`
 `update course set course_category_id = 1 where course_id = 7;`
-
-
+`update course set course_category_id = 1 where course_id = 10;`
 `update course set course_category_id = 2 where course_id = 8;`
 `update course set course_category_id = 2 where course_id = 9;`
+`update course set course_category_id = 2 where course_id = 11;`
+`update course set course_category_id = 2 where course_id = 12;`
+`update course set course_category_id = 2 where course_id = 13;`
+`update course set course_category_id = 2 where course_id = 14;`
+`update course set course_category_id = 2 where course_id = 15;`
+`update course set course_category_id = 2 where course_id = 16;`
+`update course set course_category_id = 2 where course_id = 17;`
 
 
 

@@ -1559,6 +1559,30 @@ curl --location 'http://localhost:3002/api/course/add' \
     },
     {
         "name": "2 Months Graphics Design Course"
+    },
+    {
+        "name": "Content Creation Course"
+    },
+    {
+        "name": "4 Months Graphic Design Course"
+    },
+    {
+        "name": "6 Months Graphic Design Course"
+    },
+    {
+        "name": "Adobe Photoshop Course"
+    },
+    {
+        "name": "Adobe Illustrator Course"
+    },
+    {
+        "name": "Adobe Premiere Pro Course"
+    },
+    {
+        "name": "Adobe After Effects Course"
+    },
+    {
+        "name": "Corel Draw Course"
     }
 ]'
 
