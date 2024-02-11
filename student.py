@@ -576,6 +576,16 @@ def get_paginated_students_advanced(current_user):
     is_active = request.args.get('is_active', None)
     has_pending_fee = request.args.get('has_pending_fee', None)
 
+    # # total
+    # total_query = model.Student.query.filter(model.Student.deleted == 0)
+    # if current_user.user_role_id == 2:
+    #     current_user_agent = model.Agent.query.filter(model.Agent.deleted == 0, model.Agent.user_id == current_user.user_id).first()
+    #     current_user_agent_id = current_user_agent.agent_id
+    #     total_query = total_query.filter(model.Student.agent_id == current_user_agent_id)
+    # total_students = total_query.count()
+    # print('current_user: ', current_user.user_id, current_user.user_role_id)
+    # print('total_students: ', total_students)
+
     # filtering data
     query = app.session.query(model.Student)
     query = query.filter(model.Student.deleted == 0)
