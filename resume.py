@@ -138,8 +138,8 @@ def get_image():
 @token_required
 def upload_image(current_user):
     image = request.files["image"]
-    # image_path = f'data/uploaded_images/students/profile_pictures/{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")}-{image.filename}'
-    image_path = f'data/uploaded_images/students/profile_pictures/{datetime.datetime.now().strftime("%Y-%m-%dT%SZ")}-{image.filename}'
+    image_path = f'data/uploaded_images/students/profile_pictures/{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")}-{image.filename}'
+    # image_path = f'data/uploaded_images/students/profile_pictures/{datetime.datetime.now().strftime("%Y-%m-%dT%SZ")}-{image.filename}'
     image.save(image_path)
     return jsonify({'message': 'Image uploaded successfully.', 'data': image_path}), 200
 
