@@ -26,10 +26,19 @@ def fetch_agent_by_id(agent_id):
     return record
 
 
+def fetch_user_by_agent_id(user_id):
+    record = app.session.query(model.User).filter(model.User.user_id == user_id).first()
+    return record
+
+
 def populate_agent_record(agent):
     agent_result = {}
     for key in agent.__table__.columns.keys():
         value = getattr(agent, key)
+        if key == 'user_id':
+            user = fetch_user_by_agent_id(value)
+            is_active = getattr(user, 'is_active')
+            agent_result['is_active'] = is_active
         agent_result[key] = value
     return agent_result
 
@@ -78,6 +87,23 @@ def update_agent(current_user, agent_id):
             for key, value in item.items():
                 setattr(agent, key, value)
             records_to_add.append(agent)
+        bulk_insert(records_to_add)
+        return jsonify({'message': 'Successfully Updated.'}), 200
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
+
+
+@agent_bp.route('/update/deactivate/<agent_id>', methods=['PUT'])
+@token_required
+def deactivate_agent(current_user, agent_id):
+    try:
+        if not request.is_json:
+            return {'error': 'Bad Request.'}, 400
+        records_to_add = []
+        agent = fetch_agent_by_id(int(agent_id))
+        user = fetch_user_by_agent_id(int(agent.user_id))
+        user.is_active = 1 if user.is_active == 0 else 0
+        records_to_add.append(user)
         bulk_insert(records_to_add)
         return jsonify({'message': 'Successfully Updated.'}), 200
     except Exception as ex:

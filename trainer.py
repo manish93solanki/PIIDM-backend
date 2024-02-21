@@ -26,10 +26,19 @@ def fetch_trainer_by_id(trainer_id):
     return record
 
 
+def fetch_user_by_trainer_id(user_id):
+    record = app.session.query(model.User).filter(model.User.user_id == user_id).first()
+    return record
+
+
 def populate_trainer_record(trainer):
     trainer_result = {}
     for key in trainer.__table__.columns.keys():
         value = getattr(trainer, key)
+        if key == 'user_id':
+            user = fetch_user_by_trainer_id(value)
+            is_active = getattr(user, 'is_active')
+            trainer_result['is_active'] = is_active
         trainer_result[key] = value
     return trainer_result
 
@@ -78,6 +87,23 @@ def update_trainer(current_user, trainer_id):
             for key, value in item.items():
                 setattr(trainer, key, value)
             records_to_add.append(trainer)
+        bulk_insert(records_to_add)
+        return jsonify({'message': 'Successfully Updated.'}), 200
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
+
+
+@trainer_bp.route('/update/deactivate/<trainer_id>', methods=['PUT'])
+@token_required
+def deactivate_trainer(current_user, trainer_id):
+    try:
+        if not request.is_json:
+            return {'error': 'Bad Request.'}, 400
+        records_to_add = []
+        trainer = fetch_trainer_by_id(int(trainer_id))
+        user = fetch_user_by_trainer_id(int(trainer.user_id))
+        user.is_active = 1 if user.is_active == 0 else 0
+        records_to_add.append(user)
         bulk_insert(records_to_add)
         return jsonify({'message': 'Successfully Updated.'}), 200
     except Exception as ex:

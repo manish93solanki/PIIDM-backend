@@ -117,6 +117,21 @@
 - [X] Automatically set profile details if a new course is assigned to the existing student - 4H
 - [X] Modified course curriculum of the student so he/she can take any course at any time - 3H
 - [X] Fixed issue of allowing old student for batch selection - 2H
+- [X] Added course category and added a foriegn of it into course table - 4H
+- [X] Created category and sub menu for course under it - 3H
+- [X] Multi select functionality for courses in lead module - 5H
+- [X] Create Resume format, html, table, model, module and python blueprint- 7H
+- [X] Save resume details to the table - 3H
+- [X] Show existing resume details and update resume - 4H
+- [X] Create HTML for resume download and create PDF format in A4 Size - 5H
+- [X] Added resume download into HR placement and student profile - 3H
+- [X] Hide add agent and batch for agents - 1H
+- [X] Added additional course and assigned courses to respective category - 1H
+- [X] Admin can deactivate agent - 2H
+- [X] Admin can deactivate hr - 1H
+- [X] Admin can deactivate trainer - 1H
+- [X] UI changes to deactivate agent/hr/trainer - 2H
+- 
 - [X] Setup of Android Studio, Flutter and emulator - 5H
 - [X] Fetch call logs from Android phone and showing in app - 5H
 - [X] Text box and submit button to enter agent phone_number - 2H
@@ -124,9 +139,7 @@
 - [X] Created endpoint for call logs and storing into DB - 5H
 - [X] Calling of endpoint from apk and related activity - 4H
 - [X] Ignoring duplicate call logs for each agent - 3H
-- [X] Added course category and added a foriegn of it into course table - 4H
-- [X] Created category and sub menu for course under it - 3H
-- [X] Multi select functionality for courses in lead module - 5H
+
 - [] Automatically assign same Agent during lead creation if lead with same phone_num is already exist. ??
 - [] What if student modifies its phone_num or email with some numbers that doesn't have any user. ??
 - [] Make unique uploads for student. ??

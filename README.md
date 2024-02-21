@@ -124,6 +124,7 @@ flask db upgrade
 `update course set course_category_id = 2 where course_id = 16;`
 `update course set course_category_id = 2 where course_id = 17;`
 
+`update user set is_active = 1`
 
 
 ### Migrate DB steps:

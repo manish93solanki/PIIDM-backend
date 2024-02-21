@@ -188,6 +188,14 @@ def login():
             error_message = 'Mobile/Email or password is incorrect.'
             return dict(message='Invalid data', data=None, error=error_message), 400
         user = query.first()
+
+        if user:
+            is_user_activated = user.is_active
+            if not is_user_activated:
+                return {
+                    "error": "Your Account is blocked/deactivated.<br>Please contact admin.."
+                }, 500
+
         # Agent ID
         agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.deleted == 0, model.Agent.user_id == user.user_id).first()
         if agent_id:

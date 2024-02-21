@@ -31,6 +31,7 @@ class User(db.Model):
     token = Column(VARCHAR(255), unique=True, nullable=True)
     password = Column(VARCHAR(255), nullable=False, default='admin123')
     user_role_id = Column(ForeignKey('user_role.user_role_id'), nullable=False)
+    is_active = Column(Integer, nullable=True, default=1)  # 0 = deactivate, 1 = active
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())

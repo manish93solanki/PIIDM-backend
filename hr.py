@@ -26,10 +26,19 @@ def fetch_hr_by_id(hr_id):
     return record
 
 
+def fetch_user_by_hr_id(user_id):
+    record = app.session.query(model.User).filter(model.User.user_id == user_id).first()
+    return record
+
+
 def populate_hr_record(hr):
     hr_result = {}
     for key in hr.__table__.columns.keys():
         value = getattr(hr, key)
+        if key == 'user_id':
+            user = fetch_user_by_hr_id(value)
+            is_active = getattr(user, 'is_active')
+            hr_result['is_active'] = is_active
         hr_result[key] = value
     return hr_result
 
@@ -78,6 +87,23 @@ def update_hr(current_user, hr_id):
             for key, value in item.items():
                 setattr(hr, key, value)
             records_to_add.append(hr)
+        bulk_insert(records_to_add)
+        return jsonify({'message': 'Successfully Updated.'}), 200
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
+
+
+@hr_bp.route('/update/deactivate/<hr_id>', methods=['PUT'])
+@token_required
+def deactivate_hr(current_user, hr_id):
+    try:
+        if not request.is_json:
+            return {'error': 'Bad Request.'}, 400
+        records_to_add = []
+        hr = fetch_hr_by_id(int(hr_id))
+        user = fetch_user_by_hr_id(int(hr.user_id))
+        user.is_active = 1 if user.is_active == 0 else 0
+        records_to_add.append(user)
         bulk_insert(records_to_add)
         return jsonify({'message': 'Successfully Updated.'}), 200
     except Exception as ex:
