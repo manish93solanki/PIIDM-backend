@@ -1,5 +1,8 @@
+import copy
 import datetime
+import os
 import traceback
+import pandas as pd
 from flask import current_app as app, request, Blueprint, jsonify, send_file
 import model
 from auth_middleware import token_required
@@ -576,6 +579,7 @@ def get_paginated_leads_advanced(current_user):
         admission_status = request.args.get('admission_status', None)
         is_visited = request.args.get('is_visited', None)
         is_fresh_leads = request.args.get('is_fresh_leads', None)
+        allow_download_excel = request.args.get('allow_download_excel', False)
 
         # filtering data
         query = app.session.query(model.Lead)
@@ -641,13 +645,111 @@ def get_paginated_leads_advanced(current_user):
             lead_results.append(lead_result)
             # lead_results.append({'name': lead_result['name']})
         # response
-        return jsonify({
-            'data': lead_results,
-            'recordsFiltered': total_filtered_leads,
-            'recordsTotal': total_leads,
-            'draw': request.args.get('draw', type=int),
-        }), 200
+        if allow_download_excel:
+            get_downloadable_excel_file_path = download_excel(lead_results)
+            return jsonify({
+                'excel': get_downloadable_excel_file_path
+            }), 200
+        else:
+            return jsonify({
+                'data': lead_results,
+                'recordsFiltered': total_filtered_leads,
+                'recordsTotal': total_leads,
+                'draw': request.args.get('draw', type=int),
+            }), 200
     except Exception as ex:
         # import traceback
         # print(traceback.format_exc())
         return jsonify({'error': str(ex)}), 500
+
+
+def download_excel(lead_results):
+    dict_age = {
+        1: '18-25',
+        2: '26-35',
+        3: '36-Above',
+        None: '',
+        '': ''
+    }
+    dict_details_sent = {
+        1: 'Yes',
+        2: 'No',
+        None: '',
+        '': ''
+    }
+    dict_broadcast = {
+        1: 'Yes',
+        2: 'No',
+        None: '',
+        '': ''
+    }
+    dict_gender = {
+        1: 'Male',
+        2: 'Female',
+        None: '',
+        '': ''
+    }
+    dict_reason_to_join = {
+        1: 'placement',
+        2: 'skill update',
+        3: 'business',
+        4: 'freelancing',
+        5: 'other',
+        None: '',
+        '': ''
+    }
+    dict_who_is = {
+        1: 'student',
+        2: 'working professional',
+        3: 'business owner',
+        4: 'housewife',
+        5: 'job seeker',
+        None: '',
+        '': ''
+    }
+    dict_lead_status = {
+        1: 'pending',
+        2: 'invalid number',
+        3: 'looking something else',
+        4: 'joined somewhere',
+        5: 'fake lead',
+        6: 'not interested',
+        7: 'not receiving',
+        8: 'admission done',
+        None: '',
+        '': ''
+    }
+
+    new_lead_results = []
+    for lead in lead_results:
+        copied_lead = copy.deepcopy(lead)
+        for key, value in lead.items():
+            if key in ('auto_populate_visitdate_pitchby', 'lead_insertion_mechanism_type', 'deleted', 'submitted_lead',
+                       'created_at', 'updated_at'):
+                del copied_lead[key]
+                continue
+            if key == 'age':
+                copied_lead[key] = dict_age[value]
+            elif key == 'details_sent':
+                copied_lead[key] = dict_details_sent[value]
+            elif key == 'broadcast':
+                copied_lead[key] = dict_broadcast[value]
+            elif key == 'gender':
+                copied_lead[key] = dict_gender[value]
+            elif key == 'reason_to_join':
+                copied_lead[key] = dict_reason_to_join[value]
+            elif key == 'who_is':
+                copied_lead[key] = dict_who_is[value]
+            elif key == 'lead_status':
+                copied_lead[key] = dict_lead_status[value]
+            elif value and isinstance(value, dict):
+                copied_lead[key] = value['name']
+        new_lead_results.append(copied_lead)
+
+    df = pd.DataFrame(new_lead_results)
+    dir_path = 'data'
+    file_path = 'temp_dir/leads.xlsx'
+    download_file_path = os.path.join(dir_path, file_path)
+    download_file_path = os.path.normpath(download_file_path)
+    df.to_excel(download_file_path, index=False)
+    return download_file_path

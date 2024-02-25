@@ -31,6 +31,7 @@ from hr import hr_bp
 from placement import placement_bp
 from call_logs import call_logs_bp
 from resume import resume_bp
+from flask import send_from_directory
 
 # SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db'
 # SQLALCHEMY_DATABASE_URL = f'sqlite:///C:\\Users\\pooja\\Documents\\NITIN\\codemania\\piidm-backend\\piidm_online_sqlite.db'
@@ -81,6 +82,11 @@ app.register_blueprint(call_logs_bp)
 app.register_blueprint(course_category_bp)
 app.register_blueprint(resume_bp)
 
+
+@app.route('/download/<path:path>')
+def send_report(path):
+    return send_from_directory('.', path, as_attachment=True)
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=3002)
-

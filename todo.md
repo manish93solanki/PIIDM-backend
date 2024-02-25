@@ -130,7 +130,10 @@
 - [X] Admin can deactivate agent - 2H
 - [X] Admin can deactivate hr - 1H
 - [X] Admin can deactivate trainer - 1H
-- [X] UI changes to deactivate agent/hr/trainer - 2H
+- [X] UI changes related to deactivate agent/hr/trainer - 2H
+- [X] UI changes to add download excel and its functionality - 4H
+- [X] backend changes to make dataframe and excel accordingly - 4H
+- [X] Rest API and ajax call for downloading excel - 2H
 - 
 - [X] Setup of Android Studio, Flutter and emulator - 5H
 - [X] Fetch call logs from Android phone and showing in app - 5H
