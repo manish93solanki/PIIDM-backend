@@ -445,13 +445,17 @@ def get_lead_by_email_or_phone_num_and_course_name(current_user):
         course = app.session.query(model.Course).filter(model.Course.name == course_name,
                                                         model.Course.deleted == 0).first()
         if course is None:
-            # Ge default course
-            course = app.session.query(model.Course).filter(model.Course.course_id == 1,
+            if 'digital marketing' in course_name.lower():
+                course_id = 1
+            elif 'graphic design' in course_name.lower() or 'graphics design' in course_name.lower():
+                course_id = 8
+            else:
+                course_id = 1
+            course = app.session.query(model.Course).filter(model.Course.course_id == course_id,
                                                             model.Course.deleted == 0).first()
-        print('course: ', course.course_id)
-        query = query.filter(
-            model.Lead.course_id == course.course_id
-        )
+            query = query.filter(
+                model.Lead.course_id == course.course_id
+            )
 
     # if email:
     #     # query = query.filter(model.Lead.email.like(f'%{email}%'))

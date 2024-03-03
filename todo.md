@@ -134,6 +134,10 @@
 - [X] UI changes to add download excel and its functionality - 4H
 - [X] backend changes to make dataframe and excel accordingly - 4H
 - [X] Rest API and ajax call for downloading excel - 2H
+- [X] Disable alternate phone number for others except admin in lead section - 1H
+- [X] Disable alternate phone number only for other agents - 1H
+- [X] Condition to analyze course name based on referer title of submitted leads - 2H
+- [X] Auto-accept submitted leads if phone number is already exist with different course and auto-assign to old agent. - 3H
 - 
 - [X] Setup of Android Studio, Flutter and emulator - 5H
 - [X] Fetch call logs from Android phone and showing in app - 5H
