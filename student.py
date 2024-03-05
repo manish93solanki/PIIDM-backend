@@ -1,4 +1,7 @@
+import copy
 import datetime
+import os
+import pandas as pd
 from flask import current_app as app, request, Blueprint, jsonify, send_file
 import model
 from auth_middleware import token_required
@@ -576,6 +579,8 @@ def get_paginated_students_advanced(current_user):
     is_active = request.args.get('is_active', None)
     has_pending_fee = request.args.get('has_pending_fee', None)
 
+    allow_download_excel = request.args.get('allow_download_excel', False)
+
     # # total
     # total_query = model.Student.query.filter(model.Student.deleted == 0)
     # if current_user.user_role_id == 2:
@@ -670,13 +675,19 @@ def get_paginated_students_advanced(current_user):
         student_results.append(student_result)
         # student_results.append({'name': student_result['name']})
     # response
-    return jsonify({
-        'data': student_results,
-        'recordsFiltered': total_filtered_students,
-        'recordsTotal': total_students,
-        'draw': request.args.get('draw', type=int),
-        'basic_stats': basic_stats
-    }), 200
+    if allow_download_excel:
+        get_downloadable_excel_file_path = download_excel(student_results)
+        return jsonify({
+            'excel': get_downloadable_excel_file_path
+        }), 200
+    else:
+        return jsonify({
+            'data': student_results,
+            'recordsFiltered': total_filtered_students,
+            'recordsTotal': total_students,
+            'draw': request.args.get('draw', type=int),
+            'basic_stats': basic_stats
+        }), 200
     # except Exception as ex:
     #     return jsonify({'error': str(ex)}), 500
 
@@ -764,3 +775,45 @@ def upload_image(current_user):
 def get_image():
     image_path = request.args.get('image_path')
     return send_file(image_path, mimetype='image/gif')
+
+
+def download_excel(student_results):
+    dict_is_active = {
+        0: 'No',
+        1: 'Yes',
+        None: '',
+        '': ''
+    }
+    dict_is_document_verified = {
+        0: 'pending',
+        1: 'accept',
+        2: 'reject',
+        3: 'verification pending',
+        None: '',
+        '': ''
+    }
+
+    new_student_results = []
+    for student in student_results:
+        copied_student = copy.deepcopy(student)
+        for key, value in student.items():
+            if key in ('front_image_path', 'back_image_path', 'passport_image_path',
+                       'json_course_learning_progress', 'installments',
+                       'lead_id', 'user_id', 'deleted', 'created_at', 'updated_at'):
+                del copied_student[key]
+                continue
+            if key == 'is_active':
+                copied_student[key] = dict_is_active[value]
+            elif key == 'is_document_verified':
+                copied_student[key] = dict_is_document_verified[value]
+            elif value and isinstance(value, dict):
+                copied_student[key] = value['name']
+        new_student_results.append(copied_student)
+
+    df = pd.DataFrame(new_student_results)
+    dir_path = 'data'
+    file_path = 'temp_dir/students.xlsx'
+    download_file_path = os.path.join(dir_path, file_path)
+    download_file_path = os.path.normpath(download_file_path)
+    df.to_excel(download_file_path, index=False)
+    return download_file_path
