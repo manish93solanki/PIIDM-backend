@@ -138,6 +138,15 @@
 - [X] Disable alternate phone number only for other agents - 1H
 - [X] Condition to analyze course name based on referer title of submitted leads - 2H
 - [X] Auto-accept submitted leads if phone number is already exist with different course and auto-assign to old agent. - 3H
+- [X] UI changes to allow download students in excel - 2H
+- [X] Backend changes to allow download students in excel - 3H
+- [X] Disable and hide download leads and students from all users except admin - 1H
+- [X] Enable dashboard of trainer - 1H
+- [X] Create left side pane for trainer where only trainer and batch infos can be shown - 1H
+- [X] Show table view for trainers and batches under trainer login - 1H
+- [X] Hide other trainers table view except loggedIn trainer - 1H
+- [X] Hide other trainers' batches table view except trainer - 1H
+- [X] Fixed issue of auto-selection of course-mode and course type on edit batch HTML - 1H
 - 
 - [X] Setup of Android Studio, Flutter and emulator - 5H
 - [X] Fetch call logs from Android phone and showing in app - 5H

@@ -177,7 +177,7 @@ def get_paginated_trainers_advanced(current_user):
     query = app.session.query(model.Trainer)
     query = query.filter(model.Trainer.deleted == 0)
 
-    if current_user.user_role_id == 2:  # role == trainer
+    if current_user.user_role_id == 4:  # role == trainer
         trainer_id = app.session.query(model.Trainer.trainer_id).filter(model.Trainer.user_id == current_user.user_id).first()
         if trainer_id:
             trainer_id = trainer_id[0]

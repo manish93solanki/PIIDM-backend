@@ -242,6 +242,14 @@ def get_paginated_batch_advanced(current_user):
     query = app.session.query(model.Batch)
     query = query.filter(model.Batch.deleted == 0)
 
+    if current_user.user_role_id == 4:  # role == trainer
+        trainer_id = app.session.query(model.Trainer.trainer_id).filter(model.Trainer.user_id == current_user.user_id).first()
+        if trainer_id:
+            trainer_id = trainer_id[0]
+        query = query.filter(model.Batch.trainer_id == trainer_id)
+        total_batches = model.Batch.query.filter(model.Batch.deleted == 0,
+                                                 model.Batch.trainer_id == trainer_id).count()
+
     # pagination
     start = request.args.get('start', type=int)
     length = request.args.get('length', type=int)
