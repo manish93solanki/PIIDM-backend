@@ -1,3 +1,5 @@
+import datetime
+
 from flask import current_app as app, request, Blueprint, jsonify
 from sqlalchemy import or_, desc
 import model
@@ -144,6 +146,8 @@ def add_placement(current_user):
                 if is_placement_email_exists(item['email']):
                     return {'error': 'Email is already exist.'}, 409
                 for key, value in item.items():
+                    if key in ('end_date',) and value:
+                        value = datetime.datetime.strptime(value, '%Y-%m-%d')
                     setattr(placement, key, value)
                 records_to_add.append(placement)
             bulk_insert(records_to_add)
@@ -163,6 +167,8 @@ def update_placement(current_user, placement_id):
         for item in data:
             placement = fetch_placement_by_id(int(placement_id))
             for key, value in item.items():
+                if key in ('end_date',) and value:
+                    value = datetime.datetime.strptime(value, '%Y-%m-%d')
                 setattr(placement, key, value)
             records_to_add.append(placement)
         bulk_insert(records_to_add)
