@@ -423,6 +423,8 @@ class Placement(db.Model):
 
     placement_id = Column(Integer, primary_key=True, autoincrement=True)
     joined_course_for = Column(VARCHAR(255), nullable=True)  # 1=Job, 2=Skills, 3=Business, 4=Freelancing
+    job_type = Column(VARCHAR(255), nullable=True)  # 1=Full Time, 2=Part Time, 3=Work from home
+    end_date = Column(Date, nullable=True)
     education = Column(VARCHAR(255), nullable=True)
     technical_knowledge = Column(VARCHAR(255), nullable=True)
     project = Column(VARCHAR(255), nullable=True)
