@@ -240,8 +240,9 @@ def get_paginated_placements_advanced(current_user):
     # Sync students - Insertion
     placements = []
     # Fetch students who paid the fees fully
-    students_paid_fees_fully = app.session.query(model.Student.student_id).filter(model.Student.total_pending_fee <= 0,
-                                                                                  model.Student.deleted == 0).all()
+    # students_paid_fees_fully = app.session.query(model.Student.student_id).filter(model.Student.total_pending_fee <= 0,
+    #                                                                               model.Student.deleted == 0).all()
+    students_paid_fees_fully = app.session.query(model.Student.student_id).filter(model.Student.deleted == 0).all()
     students_paid_fees_fully_ids = [x.student_id for x in students_paid_fees_fully]
     # Fetch students who are already in placement section
     students_already_in_placements = app.session.query(model.Placement.student_id).filter(
@@ -267,12 +268,18 @@ def get_paginated_placements_advanced(current_user):
     # request params
     from_date = request.args.get('from_date', None)
     to_date = request.args.get('to_date', None)
+    end_from_date = request.args.get('end_from_date', None)
+    end_to_date = request.args.get('end_to_date', None)
     status = request.args.get('status', None)
+    pending_fee_status = request.args.get('pending_fee_status', None)
 
     # filtering data
     query = app.session.query(model.Placement).join(model.Student)
     query = query.filter(model.Placement.deleted == 0)
-    query = query.filter(model.Placement.created_at.between(from_date, to_date)) if from_date and to_date else query
+    query = query.filter(model.Student.admission_date.between(from_date, to_date)) if from_date and to_date else query
+    query = query.filter(model.Placement.end_date.between(end_from_date, end_to_date)) if end_from_date and end_to_date else query
+    print()
+    print(query)
 
     # TODO
     # status == 'Not yet placed' and NULL/Empty both are same. make default to "Not yet placed" in all entries.
@@ -285,6 +292,11 @@ def get_paginated_placements_advanced(current_user):
             ))
         else:
             query = query.filter(model.Placement.status == status)
+    if pending_fee_status:
+        if pending_fee_status == 'PAID':
+            query = query.filter(model.Student.total_pending_fee <= 0)
+        elif pending_fee_status == 'PENDING':
+            query = query.filter(model.Student.total_pending_fee > 0)
 
     if current_user.user_role_id == 2:  # role == placement
         placement_id = app.session.query(model.Placement.placement_id).filter(
