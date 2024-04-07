@@ -35,8 +35,11 @@ def populate_placement_record(placement):
         placement_result[key] = value
 
         if key == 'student_id':
+            resume_full_name = app.session.query(model.Resume.full_name).filter(model.Resume.student_id == value).first()
+
             student = placement.student
             placement_result[key] = {}
+            placement_result[key]['has_resume'] = True if resume_full_name else False
             for student_key in student.__table__.columns.keys():
                 student_value = getattr(student, student_key)
                 placement_result[key][student_key] = student_value
@@ -278,8 +281,6 @@ def get_paginated_placements_advanced(current_user):
     query = query.filter(model.Placement.deleted == 0)
     query = query.filter(model.Student.admission_date.between(from_date, to_date)) if from_date and to_date else query
     query = query.filter(model.Placement.end_date.between(end_from_date, end_to_date)) if end_from_date and end_to_date else query
-    print()
-    print(query)
 
     # TODO
     # status == 'Not yet placed' and NULL/Empty both are same. make default to "Not yet placed" in all entries.
