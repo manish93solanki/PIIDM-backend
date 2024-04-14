@@ -147,6 +147,13 @@
 - [X] Hide other trainers table view except loggedIn trainer - 1H
 - [X] Hide other trainers' batches table view except trainer - 1H
 - [X] Fixed issue of auto-selection of course-mode and course type on edit batch HTML - 1H
+- [X] Added filter for pending fee status in placement - 2H
+- [X] Added dates filters on end_date in placement - 2H
+- [X] Showing pending fee status in placement table view - 1H
+- [X] Resume button changed dynamically based on resume status - 1H
+- [X] Remove all sections except HR, placement in HR section - 2H
+- [X] Added batch, course, course_mode, branch filter in placement - 4H
+- [X] Delete student from placement table if the student was actually deleted - 1H
 - 
 - [X] Setup of Android Studio, Flutter and emulator - 5H
 - [X] Fetch call logs from Android phone and showing in app - 5H

@@ -241,29 +241,39 @@ def get_placements(current_user):
 @token_required
 def get_paginated_placements_advanced(current_user):
     # Sync students - Insertion
-    placements = []
     # Fetch students who paid the fees fully
     # students_paid_fees_fully = app.session.query(model.Student.student_id).filter(model.Student.total_pending_fee <= 0,
     #                                                                               model.Student.deleted == 0).all()
-    students_paid_fees_fully = app.session.query(model.Student.student_id).filter(model.Student.deleted == 0).all()
-    students_paid_fees_fully_ids = [x.student_id for x in students_paid_fees_fully]
+    all_students = app.session.query(model.Student.student_id).filter(model.Student.deleted == 0).all()
+    all_students_ids = [x.student_id for x in all_students]
     # Fetch students who are already in placement section
     students_already_in_placements = app.session.query(model.Placement.student_id).filter(
-        model.Placement.student_id.in_(students_paid_fees_fully_ids), model.Placement.deleted == 0
+        model.Placement.student_id.in_(all_students_ids), model.Placement.deleted == 0
     )
     students_already_in_placements_ids = [x.student_id for x in students_already_in_placements]
     # Get students who are new for the placements
-    new_students_for_placements_ids = list(set(students_paid_fees_fully_ids) - set(students_already_in_placements_ids))
+    new_students_for_placements_ids = list(set(all_students_ids) - set(students_already_in_placements_ids))
 
     students = app.session.query(model.Student).filter(
         model.Student.student_id.in_(new_students_for_placements_ids), model.Student.deleted == 0
     ).all()
+    placements = []
     for student in students:
         placement = model.Placement()
         placement.student_id = student.student_id
         placement.joined_course_for = student.purpose_for_course
         placement.education = student.highest_education
         placements.append(placement)
+    bulk_insert(placements)
+
+    all_students_in_placements = model.Placement.query.filter(model.Placement.deleted == 0).all()
+    all_students_in_placements_ids = [x.student_id for x in all_students_in_placements]
+    delete_students_from_placement = list(set(all_students_in_placements_ids) - set(all_students_ids))
+    placements = []
+    for delete_student_id in delete_students_from_placement:
+        for placement in model.Placement.query.filter(model.Placement.student_id == delete_student_id).all():
+            placement.deleted = 1
+            placements.append(placement)
     bulk_insert(placements)
 
     total_placements = model.Placement.query.filter(model.Placement.deleted == 0).count()
@@ -275,12 +285,20 @@ def get_paginated_placements_advanced(current_user):
     end_to_date = request.args.get('end_to_date', None)
     status = request.args.get('status', None)
     pending_fee_status = request.args.get('pending_fee_status', None)
+    branch = request.args.get('branch', None)
+    course = request.args.getlist('course[]')
+    course_mode = request.args.get('course_mode', None)
+    batch = request.args.get('batch', None)
 
     # filtering data
     query = app.session.query(model.Placement).join(model.Student)
     query = query.filter(model.Placement.deleted == 0)
     query = query.filter(model.Student.admission_date.between(from_date, to_date)) if from_date and to_date else query
     query = query.filter(model.Placement.end_date.between(end_from_date, end_to_date)) if end_from_date and end_to_date else query
+    query = query.filter(model.Student.branch_id == int(branch)) if branch else query
+    query = query.filter(model.Student.course_id.in_(course)) if course else query
+    query = query.filter(model.Student.course_mode_id == int(course_mode)) if course_mode else query
+    query = query.filter(model.Student.batch_id == int(batch)) if batch else query
 
     # TODO
     # status == 'Not yet placed' and NULL/Empty both are same. make default to "Not yet placed" in all entries.
