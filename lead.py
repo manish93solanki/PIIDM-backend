@@ -273,13 +273,14 @@ def update_lead(current_user, lead_id):
                 lead = fetch_lead_by_id(int(lead_id))
 
             # Check if lead is already exist
-            if 'phone_num' in item and item['phone_num'] \
+            if 'phone_num' in item and item['phone_num'] and lead.phone_num != item['phone_num'] \
                     and is_lead_phone_num_and_course_exists(item['phone_num'], item['course_id']):
                 return {'error': 'Phone number with selected course is already exist.'}, 409
             if 'alternate_phone_num' in item and item['alternate_phone_num'] \
+                    and lead.alternate_phone_num != item['alternate_phone_num'] \
                     and is_lead_alternate_phone_num_and_course_exists(item['alternate_phone_num'], item['course_id']):
                 return {'error': 'Alternate Phone number with selected course is already exist.'}, 409
-            if 'email' in item and item['email'] \
+            if 'email' in item and item['email'] and lead.email != item['email'] \
                     and is_lead_email_and_course_exists(item['email'], item['course_id']):
                 return {'error': 'Email with selected course is already exist.'}, 409
             for key, value in item.items():
