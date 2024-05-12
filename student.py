@@ -83,6 +83,15 @@ def get_course_content_id_by_course_id(course_id, default_course_content_id=1):
         return default_course_content_id
 
 
+def get_course_content_class_recording_id_by_course_id(course_id, default_course_content_class_recording_id=1):
+    course = fetch_course_by_course_id(course_id)
+    course_content_class_recording = fetch_course_content_class_recording_by_course_name(course_name=course.name)
+    if course_content_class_recording:
+        return course_content_class_recording.course_content_class_recording_id
+    else:
+        return default_course_content_class_recording_id
+
+
 def fetch_student_by_id(student_id):
     record = app.session.query(model.Student).filter(model.Student.student_id == student_id).first()
     return record
@@ -92,6 +101,14 @@ def fetch_student_by_user_id_and_course_content_id(user_id, course_content_id):
     record = app.session.query(model.Student).filter(
         model.Student.user_id == user_id,
         model.Student.course_content_id == course_content_id
+    ).first()
+    return record
+
+
+def fetch_student_by_user_id_and_course_content_class_recording_id(user_id, course_content_class_recording_id):
+    record = app.session.query(model.Student).filter(
+        model.Student.user_id == user_id,
+        model.Student.course_content_class_recording_id == course_content_class_recording_id
     ).first()
     return record
 
@@ -108,6 +125,11 @@ def fetch_course_by_course_id(course_id):
 
 def fetch_course_content_by_course_name(course_name):
     record = app.session.query(model.CourseContent).filter(model.CourseContent.name == course_name).first()
+    return record
+
+
+def fetch_course_content_class_recording_by_course_name(course_name):
+    record = app.session.query(model.CourseContentClassRecording).filter(model.CourseContentClassRecording.name == course_name).first()
     return record
 
 
@@ -177,6 +199,13 @@ def populate_student_record(student):
                 course_content_value = getattr(course_content, course_content_key)
                 student_result[key][course_content_key] = course_content_value
             student_result['course_content'] = student_result.pop(key)
+        if key == 'course_content_class_recording_id':
+            course_content_class_recording = student.course_content_class_recording
+            student_result[key] = {}
+            for course_content_class_recording_key in course_content_class_recording.__table__.columns.keys():
+                course_content_class_recording_value = getattr(course_content_class_recording, course_content_class_recording_key)
+                student_result[key][course_content_class_recording_key] = course_content_class_recording_value
+            student_result['course_content_class_recording'] = student_result.pop(key)
         if key == 'batch_time_id':
             batch_time = student.batch_time
             student_result[key] = {}
@@ -246,6 +275,10 @@ def add_student(current_user):
         # Get course_content_id by course_id
         if 'course_id' in data:
             data['course_content_id'] = get_course_content_id_by_course_id(data['course_id'])
+
+        # Get course_content_class_recording_id by course_id
+        if 'course_id' in data:
+            data['course_content_class_recording_id'] = get_course_content_class_recording_id_by_course_id(data['course_id'])
 
         student = app.session.query(model.Student).filter(
             model.Student.deleted == 1,
@@ -353,6 +386,10 @@ def update_student(current_user, student_id):
     # Get course_content_id by course_id
     if 'course_id' in data:
         data['course_content_id'] = get_course_content_id_by_course_id(data['course_id'])
+
+    # Get course_content_class_recording_id by course_id
+    if 'course_id' in data:
+        data['course_content_class_recording_id'] = get_course_content_class_recording_id_by_course_id(data['course_id'])
 
     student = fetch_student_by_id(int(student_id))
 
@@ -501,6 +538,21 @@ def get_student_by_user_id(current_user, user_id):
 @token_required
 def get_student_by_user_id_and_course_content_id(current_user, user_id, course_content_id):
     student = fetch_student_by_user_id_and_course_content_id(user_id, course_content_id)
+    student_result = populate_student_record(student)
+    student_result['installments'] = []
+
+    # Get student receipts
+    receipt_records = get_all_receipts_by_student(student.student_id)
+    for receipt in receipt_records:
+        receipt_result = populate_receipt_record(receipt)
+        student_result['installments'].append(receipt_result)
+    return jsonify(student_result), 200
+
+
+@student_bp.route('/select/user/<user_id>/course_content_class_recording/<course_content_class_recording_id>', methods=['GET'])
+@token_required
+def get_student_by_user_id_and_course_content_class_recording_id(current_user, user_id, course_content_class_recording_id):
+    student = fetch_student_by_user_id_and_course_content_class_recording_id(user_id, course_content_class_recording_id)
     student_result = populate_student_record(student)
     student_result['installments'] = []
 

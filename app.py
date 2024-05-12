@@ -12,6 +12,7 @@ from course_category import course_category_bp
 from state import state_bp
 from country import country_bp
 from course_content import course_content_bp
+from course_content_class_recording import course_content_class_recording_bp
 from course_mode import course_mode_bp
 from model import db
 from agent import agent_bp
@@ -35,7 +36,10 @@ from flask import send_from_directory
 
 # SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db'
 # SQLALCHEMY_DATABASE_URL = f'sqlite:///C:\\Users\\pooja\\Documents\\NITIN\\codemania\\piidm-backend\\piidm_online_sqlite.db'
-SQLALCHEMY_DATABASE_URL = f'sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db'
+# SQLALCHEMY_DATABASE_URL = f'sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db'
+SQLALCHEMY_DATABASE_URL = f'sqlite:////Users/nitins1/Documents/codemania/practice/piidm-backend/piidm_online_sqlite.db'
+# engine = create_engine(SQLALCHEMY_DATABASE_URL, convert_unicode=True, pool_size=1, max_overflow=0,
+#                        pool_recycle=1800, pool_pre_ping=True)
 engine = create_engine(SQLALCHEMY_DATABASE_URL, convert_unicode=True)
 Session = scoped_session(sessionmaker(autocommit=True, bind=engine))
 
@@ -63,6 +67,7 @@ app.register_blueprint(branch_bp)
 app.register_blueprint(course_bp)
 app.register_blueprint(course_mode_bp)
 app.register_blueprint(course_content_bp)
+app.register_blueprint(course_content_class_recording_bp)
 app.register_blueprint(source_bp)
 app.register_blueprint(agent_bp)
 app.register_blueprint(trainer_bp)
