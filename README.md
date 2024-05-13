@@ -216,7 +216,6 @@ update lead set course_id = 1;
 select distinct(course_id) from student;
 update student set course_id = 1;
 
-
 select * from batch_time;
 delete from batch_time;
 
@@ -524,8 +523,16 @@ curl --location 'http://localhost:3002/api/trainer/add' \
     }
 ]'
 
+### Set default trainer
 select trainer_id from lead;
 update lead set trainer_id = 1 where trainer_id is null;
+
+
+### Download large file from google drive
+Google drive link = `https://drive.google.com/file/d/1VQ8yh76J32qrevZ9psrTa8pMg_ouTXrN/view?usp=drive_link`
+Download file = `curl -L 'https://drive.google.com/uc?export=download&id=1VQ8yh76J32qrevZ9psrTa8pMg_ouTXrN&confirm=t' > video1334147546.mp4`
+
+wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://drive.google.com/uc?export=download&id=1VQ8yh76J32qrevZ9psrTa8pMg_ouTXrN' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1VQ8yh76J32qrevZ9psrTa8pMg_ouTXrN" -O video1334147546.mp4 && rm -rf /tmp/cookies.txt
 
 
 ## Helpful Links:

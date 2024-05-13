@@ -202,9 +202,10 @@ def populate_student_record(student):
         if key == 'course_content_class_recording_id':
             course_content_class_recording = student.course_content_class_recording
             student_result[key] = {}
-            for course_content_class_recording_key in course_content_class_recording.__table__.columns.keys():
-                course_content_class_recording_value = getattr(course_content_class_recording, course_content_class_recording_key)
-                student_result[key][course_content_class_recording_key] = course_content_class_recording_value
+            if course_content_class_recording:
+                for course_content_class_recording_key in course_content_class_recording.__table__.columns.keys():
+                    course_content_class_recording_value = getattr(course_content_class_recording, course_content_class_recording_key)
+                    student_result[key][course_content_class_recording_key] = course_content_class_recording_value
             student_result['course_content_class_recording'] = student_result.pop(key)
         if key == 'batch_time_id':
             batch_time = student.batch_time

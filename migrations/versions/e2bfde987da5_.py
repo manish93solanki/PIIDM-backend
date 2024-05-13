@@ -188,7 +188,7 @@ def upgrade():
     sa.Column('city_id', sa.Integer(), nullable=False),
     sa.Column('tutor_id', sa.Integer(), nullable=False),
     sa.Column('course_id', sa.Integer(), nullable=False),
-    sa.Column('course_content_id', sa.Integer(), nullable=False),
+    sa.Column('course_content_id', sa.Integer(), nullable=False, default=1),
     sa.Column('json_course_learning_progress', sa.Text(), nullable=True),
     sa.Column('batch_time_id', sa.Integer(), nullable=False),
     sa.Column('source_id', sa.Integer(), nullable=False),
