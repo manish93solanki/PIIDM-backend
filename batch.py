@@ -77,7 +77,6 @@ def add_batch(current_user):
         if not request.is_json:
             pass
         data = request.get_json()
-        print('data: ', data)
         records_to_add = []
         for item in data:
             # increment batch_num by 1.
@@ -117,6 +116,12 @@ def update_batch(current_user, batch_id):
             if 'name' in item and batch.name != item['name'] and is_batch_name_exists(item['name']):
                 return {'error': 'Batch name is already exist.'}, 409
             for key, value in item.items():
+                if key == 'total_seats':
+                    total_seats = value
+                    if total_seats < batch.seats_occupied:
+                        return {'error': 'Total Seats must be greater than or equal to Occupied Seats.'}, 409
+                    seats_vacant = item['total_seats'] - batch.seats_occupied
+                    setattr(batch, 'seats_vacant', seats_vacant)
                 if key in ('batch_date', ) and value:
                     value = datetime.datetime.strptime(value, '%Y-%m-%d')
                 setattr(batch, key, value)
@@ -229,7 +234,6 @@ def get_batch(current_user, batch_id):
     batch = app.session.query(model.Batch).filter(model.Batch.batch_id == int(batch_id),
                                                       model.Batch.deleted == 0).first()
     batch_result = populate_batch_record(batch)
-    print(batch_result)
     return jsonify(batch_result), 200
 
 
