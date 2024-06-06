@@ -26,8 +26,7 @@ def upgrade():
     sa.Column('deleted', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
-    sa.PrimaryKeyConstraint('course_content_class_recording_id'),
-    sa.UniqueConstraint('name')
+    sa.PrimaryKeyConstraint('course_content_class_recording_id')
     )
     # ### end Alembic commands ###
 

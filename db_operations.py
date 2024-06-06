@@ -1,5 +1,4 @@
 from sqlalchemy.exc import IntegrityError
-
 from flask import current_app as app
 
 

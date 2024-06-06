@@ -154,7 +154,17 @@
 - [X] Remove all sections except HR, placement in HR section - 2H
 - [X] Added batch, course, course_mode, branch filter in placement - 4H
 - [X] Delete student from placement table if the student was actually deleted - 1H
-- 
+- [X] Fixed issue in edit lead of not assigning the same course to the same user - 2H
+- [X] Create and update for class recording - 3H
+- [X] show videos and controls in modal for class recording - 3H
+- [X] handle hierarchy of module & chapters for class recording - 4H
+- [X] new nav item for class recording - 1H
+- [X] pick course name based on existing course for class recording - 2H
+- [X] add new columns to the student and new tables for class recording - 2H
+- [X] Update js versions, Fixed issue of batch when exceeds total seats, Fixed issue of batch, soft delete batch, cannot delete batch if there are students assigned to it. - 4H
+- [X] Modified at multiple location to include class recording date, dynamic date calender for each chapters, unique constraint on course_name + batch for class recording new entry - 6H
+
+ 
 - [X] Setup of Android Studio, Flutter and emulator - 5H
 - [X] Fetch call logs from Android phone and showing in app - 5H
 - [X] Text box and submit button to enter agent phone_number - 2H

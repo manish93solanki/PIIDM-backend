@@ -8,9 +8,10 @@ from db_operations import bulk_insert, insert_single_record
 course_content_class_recording_bp = Blueprint('course_content_class_recording_bp', __name__, url_prefix='/api/course_content_class_recording')
 
 
-def is_course_content_class_recording_name_exists(name):
+def is_course_content_class_recording_name_exists(name, batch_id):
     cursor = app.session.query(model.CourseContentClassRecording).filter(
         model.CourseContentClassRecording.name == name,
+        model.CourseContentClassRecording.batch_id == batch_id,
         model.CourseContentClassRecording.deleted == 0
     )
     records = list(cursor)
@@ -29,6 +30,22 @@ def populate_course_content_class_recording_record(course_content_class_recordin
     course_content_class_recording_result = {}
     for key in course_content_class_recording.__table__.columns.keys():
         value = getattr(course_content_class_recording, key)
+        if key == 'trainer_id':
+            trainer = course_content_class_recording.trainer
+            course_content_class_recording_result[key] = {}
+            if trainer:
+                for trainer_key in trainer.__table__.columns.keys():
+                    trainer_value = getattr(trainer, trainer_key)
+                    course_content_class_recording_result[key][trainer_key] = trainer_value
+            course_content_class_recording_result['trainer'] = course_content_class_recording_result.pop(key)
+        if key == 'batch_id':
+            batch = course_content_class_recording.batch
+            course_content_class_recording_result[key] = {}
+            if batch:
+                for batch_key in batch.__table__.columns.keys():
+                    batch_value = getattr(batch, batch_key)
+                    course_content_class_recording_result[key][batch_key] = batch_value
+            course_content_class_recording_result['batch'] = course_content_class_recording_result.pop(key)
         course_content_class_recording_result[key] = value
     return course_content_class_recording_result
 
@@ -45,8 +62,8 @@ def add_course_content_class_recording(current_user):
             for item in data:
                 course_content_class_recording = model.CourseContentClassRecording()
                 # Check if course_content_class_recording is already exist
-                if is_course_content_class_recording_name_exists(item['name']):
-                    return {'error': 'Course Content Class Recording name is already exist.'}, 409
+                if is_course_content_class_recording_name_exists(item['name'], item['batch_id']):
+                    return {'error': 'Course Content Class Recording name and batch is already exist.'}, 409
                 for key, value in item.items():
                     setattr(course_content_class_recording, key, value)
                 records_to_add.append(course_content_class_recording)
@@ -67,8 +84,8 @@ def update_course_content_class_recording(current_user, course_content_class_rec
         for item in data:
             course_content_class_recording = fetch_course_content_class_recording_by_id(int(course_content_class_recording_id))
             # Check if course_content_class_recording is already exist
-            if 'name' in item and course_content_class_recording.name != item['name'] and is_course_content_class_recording_name_exists(item['name']):
-                return {'error': 'Course Content Class Recording name is already exist.'}, 409
+            if ('name' in item and course_content_class_recording.name != item['name']) and ('batch_id' in item and course_content_class_recording.batch_id != item['batch_id']) and is_course_content_class_recording_name_exists(item['name'], item['batch_id']):
+                return {'error': 'Course Content Class Recording name and batch is already exist.'}, 409
             for key, value in item.items():
                 setattr(course_content_class_recording, key, value)
             records_to_add.append(course_content_class_recording)

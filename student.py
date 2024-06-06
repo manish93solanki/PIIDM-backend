@@ -83,9 +83,9 @@ def get_course_content_id_by_course_id(course_id, default_course_content_id=1):
         return default_course_content_id
 
 
-def get_course_content_class_recording_id_by_course_id(course_id, default_course_content_class_recording_id=1):
+def get_course_content_class_recording_id_by_course_id_and_batch_id(course_id, batch_id, default_course_content_class_recording_id=1):
     course = fetch_course_by_course_id(course_id)
-    course_content_class_recording = fetch_course_content_class_recording_by_course_name(course_name=course.name)
+    course_content_class_recording = fetch_course_content_class_recording_by_course_name(course_name=course.name, batch_id=batch_id)
     if course_content_class_recording:
         return course_content_class_recording.course_content_class_recording_id
     else:
@@ -128,8 +128,11 @@ def fetch_course_content_by_course_name(course_name):
     return record
 
 
-def fetch_course_content_class_recording_by_course_name(course_name):
-    record = app.session.query(model.CourseContentClassRecording).filter(model.CourseContentClassRecording.name == course_name).first()
+def fetch_course_content_class_recording_by_course_name(course_name, batch_id):
+    record = app.session.query(model.CourseContentClassRecording).filter(
+        model.CourseContentClassRecording.name == course_name,
+        model.CourseContentClassRecording.batch_id == batch_id
+    ).first()
     return record
 
 
@@ -278,8 +281,8 @@ def add_student(current_user):
             data['course_content_id'] = get_course_content_id_by_course_id(data['course_id'])
 
         # Get course_content_class_recording_id by course_id
-        if 'course_id' in data:
-            data['course_content_class_recording_id'] = get_course_content_class_recording_id_by_course_id(data['course_id'])
+        if 'course_id' in data and 'batch_id' in data:
+            data['course_content_class_recording_id'] = get_course_content_class_recording_id_by_course_id_and_batch_id(data['course_id'], data['batch_id'])
 
         student = app.session.query(model.Student).filter(
             model.Student.deleted == 1,
@@ -389,8 +392,8 @@ def update_student(current_user, student_id):
         data['course_content_id'] = get_course_content_id_by_course_id(data['course_id'])
 
     # Get course_content_class_recording_id by course_id
-    if 'course_id' in data:
-        data['course_content_class_recording_id'] = get_course_content_class_recording_id_by_course_id(data['course_id'])
+    if 'course_id' in data and 'batch_id' in data:
+        data['course_content_class_recording_id'] = get_course_content_class_recording_id_by_course_id_and_batch_id(data['course_id'], data['batch_id'])
 
     student = fetch_student_by_id(int(student_id))
 

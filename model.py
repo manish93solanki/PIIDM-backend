@@ -106,12 +106,16 @@ class CourseContentClassRecording(db.Model):
     __tablename__ = 'course_content_class_recording'
 
     course_content_class_recording_id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(VARCHAR(255), unique=True, nullable=False)
-    instructor_name = Column(VARCHAR(255), nullable=False)
+    name = Column(VARCHAR(255), nullable=False)
+    trainer_id = Column(ForeignKey('trainer.trainer_id'), nullable=True)
+    batch_id = Column(ForeignKey('batch.batch_id'), nullable=True)
     json_modules = Column(Text, nullable=True)
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    batch = relationship('Batch')
+    trainer = relationship('Trainer')
 
 
 class Agent(db.Model):
