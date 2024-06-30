@@ -248,6 +248,7 @@ class Lead(db.Model):
     submitted_lead_id = Column(ForeignKey('submitted_lead.submitted_lead_id'), nullable=True)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
+    updated_by_id = Column(ForeignKey('agent.agent_id'), nullable=True)
 
     branch = relationship('Branch')
     source = relationship('Source')
@@ -256,6 +257,7 @@ class Lead(db.Model):
     batch_time = relationship('BatchTime')
     agent = relationship('Agent', foreign_keys=[agent_id])
     pitch_by = relationship('Agent', foreign_keys=[pitch_by_id])
+    updated_by = relationship('Agent', foreign_keys=[updated_by_id])
     trainer = relationship('Trainer')
     country = relationship('Country')
     state = relationship('State')

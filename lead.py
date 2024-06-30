@@ -202,6 +202,17 @@ def populate_lead_record(lead):
             else:
                 lead_result[key] = None
             lead_result['submitted_lead'] = lead_result.pop(key)
+        if key == 'updated_by_id':
+            updated_by = lead.updated_by
+            if updated_by:
+                lead_result[key] = {}
+                for updated_by_key in updated_by.__table__.columns.keys():
+                    updated_by_value = getattr(updated_by, updated_by_key)
+                    lead_result[key][updated_by_key] = updated_by_value
+                lead_result[key][updated_by_key] = updated_by_value
+            else:
+                lead_result[key] = None
+            lead_result['updated_by'] = lead_result.pop(key)
     return lead_result
 
 
@@ -209,6 +220,11 @@ def populate_lead_record(lead):
 @token_required
 def add_lead(current_user):
     try:
+        current_user_agent_id = app.session.query(model.Agent.agent_id).filter(
+                model.Agent.user_id == current_user.user_id
+        ).first()
+        current_user_agent_id = current_user_agent_id[0] if current_user_agent_id else None
+        
         if request.method == 'POST':
             if not request.is_json:
                 return {'error': 'Bad Request.'}, 400
@@ -231,6 +247,7 @@ def add_lead(current_user):
                     if key in ('lead_time',) and value:
                         value = datetime.datetime.strptime(value, '%H:%M').time()
                     setattr(lead, key, value)
+                setattr(lead, 'updated_by_id', current_user_agent_id)
                 records_to_add.append(lead)
             bulk_insert(records_to_add)
         return jsonify({'message': 'Successfully Inserted.'}), 201
@@ -259,6 +276,11 @@ def upload_excel_leads(current_user):
 @token_required
 def update_lead(current_user, lead_id):
     try:
+        current_user_agent_id = app.session.query(model.Agent.agent_id).filter(
+                model.Agent.user_id == current_user.user_id
+        ).first()
+        current_user_agent_id = current_user_agent_id[0] if current_user_agent_id else None
+
         if not request.is_json:
             return {'error': 'Bad Request.'}, 400
         for_fresh_lead = request.args.get('for_fresh_lead', 0)
@@ -287,6 +309,8 @@ def update_lead(current_user, lead_id):
                 if key in ('lead_date', 'next_action_date', 'visit_date', 'demo_date') and value:
                     value = datetime.datetime.strptime(value, '%Y-%m-%d')
                 setattr(lead, key, value)
+            setattr(lead, 'updated_at', datetime.datetime.now())
+            setattr(lead, 'updated_by_id', current_user_agent_id)
             records_to_add.append(lead)
         bulk_insert(records_to_add)
         return jsonify({'message': 'Successfully Updated.'}), 200
