@@ -1,5 +1,5 @@
 import datetime
-
+import re
 from flask import current_app as app, request, Blueprint, jsonify
 import model
 from auth_middleware import token_required
@@ -35,17 +35,11 @@ def add_call_logs():
         records_to_add = []
         user_id = None
         for item in data:
-            user_phone_num = str(item['user_phone_num'])
-            missing_zeros = 10 - len(user_phone_num)
-            zeros_prefix = '0' * missing_zeros
-            user_phone_num = f'{zeros_prefix}{user_phone_num}'
-            if has_agent is False:
-                agent = is_agent_exist(user_phone_num)
-                if agent:
-                    user_id = agent.user_id
-                    has_agent = True
-            if has_agent is False:
-                return {'message': 'User is invalid.'}, 201
+            # user_phone_num = str(item['user_phone_num'])
+            # list_user_phone_num = re.findall('[0-9]+', user_phone_num)
+            # user_phone_num = ''.join(list_user_phone_num)
+            # user_phone_num = list_user_phone_num[-10:]
+            user_id = int(item['user_id'])
             phone_num = item['phone_num']
             phone_num = phone_num[-10:]  # only last 10 digits
             call_time = datetime.datetime.strptime(item['call_time'], '%d-%m-%Y %H:%M:%S')
