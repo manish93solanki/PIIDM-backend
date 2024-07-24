@@ -31,6 +31,11 @@ def fetch_user_by_agent_id(user_id):
     return record
 
 
+def fetch_agent_by_user_id(user_id):
+    record = app.session.query(model.Agent).filter(model.Agent.user_id == user_id).first()
+    return record
+
+
 def populate_agent_record(agent):
     agent_result = {}
     for key in agent.__table__.columns.keys():

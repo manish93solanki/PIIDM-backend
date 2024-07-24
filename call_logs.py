@@ -1,9 +1,11 @@
 import datetime
 import re
+import requests
 from flask import current_app as app, request, Blueprint, jsonify
 import model
 from auth_middleware import token_required
 from db_operations import bulk_insert
+from agent import fetch_agent_by_user_id
 
 call_logs_bp = Blueprint('call_logs_bp', __name__, url_prefix='/api/call_logs')
 
@@ -25,13 +27,13 @@ def fetch_existing_call_logs(user_id, phone_num, call_time, call_type):
 
 
 @call_logs_bp.route('/add', methods=['POST'])
-# @token_required
-def add_call_logs():
+@token_required
+def add_call_logs(current_user):
+    token = current_user.token
     if request.method == 'POST':
         if not request.is_json:
             pass
         data = request.get_json()
-        has_agent = False
         records_to_add = []
         user_id = None
         for item in data:
@@ -40,22 +42,66 @@ def add_call_logs():
             # user_phone_num = ''.join(list_user_phone_num)
             # user_phone_num = list_user_phone_num[-10:]
             user_id = int(item['user_id'])
+            
+            # Agent
+            agent = fetch_agent_by_user_id(user_id)
+            agent_id = agent.agent_id
+            agent_name = agent.name
+
             phone_num = item['phone_num']
             phone_num = phone_num[-10:]  # only last 10 digits
             call_time = datetime.datetime.strptime(item['call_time'], '%d-%m-%Y %H:%M:%S')
             call_type = item['call_type']
+            call_time_duration = item['call_time_duration']
+            
             record = fetch_existing_call_logs(user_id, phone_num, call_time, call_type)
             if record is None:
                 call_logs = model.CallLogs()
                 call_logs.phone_num = phone_num
                 call_logs.call_time = call_time
                 call_logs.call_type = call_type
-                call_logs.call_time_duration = item['call_time_duration']
+                call_logs.call_time_duration = call_time_duration
                 call_logs.user_id = user_id
                 records_to_add.append(call_logs)
+
+                # Fetch lead_id
+                headers = {'Authorization': f'Bearer {token}'}
+                params = {'phone_num': f'+91-{phone_num}'}
+                url = f'https://127.0.0.1:3002/api/leads/by_email_or_phone_num'
+                lead_response = requests.get(url=url, headers=headers, params=params, verify=False)
+                lead_response_status_code = lead_response.status_code
+                lead_response_data = lead_response.json()
+                
+                if lead_response and lead_response_status_code == 200 and lead_response_data:
+                    # Update remark, agent, updated_at for each load as per call log.
+                    lead_id = lead_response_data['lead_id']
+                    course_id = lead_response_data['course_id']
+                    phone_num = lead_response_data['phone_num']
+                    old_remarks = lead_response_data['remarks']
+                    headers = {'Authorization': f'Bearer {token}'}
+                    data = [{
+                        'phone_num': phone_num, 
+                        'lead_id': lead_id,
+                        'course_id': course_id,
+                        'remarks': f'{agent_name} had {call_type} with customer at {call_time} for {call_time_duration} duration. <br> {old_remarks}',
+                        'updated_at': str(datetime.datetime.now()),
+                        'updated_by_id': agent_id
+                    }]
+                    url = f'https://127.0.0.1:3002/api/leads/update/{lead_id}'
+                    lead_response = requests.put(url=url, headers=headers, json=data, verify=False)
+                    lead_response_status_code = lead_response.status_code
+                    lead_response_data = lead_response.json()
         bulk_insert(records_to_add)
+
     return {'message': 'Call Logs are saved.'}, 201
 
+"""
+curl -H 'Content-Type: application/json' \
+     -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxfQ.AHMxv1ZyUSH21Iq3Cb6AFbXgFQjrsOADGcSm83UG770' \
+     -d '[{ "user_id":1,"phone_num":"1123232453", "call_time": "01-01-2024 00:00:00", "call_type": "INCOMING", "call_time_duration": "00:10:00"}]' \
+     -X POST \
+     http://127.0.0.1:3002/api/call_logs/add
+"""
 
 @call_logs_bp.route('/delete/<delete_id>', methods=['DELETE'])
 # @token_required

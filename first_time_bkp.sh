@@ -1331,6 +1331,12 @@ curl --location --request POST 'http://localhost:3002/api/payment_mode/add' \
     },
     {
         "name": "Cheque"
+    },
+    {
+        "name": "QR Code"
+    },
+    {
+        "name": "Online"
     }
 ]'
 
