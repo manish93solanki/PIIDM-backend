@@ -8,7 +8,7 @@ ssh -p 65002 -fN -L 127.0.0.1:3307:127.0.0.1:3306 u776183671@89.117.157.123
 mysqlengine = create_engine('mysql+pymysql://u776183671_QNQO7:xLvfwq2NuC@127.0.0.1:3307/u776183671_7Ytda')
 mysql_conn = mysqlengine.connect()
 
-# sqliteengine = create_engine('sqlite:////Users/nitinsolanki/Documents/codemania/piidm-backend/piidm_online_sqlite.db')
+# sqliteengine = create_engine('sqlite:////Users/nitins1/Documents/codemania/personal/piidm-backend/piidm_online_sqlite.db')
 sqliteengine = create_engine('sqlite:////root/codemania/piidm-backend/piidm_online_sqlite.db')
 sqlite_conn = sqliteengine.connect()
 
@@ -50,7 +50,7 @@ def fetch_and_insert_data(last_submission_id):
                 submission_data['name'] = row_2['value'].replace('\'', ' ')
             elif row_2['key'] == 'email':
                 submission_data['email'] = row_2['value']
-            elif 'field' in row_2['key'] or 'phone' == row_2['key']:
+            elif row_2['key'] == 'field_4b05454' or row_2['key'] == 'phone' :
                 phone_num = row_2['value']
                 if phone_num:
                     phone_num = phone_num.replace('+91', '')
