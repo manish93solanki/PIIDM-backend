@@ -2,6 +2,7 @@ import datetime
 import re
 import requests
 from flask import current_app as app, request, Blueprint, jsonify
+from sqlalchemy import or_, desc
 import model
 import helper
 from auth_middleware import token_required
@@ -17,6 +18,16 @@ def is_agent_exist(user_phone_num):
     ).first()
 
 
+def fetch_user_by_call_log_id(user_id):
+    record = app.session.query(model.User).filter(model.User.user_id == user_id).first()
+    return record
+
+
+def fetch_agent_by_user_id(user_id):
+    record = app.session.query(model.Agent).filter(model.Agent.user_id == user_id).first()
+    return record
+
+
 def fetch_existing_call_logs(user_id, phone_num, call_time, call_type):
     record = app.session.query(model.CallLogs).filter(
         model.CallLogs.user_id == user_id,
@@ -25,6 +36,22 @@ def fetch_existing_call_logs(user_id, phone_num, call_time, call_type):
         model.CallLogs.call_type == call_type,
     ).order_by(model.CallLogs.call_logs_id.asc()).first()
     return record
+
+
+def populate_call_log_record(call_log):
+    call_log_result = {}
+    for key in call_log.__table__.columns.keys():
+        value = getattr(call_log, key)
+        call_log_result[key] = value
+
+        if key == 'user_id':
+            agent = fetch_agent_by_user_id(user_id=value)
+            call_log_result[key] = {}
+            for agent_key in agent.__table__.columns.keys():
+                agent_value = getattr(agent, agent_key)
+                call_log_result[key][agent_key] = agent_value
+            call_log_result['agent'] = call_log_result.pop(key)
+    return call_log_result
 
 
 @call_logs_bp.route('/add', methods=['POST'])
@@ -160,3 +187,51 @@ def get_call_logs(current_user):
             res[key] = value
         results.append(res)
     return jsonify(results), 200
+
+
+@call_logs_bp.route('/select-paginate-advanced', methods=['GET'])
+@token_required
+def get_paginated_call_logs_advanced(current_user):
+    # try:
+    total_call_logs = model.CallLogs.query.filter(model.CallLogs.deleted == 0).count()
+
+    # filtering data
+    query = app.session.query(model.CallLogs)
+    query = query.filter(model.CallLogs.deleted == 0)
+
+    if current_user.user_role_id == 2:  # role == agent
+        query = query.filter(model.CallLogs.user_id == current_user.user_id)
+        total_call_logs = model.CallLogs.query.filter(model.CallLogs.deleted == 0, model.CallLogs.user_id == current_user.user_id).count()
+
+    # pagination
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    search_term = request.args.get('search[value]', type=str)
+    print('search_term: ', search_term)
+    query = query.filter(or_(
+        model.CallLogs.name.like(f'%{search_term}%'),
+        model.CallLogs.phone_num.like(f'%{search_term}%'),
+    )) if search_term else query
+
+    total_filtered_call_logs = query.count()  # total filtered call_logs
+    basic_stats = {
+        'total_call_logs': total_filtered_call_logs
+    }
+
+    query = query.order_by(desc(model.CallLogs.call_time)).offset(start).limit(length)
+
+    call_logs = query.all()
+    call_log_results = []
+    for call_log in call_logs:
+        call_log_result = populate_call_log_record(call_log)
+        call_log_results.append(call_log_result)
+    # response
+    return jsonify({
+        'data': call_log_results,
+        'recordsFiltered': total_filtered_call_logs,
+        'recordsTotal': total_call_logs,
+        'draw': request.args.get('draw', type=int),
+        'basic_stats': basic_stats
+    }), 200
+    # except Exception as ex:
+    #     return jsonify({'error': str(ex)}), 500

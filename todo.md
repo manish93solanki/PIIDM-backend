@@ -163,7 +163,16 @@
 - [X] add new columns to the student and new tables for class recording - 2H
 - [X] Update js versions, Fixed issue of batch when exceeds total seats, Fixed issue of batch, soft delete batch, cannot delete batch if there are students assigned to it. - 4H
 - [X] Modified at multiple location to include class recording date, dynamic date calender for each chapters, unique constraint on course_name + batch for class recording new entry - 6H
+- [X] Modified phone key to get submitted lead phone_num - 2H
+- [X] Sort Remark by datetime - 1H
+- [X] Create call logs section - 2H
+- [X] Create call logs pagination API - 2H
+- [X] Added deleted, name columns into the table - 1H
+- [X] Populate call logs on UI - 2H 
+- [X] Admin and agent filtering on call logs - 1H
+- [X] javascript changes for call logs - 1H 
 
+- [] Student can upload documents without taking admission, once they upload it, auto-admission can be done.
  
 - [X] Setup of Android Studio, Flutter and emulator - 5H
 - [X] Fetch call logs from Android phone and showing in app - 5H
