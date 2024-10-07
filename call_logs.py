@@ -28,6 +28,11 @@ def fetch_agent_by_user_id(user_id):
     return record
 
 
+def fetch_lead_by_phone_num(phone_num):
+    record = app.session.query(model.Lead).filter(model.Lead.phone_num.like(f'%{phone_num}%')).first()
+    return record
+
+
 def fetch_existing_call_logs(user_id, phone_num, call_time, call_type):
     record = app.session.query(model.CallLogs).filter(
         model.CallLogs.user_id == user_id,
@@ -51,6 +56,12 @@ def populate_call_log_record(call_log):
                 agent_value = getattr(agent, agent_key)
                 call_log_result[key][agent_key] = agent_value
             call_log_result['agent'] = call_log_result.pop(key)
+
+        elif key == 'name':
+            phone_num_value = getattr(call_log, 'phone_num')
+            lead = fetch_lead_by_phone_num(phone_num=phone_num_value)
+            name = lead.name if lead and lead.name else None
+            call_log_result['name'] = name
     return call_log_result
 
 
