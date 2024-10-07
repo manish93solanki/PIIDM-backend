@@ -2,7 +2,7 @@ import datetime
 import re
 import requests
 from flask import current_app as app, request, Blueprint, jsonify
-from sqlalchemy import or_, desc
+from sqlalchemy import or_, desc, and_, func
 import model
 import helper
 from auth_middleware import token_required
@@ -28,8 +28,17 @@ def fetch_agent_by_user_id(user_id):
     return record
 
 
+def fetch_user_by_agent_id(agent_id):
+    record = app.session.query(model.Agent).filter(model.Agent.agent_id == agent_id).first()
+    return record
+
+
 def fetch_lead_by_phone_num(phone_num):
-    record = app.session.query(model.Lead).filter(model.Lead.phone_num.like(f'%{phone_num}%')).first()
+    record = app.session.query(model.Lead).filter(
+        or_(
+            model.Lead.phone_num.like(f'%{phone_num}%'),
+            model.Lead.alternate_phone_num.like(f'%{phone_num}%')
+        )).first()
     return record
 
 
@@ -206,9 +215,22 @@ def get_paginated_call_logs_advanced(current_user):
     # try:
     total_call_logs = model.CallLogs.query.filter(model.CallLogs.deleted == 0).count()
 
+    # request params
+    agent = request.args.get('agent', None)
+    call_type = request.args.get('call_type', None)
+    from_date = request.args.get('from_date', None)
+    to_date = request.args.get('to_date', None)
+
+    # get user_id by agent_id
+    user_agent = fetch_user_by_agent_id(agent_id=agent) if agent else None
+    agent_user_id = user_agent.user_id if user_agent else None
+
     # filtering data
     query = app.session.query(model.CallLogs)
     query = query.filter(model.CallLogs.deleted == 0)
+    query = query.filter(model.CallLogs.user_id == int(agent_user_id)) if agent_user_id else query
+    query = query.filter(model.CallLogs.call_type == call_type) if call_type else query
+    query = query.filter(func.date(model.CallLogs.call_time).between(from_date, to_date)) if from_date and to_date else query
 
     if current_user.user_role_id == 2:  # role == agent
         query = query.filter(model.CallLogs.user_id == current_user.user_id)

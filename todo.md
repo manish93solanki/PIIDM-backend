@@ -168,9 +168,15 @@
 - [X] Create call logs section - 2H
 - [X] Create call logs pagination API - 2H
 - [X] Added deleted, name columns into the table - 1H
-- [X] Populate call logs on UI - 2H 
-- [X] Admin and agent filtering on call logs - 1H
-- [X] javascript changes for call logs - 1H 
+- [X] Populate call logs on UI - 3H 
+- [X] Admin and agent filtering on call logs - 2H
+- [X] javascript changes for call logs - 2H 
+- [X] Added name for call logs - 2H
+- [X] Arranged call datetime, split call date and time - 2H
+- [X] Added filter for call_type - 2H
+- [X] Added filter for from and to date - 2H
+- [X] Reset button for call_type - 1H
+- [X] Fixed issue for remark for call date time - 1H
 
 - [] Student can upload documents without taking admission, once they upload it, auto-admission can be done.
  

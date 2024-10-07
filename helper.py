@@ -7,7 +7,6 @@ def format_datetime_1(datetime_str):
         TO:   "23th Aug 24, 9:46 am"
     """
 
-    datetime_str = "2024-08-23 09:46:41"
     dt = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
     formatted_dt = dt.strftime("%d{suffix} %b %y, %-I:%M %p").lower()
 
