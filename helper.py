@@ -7,7 +7,8 @@ def format_datetime_1(datetime_str):
         TO:   "23th Aug 24, 9:46 am"
     """
 
-    dt = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
+    # dt = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
+    dt = datetime_str
     formatted_dt = dt.strftime("%d{suffix} %b %y, %-I:%M %p").lower()
 
     def __get_day_suffix(day):
