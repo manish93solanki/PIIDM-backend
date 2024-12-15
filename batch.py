@@ -220,12 +220,17 @@ def soft_delete_batch(current_user, batch_id):
 @batch_bp.route('/all', methods=['GET'])
 @token_required
 def get_batches(current_user):
-    results = get_all_batches()
+    results = get_all_batches(current_user)
     return jsonify(results), 200
 
 
-def get_all_batches():
-    cursor = app.session.query(model.Batch).filter(model.Batch.deleted == 0).all()
+def get_all_batches(current_user):
+    if current_user.user_role_id == 4:
+        trainer = app.session.query(model.Trainer).filter(model.Trainer.deleted == 0, model.Trainer.user_id == current_user.user_id).first()
+        trainer_id = trainer.trainer_id
+        cursor = app.session.query(model.Batch).filter(model.Batch.deleted == 0, model.Batch.trainer_id == trainer_id).all()
+    else:
+        cursor = app.session.query(model.Batch).filter(model.Batch.deleted == 0).all()
     batches = list(cursor)
     results = []
     for batch in batches:

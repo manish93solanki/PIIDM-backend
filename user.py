@@ -200,6 +200,10 @@ def login():
         agent_id = app.session.query(model.Agent.agent_id).filter(model.Agent.deleted == 0, model.Agent.user_id == user.user_id).first()
         if agent_id:
             agent_id = agent_id[0]
+        # Trainer ID
+        trainer_id = app.session.query(model.Trainer.trainer_id).filter(model.Trainer.deleted == 0, model.Trainer.user_id == user.user_id).first()
+        if trainer_id:
+            trainer_id = trainer_id[0]
         # Student ID
         student_id = None
         student_is_active = None
@@ -235,6 +239,7 @@ def login():
                     "user_id": user.user_id,
                     "user_role_id": user.user_role_id,
                     "agent_id": agent_id,
+                    "trainer_id": trainer_id,
                     "student_id": student_id,
                     "student_is_active": student_is_active,
                     "student_is_document_verified": student_is_document_verified,

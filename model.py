@@ -519,3 +519,45 @@ class Resume(db.Model):
     updated_at = Column(DateTime, nullable=False, default=func.now())
 
     student = relationship('Student')
+
+
+class Lecture(db.Model):
+    __tablename__ = 'lecture'
+
+    lecture_id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(255), nullable=False)
+    trainer_id = Column(ForeignKey('trainer.trainer_id'), nullable=True)
+    course_id = Column(ForeignKey('course.course_id'), nullable=False)
+    course_mode_id = Column(ForeignKey('course_mode.course_mode_id'), nullable=True)
+    batch_time_id = Column(ForeignKey('batch_time.batch_time_id'), nullable=False)
+    batch_id = Column(ForeignKey('batch.batch_id'), nullable=True)
+    zoom_link = Column(VARCHAR(255), nullable=True)
+    batch_date = Column(Date, nullable=True)
+    is_active = Column(Integer, nullable=False, default=1)
+    user_id = Column(ForeignKey('user.user_id'), nullable=True)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    course = relationship('Course')
+    course_mode = relationship('CourseMode')
+    batch_time = relationship('BatchTime')
+    batch = relationship('Batch')
+    trainer = relationship('Trainer')
+    user = relationship('User')
+
+
+class Attendance(db.Model):
+    __tablename__ = 'attendance'
+
+    attendance_id = Column(Integer, primary_key=True, autoincrement=True)
+    lecture_id = Column(ForeignKey('lecture.lecture_id'), nullable=False)
+    student_id = Column(ForeignKey('student.student_id'), nullable=False)
+    attendance_status = Column(Integer, nullable=False, default=0)  # 0=no_attendance, 1=absent #2=present
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    lecture = relationship('Lecture')
+    student = relationship('Student')
+

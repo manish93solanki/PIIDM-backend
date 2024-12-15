@@ -177,15 +177,23 @@
 - [X] Added filter for from and to date - 2H
 - [X] Reset button for call_type - 1H
 - [X] Fixed issue for remark for call date time - 1H
+- [X] Fixed issue for selecing nav bar for call log - 1H
+- [X] Create lecture UI - 2H
+- [X] Added filters and auto select filters based on batch - 3H
+- [X] Create calender and event selection - 3H
+- [X] Blueprint for lecture and endpoints - 3H
+- [X] Tables for lectures and attendance - 1H
+- [X] Show events on calender for lectures - 3H
+- [X] Entire functionlity for lecture and attendances - 7H
 
 - [] Student can upload documents without taking admission, once they upload it, auto-admission can be done.
  
 - [X] Setup of Android Studio, Flutter and emulator - 5H
 - [X] Fetch call logs from Android phone and showing in app - 5H
-- [X] Text box and submit button to enter agent phone_number - 2H
+- [X] Text box and submit button to enter agent phone_number - 3H
 - [X] Validation of phone number - 2H
-- [X] Created endpoint for call logs and storing into DB - 5H
-- [X] Calling of endpoint from apk and related activity - 4H
+- [X] Created endpoint for call logs and storing into DB - 7H
+- [X] Calling of endpoint from apk and related activity - 6H
 - [X] Ignoring duplicate call logs for each agent - 3H
 
 - [] Automatically assign same Agent during lead creation if lead with same phone_num is already exist. ??
