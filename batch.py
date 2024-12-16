@@ -224,8 +224,8 @@ def get_batches(current_user):
     return jsonify(results), 200
 
 
-def get_all_batches(current_user):
-    if current_user.user_role_id == 4:
+def get_all_batches(current_user=None):
+    if current_user and current_user.user_role_id == 4:
         trainer = app.session.query(model.Trainer).filter(model.Trainer.deleted == 0, model.Trainer.user_id == current_user.user_id).first()
         trainer_id = trainer.trainer_id
         cursor = app.session.query(model.Batch).filter(model.Batch.deleted == 0, model.Batch.trainer_id == trainer_id).all()
