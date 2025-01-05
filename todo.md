@@ -178,13 +178,16 @@
 - [X] Reset button for call_type - 1H
 - [X] Fixed issue for remark for call date time - 1H
 - [X] Fixed issue for selecing nav bar for call log - 1H
-- [X] Create lecture UI - 2H
+- [X] Create lecture UI - 4H
 - [X] Added filters and auto select filters based on batch - 3H
-- [X] Create calender and event selection - 3H
+- [X] Create calender and event selection - 4H
 - [X] Blueprint for lecture and endpoints - 3H
-- [X] Tables for lectures and attendance - 1H
+- [X] Tables for lectures and attendance - 2H
 - [X] Show events on calender for lectures - 3H
-- [X] Entire functionlity for lecture and attendances - 7H
+- [X] Show and update attendance for events - 5H
+- [X] Entire functionlity for lecture and attendances - 8H
+- [X] Combined batches for lectures and took attendance concurrently for combined batches - 6H
+- [X] Made changes for lecutures and attendances  - 6H
 
 - [] Student can upload documents without taking admission, once they upload it, auto-admission can be done.
  

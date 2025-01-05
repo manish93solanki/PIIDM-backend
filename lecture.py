@@ -1,20 +1,23 @@
 from flask import current_app as app, request, Blueprint, jsonify
 import model
+import json
 import datetime
 from auth_middleware import token_required
 from db_operations import bulk_insert
+from sqlalchemy import desc
 
 lecture_bp = Blueprint('lecture_bp', __name__, url_prefix='/api/lecture')
 
 
-def is_lecture_exist(name, trainer_id, course_id, course_mode_id, batch_time_id, batch_id, batch_date, user_id):
+def is_lecture_exist(name, topic, trainer_id, course_mode_id, batch_time_id, json_batch_ids, batch_date, user_id):
     cursor = app.session.query(model.Lecture).filter(
         model.Lecture.name == name,
+        model.Lecture.topic == topic,
         model.Lecture.trainer_id == trainer_id,
-        model.Lecture.course_id == course_id,
+        # model.Lecture.course_id == course_id,
         model.Lecture.course_mode_id == course_mode_id,
         model.Lecture.batch_time_id == batch_time_id,
-        model.Lecture.batch_id == batch_id,
+        model.Lecture.json_batch_ids == json_batch_ids,
         model.Lecture.batch_date == batch_date,
         model.Lecture.user_id == user_id
     )
@@ -38,13 +41,13 @@ def populate_lecture_record(lecture):
                 trainer_value = getattr(trainer, trainer_key)
                 lecture_result[key][trainer_key] = trainer_value
             lecture_result['trainer'] = lecture_result.pop(key)
-        if key == 'course_id':
-            course = lecture.course
-            lecture_result[key] = {}
-            for course_key in course.__table__.columns.keys():
-                course_value = getattr(course, course_key)
-                lecture_result[key][course_key] = course_value
-            lecture_result['course'] = lecture_result.pop(key)
+        # if key == 'course_id':
+        #     course = lecture.course
+        #     lecture_result[key] = {}
+        #     for course_key in course.__table__.columns.keys():
+        #         course_value = getattr(course, course_key)
+        #         lecture_result[key][course_key] = course_value
+        #     lecture_result['course'] = lecture_result.pop(key)
         if key == 'course_mode_id':
             course_mode = lecture.course_mode
             lecture_result[key] = {}
@@ -59,14 +62,14 @@ def populate_lecture_record(lecture):
                 batch_time_value = getattr(batch_time, batch_time_key)
                 lecture_result[key][batch_time_key] = batch_time_value
             lecture_result['batch_time'] = lecture_result.pop(key)
-        if key == 'batch_id':
-            batch = lecture.batch
-            lecture_result[key] = {}
-            if batch:
-                for batch_key in batch.__table__.columns.keys():
-                    batch_value = getattr(batch, batch_key)
-                    lecture_result[key][batch_key] = batch_value
-            lecture_result['batch'] = lecture_result.pop(key)
+        # if key == 'batch_id':
+        #     batch = lecture.batch
+        #     lecture_result[key] = {}
+        #     if batch:
+        #         for batch_key in batch.__table__.columns.keys():
+        #             batch_value = getattr(batch, batch_key)
+        #             lecture_result[key][batch_key] = batch_value
+        #     lecture_result['batch'] = lecture_result.pop(key)
     return lecture_result
 
 
@@ -102,17 +105,19 @@ def add_lecture(current_user):
         data = request.get_json()
         records_to_add = []
         for item in data:
-            if is_lecture_exist(item['name'], item['trainer_id'], item['course_id'], item['course_mode_id'], item['batch_time_id'], item['batch_id'], item['batch_date'], item['user_id']):
-                return {'error': 'Phone number with selected course is already exist.'}, 409
+            if is_lecture_exist(item['name'], item['topic'], item['trainer_id'], item['course_mode_id'], item['batch_time_id'], item['json_batch_ids'] , item['batch_date'], item['user_id']):
+                return {'error': 'Given lecture is already created.'}, 409
             lecture = model.Lecture()
             lecture.name = item['name']
+            lecture.topic = item['topic']
+            lecture.zoom_link = item['zoom_link']
             lecture.trainer_id = item['trainer_id']
-            lecture.course_id = item['course_id']
+            # lecture.course_id = item['course_id']
             lecture.course_mode_id = item['course_mode_id']
             lecture.batch_time_id = item['batch_time_id']
-            lecture.batch_id = item['batch_id']
+            lecture.json_batch_ids = item['json_batch_ids']
             lecture.user_id = item['user_id']
-            lecture.batch_date = datetime.datetime.strptime(item['batch_date'], '%d/%m/%y')
+            lecture.batch_date = datetime.datetime.strptime(item['batch_date'], '%d/%m/%Y')
             records_to_add.append(lecture)
         bulk_insert(records_to_add)
 
@@ -126,16 +131,18 @@ def add_lecture(current_user):
                 model.Lecture.name == lecture_name,
                 model.Lecture.deleted == 0
             ).first()
-            # Get students from the batch by lecture
-            students = app.session.query(model.Student).filter(
-                model.Student.batch_id==lecture.batch_id,
-                model.Student.deleted==0
-            ).all()
-            for student in students:
-                attendance = model.Attendance()
-                attendance.lecture_id = lecture.lecture_id
-                attendance.student_id = student.student_id
-                records_to_add.append(attendance)
+            batch_ids = json.loads(lecture.json_batch_ids)
+            for batch_id in batch_ids:
+                # Get students from the batch by lecture
+                students = app.session.query(model.Student).filter(
+                    model.Student.batch_id==batch_id,
+                    model.Student.deleted==0
+                ).all()
+                for student in students:
+                    attendance = model.Attendance()
+                    attendance.lecture_id = lecture.lecture_id
+                    attendance.student_id = student.student_id
+                    records_to_add.append(attendance)
         
         bulk_insert(records_to_add)
     return {'message': 'Lecture is created.'}, 201
@@ -159,6 +166,52 @@ def get_lecture(current_user):
         lecture_result = populate_lecture_record(lecture)
         results.append(lecture_result)
     return jsonify(results), 200
+
+
+@lecture_bp.route('/select-paginate-advanced', methods=['GET'])
+@token_required
+def get_paginated_lecture_advanced(current_user):
+    total_lectures = model.Lecture.query.filter(model.Lecture.deleted == 0).count()
+
+    # filtering data
+    query = app.session.query(model.Lecture)
+    query = query.filter(model.Lecture.deleted == 0)
+
+    if current_user.user_role_id == 4:  # role == trainer
+        trainer_id = app.session.query(model.Trainer.trainer_id).filter(model.Trainer.user_id == current_user.user_id, model.Trainer.deleted == 0).first()
+        if trainer_id:
+            trainer_id = trainer_id[0]
+        query = query.filter(model.Lecture.trainer_id == trainer_id)
+        total_lectures = model.Lecture.query.filter(model.Lecture.trainer_id == trainer_id, model.Lecture.deleted == 0).count()
+
+    # pagination
+    start = request.args.get('start', type=int)
+    length = request.args.get('length', type=int)
+    search_term = request.args.get('search[value]', type=str)
+    print('search_term: ', search_term)
+    query = query.filter(model.Lecture.name.like(f'{search_term}%')) if search_term else query
+
+    total_filtered_lecture = query.count()  # total filtered lecture
+    basic_stats = {
+        'total_lectures': total_filtered_lecture
+    }
+
+    query = query.order_by(desc(model.Lecture.batch_date)).offset(start).limit(length)
+
+    lectures = query.all()
+    lecture_results = []
+    for lecture in lectures:
+        lecture_result = populate_lecture_record(lecture)
+        lecture_results.append(lecture_result)
+    # response
+    return jsonify({
+        'data': lecture_results,
+        'recordsFiltered': total_filtered_lecture,
+        'recordsTotal': total_lectures,
+        'draw': request.args.get('draw', type=int),
+        'basic_stats': basic_stats
+    }), 200
+
 
 
 @lecture_bp.route('/attendance/<lecture_id>', methods=['GET'])
