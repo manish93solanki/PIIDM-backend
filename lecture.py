@@ -147,6 +147,27 @@ def add_lecture(current_user):
         bulk_insert(records_to_add)
     return {'message': 'Lecture is created.'}, 201
 
+
+# @lecture_bp.route('/update/<lecture_id>', methods=['PUT'])
+# @token_required
+# def update_lecture(current_user, lecture_id):
+#     try:
+#         if not request.is_json:
+#             return {'error': 'Bad Request.'}, 400
+#         data = request.get_json()
+#         records_to_add = []
+#         for item in data:
+#             lecture = model.Lecture.query.filter(model.Lecture.lecture_id == int(lecture_id)).first()
+#             for key, value in item.items():
+#                 if key == 'topic':
+#                     setattr(lecture, 'topic', item['topic'])
+#                 setattr(lecture, key, value)
+#             records_to_add.append(lecture)
+#         bulk_insert(records_to_add)
+#         return jsonify({'message': 'Successfully Updated.'}), 200
+#     except Exception as ex:
+#         return jsonify({'error': str(ex)}), 500
+
  
 @lecture_bp.route('/delete/<delete_id>', methods=['DELETE'])
 @token_required
@@ -159,8 +180,15 @@ def delete_lecture(current_user, delete_id):
 @lecture_bp.route('/all', methods=['GET'])
 @token_required
 def get_lecture(current_user):
-    cursor = app.session.query(model.Lecture).filter(model.Lecture.deleted==0).all()
-    lectures = list(cursor)
+    query = app.session.query(model.Lecture).filter(model.Lecture.deleted==0)
+
+    if current_user.user_role_id == 4:  # role == trainer
+        trainer_id = app.session.query(model.Trainer.trainer_id).filter(model.Trainer.user_id == current_user.user_id, model.Trainer.deleted == 0).first()
+        if trainer_id:
+            trainer_id = trainer_id[0]
+        query = query.filter(model.Lecture.trainer_id == trainer_id)
+
+    lectures = list(query.all())
     results = []
     for lecture in lectures:
         lecture_result = populate_lecture_record(lecture)
