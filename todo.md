@@ -187,7 +187,7 @@
 - [X] Show and update attendance for events - 5H
 - [X] Entire functionlity for lecture and attendances - 8H
 - [X] Combined batches for lectures and took attendance concurrently for combined batches - 6H
-- [X] Made changes for lecutures and attendances  - 6H
+- [X] Made changes for lecutures and attendances - 6H
 
 - [] Student can upload documents without taking admission, once they upload it, auto-admission can be done.
  
@@ -198,6 +198,9 @@
 - [X] Created endpoint for call logs and storing into DB - 7H
 - [X] Calling of endpoint from apk and related activity - 6H
 - [X] Ignoring duplicate call logs for each agent - 3H
+- [X] Student report UI developemnt - 2H
+- [X] Student report API creation - 4H
+- [X] Student report functionality - 6H
 
 - [] Automatically assign same Agent during lead creation if lead with same phone_num is already exist. ??
 - [] What if student modifies its phone_num or email with some numbers that doesn't have any user. ??

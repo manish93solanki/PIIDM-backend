@@ -50,7 +50,7 @@ def fetch_and_insert_data(last_submission_id):
                 submission_data['name'] = row_2['value'].replace('\'', ' ')
             elif row_2['key'] == 'email':
                 submission_data['email'] = row_2['value']
-            elif row_2['key'] == 'field_4b05454' or row_2['key'] == 'phone' :
+            elif row_2['key'] == 'field_4b05454' or row_2['key'] == 'field_a7b7060' or row_2['key'] == 'phone' :
                 phone_num = row_2['value']
                 if phone_num:
                     phone_num = phone_num.replace('+91', '')
