@@ -28,7 +28,7 @@ def is_student_report_exist(name, topic, trainer_id, course_mode_id, batch_time_
 
 def populate_student_report_record(student, attendance, placement, attendance_percentage):
     student_report_result = {
-        'student_name': student.name,
+        'student': student,
         'attendance': f'{attendance_percentage}%' if attendance_percentage else '',
         'assignment': '',
         'exam': '',
@@ -37,6 +37,10 @@ def populate_student_report_record(student, attendance, placement, attendance_pe
         'mock_interview': '',
         'placement_status': placement.status if placement else None,
     }
+    student_report_result['student'] = {}
+    for student_key in student.__table__.columns.keys():
+        student_value = getattr(student, student_key)
+        student_report_result['student'][student_key] = student_value
     return student_report_result
 
 
@@ -152,3 +156,22 @@ def get_paginated_student_report_advanced(current_user):
         'draw': request.args.get('draw', type=int),
         'basic_stats': basic_stats
     }), 200
+
+
+@student_report_bp.route('/attendance/show/<student_id>', methods=['GET'])
+@token_required
+def get_attendance(current_user, student_id):
+    student_id = int(student_id)
+
+    # Get Attendance 
+    attendances = app.session.query(model.Attendance).filter(
+        model.Attendance.student_id == student_id,
+        model.Attendance.deleted == 0
+    ).order_by(desc(model.Attendance.created_at)).all()
+    attendances = list(attendances)
+
+    results = []
+    for attendance in attendances:
+        attendance_result = populate_attendance_record(attendance)
+        results.append(attendance_result)
+    return jsonify(results), 200

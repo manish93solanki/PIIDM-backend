@@ -148,6 +148,33 @@ def add_lecture(current_user):
     return {'message': 'Lecture is created.'}, 201
 
 
+@lecture_bp.route('/update/<lecture_id>', methods=['PUT'])
+@token_required
+def update_lecture(current_user, lecture_id):
+    # batch_ids can not be changed.
+    if request.method == 'PUT':
+        if not request.is_json:
+            pass
+        data = request.get_json()
+        records_to_add = []
+        for item in data:
+            lecture = model.Lecture.query.filter(model.Lecture.lecture_id == int(lecture_id)).first()
+            print(lecture)
+            lecture.name = item['name']
+            lecture.topic = item['topic']
+            lecture.zoom_link = item['zoom_link']
+            lecture.trainer_id = item['trainer_id']
+            # lecture.course_id = item['course_id']
+            lecture.course_mode_id = item['course_mode_id']
+            lecture.batch_time_id = item['batch_time_id']
+            lecture.user_id = item['user_id']
+            lecture.batch_date = datetime.datetime.strptime(item['batch_date'], '%d/%m/%Y')
+            lecture.updated_at = datetime.datetime.now().replace(microsecond=0)
+            records_to_add.append(lecture)
+        bulk_insert(records_to_add)
+    return {'message': 'Lecture is updated.'}, 200
+
+
 # @lecture_bp.route('/update/<lecture_id>', methods=['PUT'])
 # @token_required
 # def update_lecture(current_user, lecture_id):
