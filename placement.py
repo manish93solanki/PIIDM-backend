@@ -246,11 +246,13 @@ def get_paginated_placements_advanced(current_user):
     #                                                                               model.Student.deleted == 0).all()
     all_students = app.session.query(model.Student.student_id).filter(model.Student.deleted == 0).all()
     all_students_ids = [x.student_id for x in all_students]
+
     # Fetch students who are already in placement section
     students_already_in_placements = app.session.query(model.Placement.student_id).filter(
         model.Placement.student_id.in_(all_students_ids), model.Placement.deleted == 0
     )
     students_already_in_placements_ids = [x.student_id for x in students_already_in_placements]
+
     # Get students who are new for the placements
     new_students_for_placements_ids = list(set(all_students_ids) - set(students_already_in_placements_ids))
 
@@ -264,12 +266,11 @@ def get_paginated_placements_advanced(current_user):
         placement.joined_course_for = student.purpose_for_course
         placement.education = student.highest_education
         placements.append(placement)
-    bulk_insert(placements)
 
     all_students_in_placements = model.Placement.query.filter(model.Placement.deleted == 0).all()
     all_students_in_placements_ids = [x.student_id for x in all_students_in_placements]
     delete_students_from_placement = list(set(all_students_in_placements_ids) - set(all_students_ids))
-    placements = []
+
     for delete_student_id in delete_students_from_placement:
         for placement in model.Placement.query.filter(model.Placement.student_id == delete_student_id).all():
             placement.deleted = 1

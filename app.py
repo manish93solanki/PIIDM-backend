@@ -92,6 +92,11 @@ app.register_blueprint(lecture_bp)
 app.register_blueprint(student_report_bp)
 
 
+@app.teardown_request
+def teardown_session(exception=None):
+    app.session.close()
+    app.session.remove()
+
 @app.route('/download/<path:path>')
 def send_report(path):
     return send_from_directory('.', path, as_attachment=True)
