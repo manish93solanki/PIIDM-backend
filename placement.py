@@ -237,9 +237,9 @@ def get_placements(current_user):
     return jsonify(results), 200
 
 
-@placement_bp.route('/refresh-students-1', methods=['POST'])
+@placement_bp.route('/refresh-students', methods=['POST'])
 @token_required
-def refresh_placements_students_1(current_user):
+def refresh_placements_students(current_user):
     try:
         if request.method == 'POST':
             if not request.is_json:
@@ -273,35 +273,18 @@ def refresh_placements_students_1(current_user):
                 placements.append(placement)
             bulk_insert(placements)
             
-        return jsonify({'message': 'Successfully refresh placements students data - 1.'}), 201
-    except Exception as ex:
-        return jsonify({'error': str(ex)}), 500
-
-
-@placement_bp.route('/refresh-students-2', methods=['POST'])
-@token_required
-def refresh_placements_students_2(current_user):
-    try:
-        if request.method == 'POST':
-            if not request.is_json:
-                return {'error': 'Bad Request.'}, 400
-            
-            all_students = app.session.query(model.Student.student_id).filter(model.Student.deleted == 0).all()
-            all_students_ids = [x.student_id for x in all_students]
             all_students_in_placements = model.Placement.query.filter(model.Placement.deleted == 0).all()
             all_students_in_placements_ids = [x.student_id for x in all_students_in_placements]
             delete_students_from_placement = list(set(all_students_in_placements_ids) - set(all_students_ids))
-            print('delete_students_from_placement: ', len(delete_students_from_placement))
 
             records_to_update = []
             placements = model.Placement.query.filter(model.Placement.student_id.in_(delete_students_from_placement)).all()
-            print('placements: ', len(placements))
             for placement in placements:
                 placement.deleted = 1
                 records_to_update.append(placement)
             bulk_insert(records_to_update)
             
-        return jsonify({'message': 'Successfully refresh placements students data - 2.'}), 201
+        return jsonify({'message': 'Successfully refresh placements students data.'}), 201
     except Exception as ex:
         return jsonify({'error': str(ex)}), 500
 
