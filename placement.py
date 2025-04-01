@@ -291,8 +291,10 @@ def refresh_placements_students_2(current_user):
             all_students_in_placements = model.Placement.query.filter(model.Placement.deleted == 0).all()
             all_students_in_placements_ids = [x.student_id for x in all_students_in_placements]
             delete_students_from_placement = list(set(all_students_in_placements_ids) - set(all_students_ids))
+            print('delete_students_from_placement: ', len(delete_students_from_placement))
 
             placements = model.Placement.query.filter(model.Placement.student_id.in_(delete_students_from_placement)).all()
+            print('placements: ', len(placements))
             for placement in placements:
                 placement.deleted = 1
                 placements.append(placement)
