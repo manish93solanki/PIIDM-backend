@@ -293,12 +293,13 @@ def refresh_placements_students_2(current_user):
             delete_students_from_placement = list(set(all_students_in_placements_ids) - set(all_students_ids))
             print('delete_students_from_placement: ', len(delete_students_from_placement))
 
+            records_to_update = []
             placements = model.Placement.query.filter(model.Placement.student_id.in_(delete_students_from_placement)).all()
             print('placements: ', len(placements))
             for placement in placements:
                 placement.deleted = 1
-                placements.append(placement)
-            bulk_insert(placements)
+                records_to_update.append(placement)
+            bulk_insert(records_to_update)
             
         return jsonify({'message': 'Successfully refresh placements students data - 2.'}), 201
     except Exception as ex:
