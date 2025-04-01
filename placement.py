@@ -273,9 +273,9 @@ def refresh_placements_students(current_user):
                 placement.joined_course_for = student.purpose_for_course
                 placement.education = student.highest_education
                 placements.append(placement)
-            bulk_insert(placements)
+            # bulk_insert(placements)
 
-            placements = []
+            # placements = []
             all_students_in_placements = model.Placement.query.filter(model.Placement.deleted == 0).all()
             all_students_in_placements_ids = [x.student_id for x in all_students_in_placements]
             delete_students_from_placement = list(set(all_students_in_placements_ids) - set(all_students_ids))
