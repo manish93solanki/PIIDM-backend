@@ -237,16 +237,14 @@ def get_placements(current_user):
     return jsonify(results), 200
 
 
-@placement_bp.route('/refresh-students', methods=['POST'])
+@placement_bp.route('/refresh-students-1', methods=['POST'])
 @token_required
-def refresh_placements_students(current_user):
+def refresh_placements_students_1(current_user):
     try:
         if request.method == 'POST':
             if not request.is_json:
                 return {'error': 'Bad Request.'}, 400
-            data = request.get_json()
-            records_to_add = []
-
+            
             # Sync students - Insertion
             # Fetch students who paid the fees fully
             # students_paid_fees_fully = app.session.query(model.Student.student_id).filter(model.Student.total_pending_fee <= 0,
@@ -273,9 +271,24 @@ def refresh_placements_students(current_user):
                 placement.joined_course_for = student.purpose_for_course
                 placement.education = student.highest_education
                 placements.append(placement)
-            # bulk_insert(placements)
+            bulk_insert(placements)
+            
+        return jsonify({'message': 'Successfully refresh placements students data - 1.'}), 201
+    except Exception as ex:
+        return jsonify({'error': str(ex)}), 500
 
-            # placements = []
+
+@placement_bp.route('/refresh-students-2', methods=['POST'])
+@token_required
+def refresh_placements_students_2(current_user):
+    try:
+        if request.method == 'POST':
+            if not request.is_json:
+                return {'error': 'Bad Request.'}, 400
+            placements = []
+            
+            all_students = app.session.query(model.Student.student_id).filter(model.Student.deleted == 0).all()
+            all_students_ids = [x.student_id for x in all_students]
             all_students_in_placements = model.Placement.query.filter(model.Placement.deleted == 0).all()
             all_students_in_placements_ids = [x.student_id for x in all_students_in_placements]
             delete_students_from_placement = list(set(all_students_in_placements_ids) - set(all_students_ids))
@@ -286,7 +299,7 @@ def refresh_placements_students(current_user):
                     placements.append(placement)
             bulk_insert(placements)
             
-        return jsonify({'message': 'Successfully refresh placements students data.'}), 201
+        return jsonify({'message': 'Successfully refresh placements students data - 2.'}), 201
     except Exception as ex:
         return jsonify({'error': str(ex)}), 500
 
