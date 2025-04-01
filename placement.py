@@ -285,7 +285,6 @@ def refresh_placements_students_2(current_user):
         if request.method == 'POST':
             if not request.is_json:
                 return {'error': 'Bad Request.'}, 400
-            placements = []
             
             all_students = app.session.query(model.Student.student_id).filter(model.Student.deleted == 0).all()
             all_students_ids = [x.student_id for x in all_students]
@@ -293,10 +292,10 @@ def refresh_placements_students_2(current_user):
             all_students_in_placements_ids = [x.student_id for x in all_students_in_placements]
             delete_students_from_placement = list(set(all_students_in_placements_ids) - set(all_students_ids))
 
-            for delete_student_id in delete_students_from_placement:
-                for placement in model.Placement.query.filter(model.Placement.student_id == delete_student_id).all():
-                    placement.deleted = 1
-                    placements.append(placement)
+            placements = model.Placement.query.filter(model.Placement.student_id.in_(delete_students_from_placement)).all()
+            for placement in placements:
+                placement.deleted = 1
+                placements.append(placement)
             bulk_insert(placements)
             
         return jsonify({'message': 'Successfully refresh placements students data - 2.'}), 201
