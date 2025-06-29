@@ -562,3 +562,42 @@ class Attendance(db.Model):
     lecture = relationship('Lecture')
     student = relationship('Student')
 
+
+class Assignment(db.Model):
+    __tablename__ = 'assignment'
+
+    assignment_id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(Text, nullable=True)
+    description = Column(Text, nullable=True)
+    assignment_date = Column(Date, nullable=True)
+    total_marks = Column(Integer, nullable=True)
+    trainer_id = Column(ForeignKey('trainer.trainer_id'), nullable=True)
+    json_batch_ids = Column(Text, nullable=True)
+    is_active = Column(Integer, nullable=False, default=1)
+    is_assigned_to_students = Column(Integer, nullable=False, default=0) #0=not_assigned, 1=assigned
+    user_id = Column(ForeignKey('user.user_id'), nullable=True)
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    trainer = relationship('Trainer')
+    user = relationship('User')
+
+
+
+class Submission(db.Model):
+    __tablename__ = 'submission'
+
+    submission_id = Column(Integer, primary_key=True, autoincrement=True)
+    assignment_id = Column(ForeignKey('assignment.assignment_id'), nullable=False)
+    student_id = Column(ForeignKey('student.student_id'), nullable=False)
+    document_uploaded_path = Column(Text, nullable=True)
+    marks_obtained = Column(Integer, nullable=True)
+    submission_status = Column(Integer, nullable=False, default=0)  # #0=not_submitted #1=accepted #2=rejected
+    deleted = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+
+    assignment = relationship('Assignment')
+    student = relationship('Student')
+

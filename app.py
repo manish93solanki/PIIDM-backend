@@ -33,6 +33,7 @@ from placement import placement_bp
 from call_logs import call_logs_bp
 from resume import resume_bp
 from lecture import lecture_bp
+from assignment import assignment_bp
 from student_report import student_report_bp
 from flask import send_from_directory
 
@@ -89,6 +90,7 @@ app.register_blueprint(call_logs_bp)
 app.register_blueprint(course_category_bp)
 app.register_blueprint(resume_bp)
 app.register_blueprint(lecture_bp)
+app.register_blueprint(assignment_bp)
 app.register_blueprint(student_report_bp)
 
 
