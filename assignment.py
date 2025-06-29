@@ -369,7 +369,6 @@ def get_submission_by_student(current_user, assignment_id):
     
     assignment_id = int(assignment_id)
     student_id = int(student.student_id)
-    print('assignment_id: ', assignment_id, 'student_id: ', student_id)
 
     # Get Submission
     submission = app.session.query(model.Submission).filter(

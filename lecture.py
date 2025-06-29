@@ -317,3 +317,34 @@ def update_attendance(current_user):
                     break
         bulk_insert(records_to_add)
     return {'message': 'Attendance updated.'}, 201
+
+
+# /***  APIs for student ***/
+
+@lecture_bp.route('/student/attendance', methods=['GET'])
+@token_required
+def get_all_attendances_by_student(current_user):
+    if current_user.user_role_id != 3:  # role == student
+        return {'error': 'You are not allowed to view the assignment'}, 403
+    student = app.session.query(model.Student).filter(model.Student.user_id == current_user.user_id).first()
+    if not student:
+        return {'error': 'Student does not exist.'}, 403
+    
+    student_id = int(student.student_id)
+
+    # Get Attendance 
+    attendances = app.session.query(model.Attendance).filter(
+        model.Attendance.student_id==student_id,
+        model.Attendance.deleted==0
+    ).all()
+    attendances = list(attendances)
+
+    if not attendances:
+        # No attendance for newly created lecture
+        return {'error': 'No attendance for the student.'}, 409
+
+    results = []
+    for attendance in attendances:
+        attendance_result = populate_attendance_record(attendance)
+        results.append(attendance_result)
+    return jsonify(results), 200
