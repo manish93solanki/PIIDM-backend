@@ -192,6 +192,9 @@
 - [X] Student report API creation - 4H
 - [X] Student report functionality - 7H
 - [X] Show attendance for student on click, update lecture - 8H
+- [X] Fixing bug for hr placement - 6H
+- [X] Assignment feature - 16H
+- [X] Updated Video Lessons - 6H
 
 http://bookmark.iide.co
 - [] Allow edit in lecture
