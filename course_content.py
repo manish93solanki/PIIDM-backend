@@ -1,6 +1,6 @@
-from flask import current_app as app, request, Blueprint, jsonify
+from flask import current_app as app, request, Blueprint, jsonify, send_file
 from sqlalchemy import or_
-
+import datetime
 import model
 from auth_middleware import token_required
 from db_operations import bulk_insert, insert_single_record
@@ -153,4 +153,19 @@ def get_paginated_course_contents_advanced(current_user):
     }), 200
     # except Exception as ex:
     #     return jsonify({'error': str(ex)}), 500
+
+
+@course_content_bp.route('/upload-image', methods=['POST'])
+@token_required
+def upload_image(current_user):
+    image = request.files["image"]
+    image_path = f'data/uploaded_course_feature_images/{datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")}-{image.filename}'
+    image.save(image_path)
+    return jsonify({'message': 'Image uploaded successfully.', 'data': image_path}), 201
+
+
+@course_content_bp.route('/get-image', methods=['GET'])
+def get_image():
+    image_path = request.args.get('image_path')
+    return send_file(image_path, mimetype='image/gif')
 

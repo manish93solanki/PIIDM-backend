@@ -95,7 +95,8 @@ class CourseContent(db.Model):
 
     course_content_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(VARCHAR(255), unique=True, nullable=False)
-    instructor_name = Column(VARCHAR(255), nullable=False)
+    description = Column(Text, nullable=True)
+    feature_image = Column(Text, nullable=True)
     json_modules = Column(Text, nullable=True)
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
