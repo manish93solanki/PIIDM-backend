@@ -348,3 +348,36 @@ def get_all_attendances_by_student(current_user):
         attendance_result = populate_attendance_record(attendance)
         results.append(attendance_result)
     return jsonify(results), 200
+
+
+@lecture_bp.route('/student/lectures', methods=['GET'])
+@token_required
+def get_lectures_by_student(current_user):
+    if current_user.user_role_id != 3:  # role == student
+        return {'error': 'You are not allowed to view the lectures'}, 403
+    student = app.session.query(model.Student).filter(model.Student.user_id == current_user.user_id).first()
+    if not student:
+        return {'error': 'Student does not exist.'}, 403
+
+    student_id = int(student.student_id)
+
+    # Get all attendance records for the student
+    attendances = app.session.query(model.Attendance).filter(
+        model.Attendance.student_id == student_id,
+        model.Attendance.deleted == 0
+    ).all()
+
+    lecture_ids = {attendance.lecture_id for attendance in attendances}
+    if not lecture_ids:
+        return {'error': 'No lectures found for the student.'}, 409
+
+    lectures = app.session.query(model.Lecture).filter(
+        model.Lecture.lecture_id.in_(lecture_ids),
+        model.Lecture.deleted == 0
+    ).all()
+
+    results = []
+    for lecture in lectures:
+        lecture_result = populate_lecture_record(lecture)
+        results.append(lecture_result)
+    return jsonify(results), 200
