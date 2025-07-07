@@ -193,8 +193,12 @@
 - [X] Student report functionality - 7H
 - [X] Show attendance for student on click, update lecture - 8H
 - [X] Fixing bug for hr placement - 6H
+- [X] Manually deleted the lecture and attendence - 1H
+- [X] Added one more condition for phone_number fetching to get leads - 2H
 - [X] Assignment feature - 16H
 - [X] Updated Video Lessons - 6H
+- [X] Show all lectures by student - Live Sessions - 4H
+- [X] New APIs to view assignment & receipts - 5H
 
 http://bookmark.iide.co
 - [] Allow edit in lecture

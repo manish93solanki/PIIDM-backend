@@ -102,6 +102,21 @@ def fetch_student_by_student_id(student_id):
     return record
 
 
+def fetch_all_receipts_by_student(student_id):
+    return app.session.query(model.Receipt).filter(
+        model.Receipt.student_id == student_id,
+        model.Receipt.deleted == 0
+    ).order_by(model.Receipt.installment_payment_date).all()
+
+
+def fetch_all_receipts_by_student_and_course(student_id, course_id):
+    return app.session.query(model.Receipt).filter(
+        model.Receipt.student_id == student_id,
+        model.Receipt.student.has(model.Student.course_id == course_id),
+        model.Receipt.deleted == 0
+    ).order_by(model.Receipt.installment_payment_date).all()
+
+
 @receipt_bp.route('/delete/<receipt_id>', methods=['DELETE'])
 @token_required
 def soft_delete_receipt(current_user, receipt_id):
@@ -228,3 +243,27 @@ def get_paginated_students_advanced(current_user):
     }), 200
     # except Exception as ex:
     #     return jsonify({'error': str(ex)}), 500
+
+
+# /***  APIs for student ***/
+
+@receipt_bp.route('/installments/view_by_course/<course_id>', methods=['GET'])
+@token_required
+def get_students_installments_by_course(current_user, course_id):
+    if current_user.user_role_id != 3:  # role == student
+        return {'error': 'You are not allowed to view the assignment'}, 403
+    
+    student = app.session.query(model.Student).filter(
+        model.Student.user_id == current_user.user_id,
+        model.Student.course_id == int(course_id),
+        model.Student.deleted == 0,
+    ).first()
+    if not student:
+        return {'error': 'Student does not exist.'}, 403
+    
+    installments = []
+    receipt_records = fetch_all_receipts_by_student_and_course(student.student_id, course_id)
+    for receipt in receipt_records:
+        receipt_result = populate_receipt_record(receipt)
+        installments.append(receipt_result)
+    return jsonify(installments), 200

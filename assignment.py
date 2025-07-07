@@ -358,6 +358,34 @@ def view_assignment(current_user, assignment_id):
     return jsonify(assignment_result), 200
 
 
+@assignment_bp.route('/student/view_by_course/<course_id>', methods=['GET'])
+@token_required
+def view_assignment_by_course(current_user, course_id):
+    # View all assignments for a student in a given course.
+    if current_user.user_role_id != 3:  # role == student
+        return {'error': 'You are not allowed to view the assignment'}, 403
+    
+    student = app.session.query(model.Student).filter(
+        model.Student.user_id == current_user.user_id,
+        model.Student.course_id == int(course_id),
+        model.Student.deleted == 0,
+    ).first()
+    if not student:
+        return {'error': 'Student does not exist.'}, 403
+
+    # Find assignments for the student's batch and given course_id
+    assignments = app.session.query(model.Assignment).filter(
+        model.Assignment.deleted == 0,
+        model.Assignment.json_batch_ids.like(f'%{student.batch_id}%'),
+    ).all()
+
+    if not assignments:
+        return {'error': 'No assignments found for this course.'}, 404
+
+    results = [populate_assignment_record(a) for a in assignments]
+    return jsonify(results), 200
+
+
 @assignment_bp.route('/student/submission/view/<assignment_id>', methods=['GET'])
 @token_required
 def get_submission_by_student(current_user, assignment_id):
