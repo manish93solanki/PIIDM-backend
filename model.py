@@ -594,6 +594,7 @@ class Submission(db.Model):
     student_id = Column(ForeignKey('student.student_id'), nullable=False)
     document_uploaded_path = Column(Text, nullable=True)
     marks_obtained = Column(Integer, nullable=True)
+    feedback = Column(Text, nullable=True)
     submission_status = Column(Integer, nullable=False, default=0)  # #0=not_submitted #1=accepted #2=rejected
     deleted = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())

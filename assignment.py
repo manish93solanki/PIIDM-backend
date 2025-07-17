@@ -312,6 +312,7 @@ def update_submission(current_user, assignment_id):
             for submission in submissions:
                 if submission.submission_id == item['submission_id']:
                     submission.marks_obtained = item['marks_obtained']
+                    submission.feedback = item['feedback']
                     submission.submission_status = item['submission_status']
                     submission.updated_at = datetime.datetime.now()
                     records_to_add.append(submission)
