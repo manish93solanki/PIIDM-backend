@@ -436,6 +436,10 @@ def upload_submission(current_user, assignment_id):
     ).first()
     if not submission:
         return {'error': 'No submission found for the given assignment and student.'}, 404
+    
+    if submission.submission_status == 2:  # If the submission was rejected, we allow re-submission
+        submission.submission_status = 3
+
     submission.document_uploaded_path = file_path
     submission.updated_at = datetime.datetime.now()
     records_to_update.append(submission)
